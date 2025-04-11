@@ -48,11 +48,7 @@ allprojects {
   }
   tasks.withType<JavaCompile> {
     sourceCompatibility = "17"
-    if (project.name != "core") {
-      options.release.set(11)
-    } else {
-      options.release.set(8)
-    }
+    options.release.set(17)
     dependsOn(submodulesUpdate)
   }
 
