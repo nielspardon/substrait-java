@@ -62,7 +62,7 @@ public class SchemaCollector {
     return rootSchema;
   }
 
-  static class TableGatherer extends RelCopyOnWriteVisitor<RuntimeException> {
+  static final class TableGatherer extends RelCopyOnWriteVisitor<RuntimeException> {
     Map<List<String>, NamedStruct> tableMap;
 
     private TableGatherer() {

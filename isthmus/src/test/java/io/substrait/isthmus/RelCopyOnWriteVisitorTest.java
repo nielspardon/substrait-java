@@ -161,7 +161,7 @@ public class RelCopyOnWriteVisitorTest extends PlanTestBase {
     assertPlanRoundtrip(newPlan);
   }
 
-  private static class HasTableReference {
+  private static final class HasTableReference {
     public boolean hasTableReference(Plan plan, String name) {
       HasTableReferenceVisitor visitor = new HasTableReferenceVisitor(Arrays.asList(name));
       plan.getRoots().stream().forEach(r -> r.getInput().accept(visitor, null));
@@ -194,7 +194,7 @@ public class RelCopyOnWriteVisitorTest extends PlanTestBase {
   public static SimpleExtension.FunctionAnchor COUNT =
       SimpleExtension.FunctionAnchor.of("/functions_aggregate_generic.yaml", "count:any");
 
-  private static class CountCountDistinct {
+  private static final class CountCountDistinct {
 
     public int getCountDistincts(Plan plan) {
       CountCountDistinctVisitor visitor = new CountCountDistinctVisitor();
@@ -202,7 +202,8 @@ public class RelCopyOnWriteVisitorTest extends PlanTestBase {
       return visitor.getCountDistincts();
     }
 
-    private static class CountCountDistinctVisitor extends RelCopyOnWriteVisitor<RuntimeException> {
+    private static final class CountCountDistinctVisitor
+        extends RelCopyOnWriteVisitor<RuntimeException> {
       private int countDistincts;
 
       public int getCountDistincts() {
@@ -225,7 +226,7 @@ public class RelCopyOnWriteVisitorTest extends PlanTestBase {
     }
   }
 
-  private static class CountApproxCountDistinct {
+  private static final class CountApproxCountDistinct {
 
     public int getApproxCountDistincts(Plan plan) {
       CountCountDistinctVisitor visitor = new CountCountDistinctVisitor();
@@ -233,7 +234,8 @@ public class RelCopyOnWriteVisitorTest extends PlanTestBase {
       return visitor.getApproxCountDistincts();
     }
 
-    private static class CountCountDistinctVisitor extends RelCopyOnWriteVisitor<RuntimeException> {
+    private static final class CountCountDistinctVisitor
+        extends RelCopyOnWriteVisitor<RuntimeException> {
       private int aproxCountDistincts;
 
       public int getApproxCountDistincts() {

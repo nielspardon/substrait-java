@@ -34,9 +34,10 @@ public interface Expression extends FunctionArg {
   <R, C, E extends Throwable> R accept(ExpressionVisitor<R, C, E> visitor, C context) throws E;
 
   @Value.Immutable
-  abstract static class NullLiteral implements Literal {
+  abstract class NullLiteral implements Literal {
     public abstract Type type();
 
+    @Override
     public Type getType() {
       return type();
     }
@@ -53,9 +54,10 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class BoolLiteral implements Literal {
+  abstract class BoolLiteral implements Literal {
     public abstract Boolean value();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).BOOLEAN;
     }
@@ -72,9 +74,10 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class I8Literal implements Literal {
+  abstract class I8Literal implements Literal {
     public abstract int value();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).I8;
     }
@@ -91,9 +94,10 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class I16Literal implements Literal {
+  abstract class I16Literal implements Literal {
     public abstract int value();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).I16;
     }
@@ -110,9 +114,10 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class I32Literal implements Literal {
+  abstract class I32Literal implements Literal {
     public abstract int value();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).I32;
     }
@@ -129,9 +134,10 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class I64Literal implements Literal {
+  abstract class I64Literal implements Literal {
     public abstract long value();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).I64;
     }
@@ -148,9 +154,10 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class FP32Literal implements Literal {
+  abstract class FP32Literal implements Literal {
     public abstract float value();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).FP32;
     }
@@ -167,9 +174,10 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class FP64Literal implements Literal {
+  abstract class FP64Literal implements Literal {
     public abstract double value();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).FP64;
     }
@@ -186,9 +194,10 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class StrLiteral implements Literal {
+  abstract class StrLiteral implements Literal {
     public abstract String value();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).STRING;
     }
@@ -205,9 +214,10 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class BinaryLiteral implements Literal {
+  abstract class BinaryLiteral implements Literal {
     public abstract ByteString value();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).BINARY;
     }
@@ -224,9 +234,10 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class TimestampLiteral implements Literal {
+  abstract class TimestampLiteral implements Literal {
     public abstract long value();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).TIMESTAMP;
     }
@@ -243,9 +254,10 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class TimeLiteral implements Literal {
+  abstract class TimeLiteral implements Literal {
     public abstract long value();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).TIME;
     }
@@ -262,9 +274,10 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class DateLiteral implements Literal {
+  abstract class DateLiteral implements Literal {
     public abstract int value();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).DATE;
     }
@@ -280,9 +293,10 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class TimestampTZLiteral implements Literal {
+  abstract class TimestampTZLiteral implements Literal {
     public abstract long value();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).TIMESTAMP_TZ;
     }
@@ -299,11 +313,12 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class PrecisionTimestampLiteral implements Literal {
+  abstract class PrecisionTimestampLiteral implements Literal {
     public abstract long value();
 
     public abstract int precision();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).precisionTimestamp(precision());
     }
@@ -320,11 +335,12 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class PrecisionTimestampTZLiteral implements Literal {
+  abstract class PrecisionTimestampTZLiteral implements Literal {
     public abstract long value();
 
     public abstract int precision();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).precisionTimestampTZ(precision());
     }
@@ -341,11 +357,12 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class IntervalYearLiteral implements Literal {
+  abstract class IntervalYearLiteral implements Literal {
     public abstract int years();
 
     public abstract int months();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).INTERVAL_YEAR;
     }
@@ -362,7 +379,7 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class IntervalDayLiteral implements Literal {
+  abstract class IntervalDayLiteral implements Literal {
     public abstract int days();
 
     public abstract int seconds();
@@ -371,6 +388,7 @@ public interface Expression extends FunctionArg {
 
     public abstract int precision();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).intervalDay(precision());
     }
@@ -387,7 +405,7 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class IntervalCompoundLiteral implements Literal {
+  abstract class IntervalCompoundLiteral implements Literal {
     // Flattened IntervalYearLiteral
     public abstract int years();
 
@@ -402,6 +420,7 @@ public interface Expression extends FunctionArg {
 
     public abstract int precision();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).intervalCompound(precision());
     }
@@ -418,9 +437,10 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class UUIDLiteral implements Literal {
+  abstract class UUIDLiteral implements Literal {
     public abstract UUID value();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).UUID;
     }
@@ -445,9 +465,10 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class FixedCharLiteral implements Literal {
+  abstract class FixedCharLiteral implements Literal {
     public abstract String value();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).fixedChar(value().length());
     }
@@ -464,11 +485,12 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class VarCharLiteral implements Literal {
+  abstract class VarCharLiteral implements Literal {
     public abstract String value();
 
     public abstract int length();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).varChar(length());
     }
@@ -485,9 +507,10 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class FixedBinaryLiteral implements Literal {
+  abstract class FixedBinaryLiteral implements Literal {
     public abstract ByteString value();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).fixedBinary(value().size());
     }
@@ -504,13 +527,14 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class DecimalLiteral implements Literal {
+  abstract class DecimalLiteral implements Literal {
     public abstract ByteString value();
 
     public abstract int precision();
 
     public abstract int scale();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).decimal(precision(), scale());
     }
@@ -527,9 +551,10 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class MapLiteral implements Literal {
+  abstract class MapLiteral implements Literal {
     public abstract Map<Literal, Literal> values();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable())
           .map(
@@ -549,11 +574,12 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class EmptyMapLiteral implements Literal {
+  abstract class EmptyMapLiteral implements Literal {
     public abstract Type keyType();
 
     public abstract Type valueType();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).map(keyType(), valueType());
     }
@@ -570,9 +596,10 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class ListLiteral implements Literal {
+  abstract class ListLiteral implements Literal {
     public abstract List<Literal> values();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).list(values().get(0).getType());
     }
@@ -609,9 +636,10 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class StructLiteral implements Literal {
+  abstract class StructLiteral implements Literal {
     public abstract List<Literal> fields();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable())
           .struct(
@@ -632,13 +660,14 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class UserDefinedLiteral implements Literal {
+  abstract class UserDefinedLiteral implements Literal {
     public abstract ByteString value();
 
     public abstract String uri();
 
     public abstract String name();
 
+    @Override
     public Type getType() {
       return Type.withNullability(nullable()).userDefined(uri(), name());
     }
@@ -655,13 +684,14 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class Switch implements Expression {
+  abstract class Switch implements Expression {
     public abstract Expression match();
 
     public abstract List<SwitchClause> switchClauses();
 
     public abstract Expression defaultClause();
 
+    @Override
     public Type getType() {
       return defaultClause().getType();
     }
@@ -678,7 +708,7 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class SwitchClause {
+  abstract class SwitchClause {
     public abstract Literal condition();
 
     public abstract Expression then();
@@ -689,11 +719,12 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class IfThen implements Expression {
+  abstract class IfThen implements Expression {
     public abstract List<IfClause> ifClauses();
 
     public abstract Expression elseClause();
 
+    @Override
     public Type getType() {
       Type elseType = elseClause().getType();
 
@@ -716,7 +747,7 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class IfClause {
+  abstract class IfClause {
     public abstract Expression condition();
 
     public abstract Expression then();
@@ -727,13 +758,14 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class Cast implements Expression {
+  abstract class Cast implements Expression {
     public abstract Type type();
 
     public abstract Expression input();
 
     public abstract FailureBehavior failureBehavior();
 
+    @Override
     public Type getType() {
       return type();
     }
@@ -750,7 +782,7 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class ScalarFunctionInvocation implements Expression {
+  abstract class ScalarFunctionInvocation implements Expression {
     public abstract SimpleExtension.ScalarFunctionVariant declaration();
 
     public abstract List<FunctionArg> arguments();
@@ -759,6 +791,7 @@ public interface Expression extends FunctionArg {
 
     public abstract Type outputType();
 
+    @Override
     public Type getType() {
       return outputType();
     }
@@ -797,6 +830,7 @@ public interface Expression extends FunctionArg {
 
     public abstract Type outputType();
 
+    @Override
     public Type getType() {
       return outputType();
     }
@@ -842,11 +876,12 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class SingleOrList implements Expression {
+  abstract class SingleOrList implements Expression {
     public abstract Expression condition();
 
     public abstract List<Expression> options();
 
+    @Override
     public Type getType() {
       return TypeCreator.NULLABLE.BOOLEAN;
     }
@@ -863,11 +898,12 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class MultiOrList implements Expression {
+  abstract class MultiOrList implements Expression {
     public abstract List<Expression> conditions();
 
     public abstract List<MultiOrListRecord> optionCombinations();
 
+    @Override
     public Type getType() {
       return TypeCreator.NULLABLE.BOOLEAN;
     }
@@ -884,7 +920,7 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class MultiOrListRecord {
+  abstract class MultiOrListRecord {
     public abstract List<Expression> values();
 
     public static ImmutableExpression.MultiOrListRecord.Builder builder() {
@@ -893,7 +929,7 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class SortField {
+  abstract class SortField {
     public abstract Expression expr();
 
     public abstract SortDirection direction();
@@ -906,11 +942,12 @@ public interface Expression extends FunctionArg {
   interface Subquery extends Expression {}
 
   @Value.Immutable
-  abstract static class SetPredicate implements Subquery {
+  abstract class SetPredicate implements Subquery {
     public abstract PredicateOp predicateOp();
 
     public abstract Rel tuples();
 
+    @Override
     public Type getType() {
       return TypeCreator.REQUIRED.BOOLEAN;
     }
@@ -927,7 +964,7 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class ScalarSubquery implements Subquery {
+  abstract class ScalarSubquery implements Subquery {
     public abstract Rel input();
 
     public static ImmutableExpression.ScalarSubquery.Builder builder() {
@@ -942,11 +979,12 @@ public interface Expression extends FunctionArg {
   }
 
   @Value.Immutable
-  abstract static class InPredicate implements Subquery {
+  abstract class InPredicate implements Subquery {
     public abstract Rel haystack();
 
     public abstract List<Expression> needles();
 
+    @Override
     public Type getType() {
       return TypeCreator.REQUIRED.BOOLEAN;
     }

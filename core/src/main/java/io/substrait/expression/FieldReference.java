@@ -10,7 +10,6 @@ import org.immutables.value.Value;
 
 @Value.Immutable
 public abstract class FieldReference implements Expression {
-  static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(FieldReference.class);
 
   public abstract List<ReferenceSegment> segments();
 
@@ -20,6 +19,7 @@ public abstract class FieldReference implements Expression {
 
   public abstract Optional<Integer> outerReferenceStepsOut();
 
+  @Override
   public Type getType() {
     return type();
   }
@@ -245,7 +245,7 @@ public abstract class FieldReference implements Expression {
     return of(struct, null, segments);
   }
 
-  private static class StructFieldFinder
+  private static final class StructFieldFinder
       extends TypeVisitor.TypeThrowsVisitor<Type, RuntimeException> {
 
     private final int index;
@@ -269,7 +269,7 @@ public abstract class FieldReference implements Expression {
     }
   }
 
-  private static class ListIndexFinder
+  private static final class ListIndexFinder
       extends TypeVisitor.TypeThrowsVisitor<Type, RuntimeException> {
 
     private final int index;
@@ -290,7 +290,8 @@ public abstract class FieldReference implements Expression {
     }
   }
 
-  private static class MapKeyFinder extends TypeVisitor.TypeThrowsVisitor<Type, RuntimeException> {
+  private static final class MapKeyFinder
+      extends TypeVisitor.TypeThrowsVisitor<Type, RuntimeException> {
 
     private final Type keyType;
 

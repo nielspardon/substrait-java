@@ -109,7 +109,7 @@ public class PreCalciteAggregateValidator {
     return true;
   }
 
-  public static class PreCalciteAggregateTransformer {
+  public static final class PreCalciteAggregateTransformer {
 
     // New expressions to include in the project before the aggregate
     private final List<Expression> newExpressions;

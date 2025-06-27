@@ -491,7 +491,7 @@ public class ExpressionRexConverter
     return RexSubQuery.in(rel, ImmutableList.copyOf(needles));
   }
 
-  static class ToRexWindowBound
+  protected static final class ToRexWindowBound
       implements WindowBound.WindowBoundVisitor<RexWindowBound, RuntimeException> {
 
     static RexWindowBound lowerBound(RexBuilder rexBuilder, WindowBound bound) {

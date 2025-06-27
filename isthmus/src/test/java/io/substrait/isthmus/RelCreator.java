@@ -27,8 +27,6 @@ import org.apache.calcite.sql2rel.StandardConvertletTable;
 import org.apache.calcite.tools.RelBuilder;
 
 public class RelCreator {
-  static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(RelCreator.class);
-
   private RelOptCluster cluster;
   private CalciteCatalogReader catalog;
 
@@ -62,7 +60,7 @@ public class RelCreator {
       RelRoot root = converter.convertQuery(parsed, true, true);
       return root;
     } catch (SqlParseException e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException(e);
     }
   }
 

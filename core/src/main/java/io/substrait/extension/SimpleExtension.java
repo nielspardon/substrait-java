@@ -28,11 +28,13 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.immutables.value.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Classes used to deserialize YAML extension files. Handles functions and types. */
 @Value.Enclosing
-public class SimpleExtension {
-  static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SimpleExtension.class);
+public final class SimpleExtension {
+  private static final Logger LOGGER = LoggerFactory.getLogger(SimpleExtension.class);
 
   // Key for looking up URI in InjectableValues
   public static final String URI_LOCATOR_KEY = "uri";
@@ -113,6 +115,7 @@ public class SimpleExtension {
       return value().accept(ToTypeString.INSTANCE);
     }
 
+    @Override
     public boolean required() {
       return true;
     }
@@ -130,10 +133,12 @@ public class SimpleExtension {
     @JsonProperty(required = true)
     public abstract ParameterizedType type();
 
+    @Override
     public String toTypeString() {
       return "type";
     }
 
+    @Override
     public boolean required() {
       return true;
     }
@@ -165,6 +170,7 @@ public class SimpleExtension {
       return true;
     }
 
+    @Override
     public String toTypeString() {
       return "req";
     }
@@ -216,6 +222,17 @@ public class SimpleExtension {
   }
 
   public abstract static class Function {
+    private final Supplier<FunctionAnchor> anchorSupplier =
+        Util.memoize(() -> FunctionAnchor.of(uri(), key()));
+    private final Supplier<String> keySupplier = Util.memoize(() -> constructKey(name(), args()));
+    private final Supplier<List<Argument>> requiredArgsSupplier =
+        Util.memoize(
+            () -> {
+              return args().stream()
+                  .filter(Argument::required)
+                  .collect(java.util.stream.Collectors.toList());
+            });
+
     @Value.Default
     public String name() {
       // we can't use null detection here since we initially construct this with a parent name.
@@ -262,19 +279,8 @@ public class SimpleExtension {
       return anchorSupplier.get();
     }
 
-    @JsonProperty(value = "return")
+    @JsonProperty("return")
     public abstract TypeExpression returnType();
-
-    private final Supplier<FunctionAnchor> anchorSupplier =
-        Util.memoize(() -> FunctionAnchor.of(uri(), key()));
-    private final Supplier<String> keySupplier = Util.memoize(() -> constructKey(name(), args()));
-    private final Supplier<List<Argument>> requiredArgsSupplier =
-        Util.memoize(
-            () -> {
-              return args().stream()
-                  .filter(Argument::required)
-                  .collect(java.util.stream.Collectors.toList());
-            });
 
     public static String constructKeyFromTypes(
         String name, List<io.substrait.type.Type> arguments) {
@@ -433,11 +439,6 @@ public class SimpleExtension {
       return Decomposability.NONE;
     }
 
-    @Override
-    public String toString() {
-      return super.toString();
-    }
-
     @Nullable
     public abstract TypeExpression intermediate();
 
@@ -478,11 +479,6 @@ public class SimpleExtension {
       return WindowType.PARTITION;
     }
 
-    @Override
-    public String toString() {
-      return super.toString();
-    }
-
     WindowFunctionVariant resolve(String uri, String name, String description) {
       return ImmutableSimpleExtension.WindowFunctionVariant.builder()
           .uri(uri)
@@ -509,9 +505,12 @@ public class SimpleExtension {
   @JsonSerialize(as = ImmutableSimpleExtension.Type.class)
   @Value.Immutable
   public abstract static class Type {
+    private final Supplier<TypeAnchor> anchorSupplier =
+        Util.memoize(() -> TypeAnchor.of(uri(), name()));
+
     public abstract String name();
 
-    @JacksonInject(SimpleExtension.URI_LOCATOR_KEY)
+    @JacksonInject(URI_LOCATOR_KEY)
     public abstract String uri();
 
     // TODO: Handle conversion of structure object to Named Struct representation
@@ -520,9 +519,6 @@ public class SimpleExtension {
     public TypeAnchor getAnchor() {
       return anchorSupplier.get();
     }
-
-    private final Supplier<TypeAnchor> anchorSupplier =
-        Util.memoize(() -> TypeAnchor.of(uri(), name()));
   }
 
   @JsonDeserialize(as = ImmutableSimpleExtension.ExtensionSignatures.class)
@@ -561,19 +557,6 @@ public class SimpleExtension {
 
   @Value.Immutable
   public abstract static class ExtensionCollection {
-
-    public abstract List<Type> types();
-
-    public abstract List<ScalarFunctionVariant> scalarFunctions();
-
-    public abstract List<AggregateFunctionVariant> aggregateFunctions();
-
-    public abstract List<WindowFunctionVariant> windowFunctions();
-
-    public static ImmutableSimpleExtension.ExtensionCollection.Builder builder() {
-      return ImmutableSimpleExtension.ExtensionCollection.builder();
-    }
-
     private final Supplier<Set<String>> namespaceSupplier =
         Util.memoize(
             () -> {
@@ -617,6 +600,18 @@ public class SimpleExtension {
                       Collectors.toMap(
                           Function::getAnchor, java.util.function.Function.identity()));
             });
+
+    public abstract List<Type> types();
+
+    public abstract List<ScalarFunctionVariant> scalarFunctions();
+
+    public abstract List<AggregateFunctionVariant> aggregateFunctions();
+
+    public abstract List<WindowFunctionVariant> windowFunctions();
+
+    public static ImmutableSimpleExtension.ExtensionCollection.Builder builder() {
+      return ImmutableSimpleExtension.ExtensionCollection.builder();
+    }
 
     public Type getType(TypeAnchor anchor) {
       Type type = typeLookup.get().get(anchor);
@@ -712,7 +707,7 @@ public class SimpleExtension {
                 "string")
             .stream()
             .map(c -> String.format("/functions_%s.yaml", c))
-            .collect(java.util.stream.Collectors.toList());
+            .collect(Collectors.toList());
 
     return load(defaultFiles);
   }
@@ -729,7 +724,7 @@ public class SimpleExtension {
                   try (var stream = ExtensionCollection.class.getResourceAsStream(path)) {
                     return load(path, stream);
                   } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    throw new IllegalStateException(e);
                   }
                 })
             .collect(java.util.stream.Collectors.toList());
@@ -745,7 +740,7 @@ public class SimpleExtension {
       var doc = objectMapper(namespace).readValue(str, ExtensionSignatures.class);
       return buildExtensionCollection(namespace, doc);
     } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException(e);
     }
   }
 
@@ -753,10 +748,8 @@ public class SimpleExtension {
     try {
       var doc = objectMapper(namespace).readValue(stream, ExtensionSignatures.class);
       return buildExtensionCollection(namespace, doc);
-    } catch (RuntimeException ex) {
-      throw ex;
-    } catch (Exception ex) {
-      throw new RuntimeException("Failure while parsing " + namespace, ex);
+    } catch (IOException ex) {
+      throw new IllegalStateException("Failure while parsing " + namespace, ex);
     }
   }
 
@@ -801,7 +794,7 @@ public class SimpleExtension {
             .windowFunctions(allWindowFunctionVariants)
             .addAllTypes(extensionSignatures.types())
             .build();
-    logger.atDebug().log(
+    LOGGER.atDebug().log(
         "Loaded {} aggregate functions and {} scalar functions from {}.",
         collection.aggregateFunctions().size(),
         collection.scalarFunctions().size(),

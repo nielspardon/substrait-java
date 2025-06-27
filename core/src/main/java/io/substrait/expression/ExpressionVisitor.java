@@ -1,8 +1,6 @@
 package io.substrait.expression;
 
 public interface ExpressionVisitor<R, C, E extends Throwable> {
-  static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ExpressionVisitor.class);
-
   R visit(Expression.NullLiteral expr, C context) throws E;
 
   R visit(Expression.BoolLiteral expr, C context) throws E;

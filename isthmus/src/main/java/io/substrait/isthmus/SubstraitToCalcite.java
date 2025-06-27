@@ -167,7 +167,7 @@ public class SubstraitToCalcite {
     }
   }
 
-  private static class NamedStructGatherer extends RelCopyOnWriteVisitor<RuntimeException> {
+  private static final class NamedStructGatherer extends RelCopyOnWriteVisitor<RuntimeException> {
     Map<List<String>, NamedStruct> tableMap;
 
     private NamedStructGatherer() {

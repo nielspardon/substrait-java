@@ -9,8 +9,6 @@ import org.immutables.value.Value;
 @Value.Enclosing
 @Value.Immutable
 public abstract class Expand extends SingleInputRel {
-  static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Expand.class);
-
   public abstract List<ExpandField> getFields();
 
   @Override
@@ -37,6 +35,7 @@ public abstract class Expand extends SingleInputRel {
   public abstract static class ConsistentField implements ExpandField {
     public abstract Expression getExpression();
 
+    @Override
     public Type getType() {
       return getExpression().getType();
     }
@@ -50,6 +49,7 @@ public abstract class Expand extends SingleInputRel {
   public abstract static class SwitchingField implements ExpandField {
     public abstract List<Expression> getDuplicates();
 
+    @Override
     public Type getType() {
       var nullable = getDuplicates().stream().anyMatch(d -> d.getType().nullable());
       var type = getDuplicates().get(0).getType();

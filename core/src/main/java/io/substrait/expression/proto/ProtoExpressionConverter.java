@@ -28,10 +28,6 @@ import java.util.stream.IntStream;
  * Converts from {@link io.substrait.proto.Expression} to {@link io.substrait.expression.Expression}
  */
 public class ProtoExpressionConverter {
-
-  static final org.slf4j.Logger logger =
-      org.slf4j.LoggerFactory.getLogger(ProtoExpressionConverter.class);
-
   public static final Type.Struct EMPTY_TYPE = Type.Struct.builder().nullable(false).build();
 
   private final ExtensionLookup lookup;
@@ -374,7 +370,7 @@ public class ProtoExpressionConverter {
       }
       case INTERVAL_COMPOUND -> {
         if (!literal.getIntervalCompound().getIntervalDayToSecond().hasPrecision()) {
-          throw new RuntimeException(
+          throw new UnsupportedOperationException(
               "Interval compound with deprecated version of interval day (ie. no precision) is not supported");
         }
         yield ExpressionCreator.intervalCompound(

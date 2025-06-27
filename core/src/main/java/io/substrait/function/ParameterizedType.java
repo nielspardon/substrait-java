@@ -9,18 +9,16 @@ import org.immutables.value.Value;
  */
 @Value.Enclosing
 public interface ParameterizedType extends TypeExpression {
-  static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ParameterizedType.class);
-
-  static class RequiredParameterizedVisitorException extends RuntimeException {
+  class RequiredParameterizedVisitorException extends RuntimeException {
     @Override
     public synchronized Throwable fillInStackTrace() {
       return this;
     }
   }
 
-  <R, E extends Throwable> R accept(final TypeVisitor<R, E> typeVisitor) throws E;
+  <R, E extends Throwable> R accept(TypeVisitor<R, E> typeVisitor) throws E;
 
-  public static ParameterizedTypeCreator withNullability(boolean nullable) {
+  static ParameterizedTypeCreator withNullability(boolean nullable) {
     return nullable ? ParameterizedTypeCreator.NULLABLE : ParameterizedTypeCreator.REQUIRED;
   }
 
@@ -32,7 +30,8 @@ public interface ParameterizedType extends TypeExpression {
     return false;
   }
 
-  abstract static class BaseParameterizedType implements ParameterizedType {
+  abstract class BaseParameterizedType implements ParameterizedType {
+    @Override
     public final <R, E extends Throwable> R accept(final TypeVisitor<R, E> typeVisitor) throws E {
       if (typeVisitor instanceof ParameterizedTypeVisitor) {
         return accept((ParameterizedTypeVisitor<R, E>) typeVisitor);
@@ -41,11 +40,11 @@ public interface ParameterizedType extends TypeExpression {
     }
 
     abstract <R, E extends Throwable> R accept(
-        final ParameterizedTypeVisitor<R, E> parameterizedTypeVisitor) throws E;
+        ParameterizedTypeVisitor<R, E> parameterizedTypeVisitor) throws E;
   }
 
   @Value.Immutable
-  abstract static class FixedChar extends BaseParameterizedType implements NullableType {
+  abstract class FixedChar extends BaseParameterizedType implements NullableType {
     public abstract StringLiteral length();
 
     public static ImmutableParameterizedType.FixedChar.Builder builder() {
@@ -60,7 +59,7 @@ public interface ParameterizedType extends TypeExpression {
   }
 
   @Value.Immutable
-  abstract static class VarChar extends BaseParameterizedType implements NullableType {
+  abstract class VarChar extends BaseParameterizedType implements NullableType {
     public abstract StringLiteral length();
 
     public static ImmutableParameterizedType.VarChar.Builder builder() {
@@ -75,7 +74,7 @@ public interface ParameterizedType extends TypeExpression {
   }
 
   @Value.Immutable
-  abstract static class FixedBinary extends BaseParameterizedType implements NullableType {
+  abstract class FixedBinary extends BaseParameterizedType implements NullableType {
     public abstract StringLiteral length();
 
     public static ImmutableParameterizedType.FixedBinary.Builder builder() {
@@ -90,7 +89,7 @@ public interface ParameterizedType extends TypeExpression {
   }
 
   @Value.Immutable
-  abstract static class Decimal extends BaseParameterizedType implements NullableType {
+  abstract class Decimal extends BaseParameterizedType implements NullableType {
     public abstract StringLiteral scale();
 
     public abstract StringLiteral precision();
@@ -107,7 +106,7 @@ public interface ParameterizedType extends TypeExpression {
   }
 
   @Value.Immutable
-  abstract static class IntervalDay extends BaseParameterizedType implements NullableType {
+  abstract class IntervalDay extends BaseParameterizedType implements NullableType {
     public abstract StringLiteral precision();
 
     @Override
@@ -122,7 +121,7 @@ public interface ParameterizedType extends TypeExpression {
   }
 
   @Value.Immutable
-  abstract static class IntervalCompound extends BaseParameterizedType implements NullableType {
+  abstract class IntervalCompound extends BaseParameterizedType implements NullableType {
     public abstract StringLiteral precision();
 
     @Override
@@ -137,7 +136,7 @@ public interface ParameterizedType extends TypeExpression {
   }
 
   @Value.Immutable
-  abstract static class PrecisionTime extends BaseParameterizedType implements NullableType {
+  abstract class PrecisionTime extends BaseParameterizedType implements NullableType {
     public abstract StringLiteral precision();
 
     @Override
@@ -152,7 +151,7 @@ public interface ParameterizedType extends TypeExpression {
   }
 
   @Value.Immutable
-  abstract static class PrecisionTimestamp extends BaseParameterizedType implements NullableType {
+  abstract class PrecisionTimestamp extends BaseParameterizedType implements NullableType {
     public abstract StringLiteral precision();
 
     @Override
@@ -167,7 +166,7 @@ public interface ParameterizedType extends TypeExpression {
   }
 
   @Value.Immutable
-  abstract static class PrecisionTimestampTZ extends BaseParameterizedType implements NullableType {
+  abstract class PrecisionTimestampTZ extends BaseParameterizedType implements NullableType {
     public abstract StringLiteral precision();
 
     @Override
@@ -182,7 +181,7 @@ public interface ParameterizedType extends TypeExpression {
   }
 
   @Value.Immutable
-  abstract static class Struct extends BaseParameterizedType implements NullableType {
+  abstract class Struct extends BaseParameterizedType implements NullableType {
     public abstract java.util.List<ParameterizedType> fields();
 
     public static ImmutableParameterizedType.Struct.Builder builder() {
@@ -197,7 +196,7 @@ public interface ParameterizedType extends TypeExpression {
   }
 
   @Value.Immutable
-  abstract static class ListType extends BaseParameterizedType implements NullableType {
+  abstract class ListType extends BaseParameterizedType implements NullableType {
     public abstract ParameterizedType name();
 
     public static ImmutableParameterizedType.ListType.Builder builder() {
@@ -212,7 +211,7 @@ public interface ParameterizedType extends TypeExpression {
   }
 
   @Value.Immutable
-  abstract static class Map extends BaseParameterizedType implements NullableType {
+  abstract class Map extends BaseParameterizedType implements NullableType {
     public abstract ParameterizedType key();
 
     public abstract ParameterizedType value();
@@ -229,7 +228,7 @@ public interface ParameterizedType extends TypeExpression {
   }
 
   @Value.Immutable
-  abstract static class StringLiteral extends BaseParameterizedType implements NullableType {
+  abstract class StringLiteral extends BaseParameterizedType implements NullableType {
     public abstract String value();
 
     public static ImmutableParameterizedType.StringLiteral.Builder builder() {

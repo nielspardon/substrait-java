@@ -46,8 +46,6 @@ import java.util.stream.IntStream;
 
 /** Converts from {@link io.substrait.proto.Rel} to {@link io.substrait.relation.Rel} */
 public class ProtoRelConverter {
-  static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(ProtoRelConverter.class);
-
   protected final ExtensionLookup lookup;
   protected final SimpleExtension.ExtensionCollection extensions;
   private final ProtoTypeConverter protoTypeConverter;
@@ -940,7 +938,7 @@ public class ProtoRelConverter {
    * io.substrait.proto.AdvancedExtension#getEnhancement()} data
    */
   protected Extension.Enhancement enhancementFromAdvancedExtension(com.google.protobuf.Any any) {
-    throw new RuntimeException("enhancements cannot be ignored by consumers");
+    throw new IllegalStateException("enhancements cannot be ignored by consumers");
   }
 
   /** Override to provide a custom converter for {@link ExtensionLeafRel#getDetail()} data */

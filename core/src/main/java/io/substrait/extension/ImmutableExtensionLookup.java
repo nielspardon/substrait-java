@@ -13,10 +13,7 @@ import java.util.Map;
  * Maintains a mapping between function anchors and function references. Generates references for
  * new anchors.
  */
-public class ImmutableExtensionLookup extends AbstractExtensionLookup {
-  static final org.slf4j.Logger logger =
-      org.slf4j.LoggerFactory.getLogger(ImmutableExtensionLookup.class);
-
+public final class ImmutableExtensionLookup extends AbstractExtensionLookup {
   private int counter = -1;
 
   private ImmutableExtensionLookup(

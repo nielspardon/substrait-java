@@ -99,7 +99,7 @@ public class WindowRelFunctionConverter
     return m.attemptMatch(wrapped, topLevelConverter);
   }
 
-  static class WrappedWindowRelCall implements GenericCall {
+  static final class WrappedWindowRelCall implements GenericCall {
     private final Window.RexWinAggCall winAggCall;
     private final RexWindowBound lowerBound;
     private final RexWindowBound upperBound;

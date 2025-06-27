@@ -226,7 +226,7 @@ public class ToTypeString
    * <p>These suffixes are needed to correctly perform function matching based on arguments. This
    * subclass retains the numerics suffixes when emitting type strings for this.
    */
-  public static class ToTypeLiteralStringLossless extends ToTypeString {
+  public static final class ToTypeLiteralStringLossless extends ToTypeString {
 
     public static final ToTypeLiteralStringLossless INSTANCE = new ToTypeLiteralStringLossless();
 

@@ -346,7 +346,7 @@ public class ExpressionProtoConverter
                         .setValue(Any.parseFrom(expr.value())))
                 .build();
           } catch (InvalidProtocolBufferException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
           }
         });
   }
@@ -597,7 +597,7 @@ public class ExpressionProtoConverter
         .build();
   }
 
-  public static class BoundConverter
+  public static final class BoundConverter
       implements WindowBound.WindowBoundVisitor<Expression.WindowFunction.Bound, RuntimeException> {
 
     public static Expression.WindowFunction.Bound convert(WindowBound bound) {

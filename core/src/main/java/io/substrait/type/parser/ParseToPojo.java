@@ -33,7 +33,7 @@ public class ParseToPojo {
     return ctx.accept(Visitor.expression(namespace));
   }
 
-  public static class Visitor implements SubstraitTypeVisitor<TypeExpression> {
+  public static final class Visitor implements SubstraitTypeVisitor<TypeExpression> {
 
     public static Visitor simple(String namespace) {
       return new Visitor(VisitorType.SIMPLE, namespace);

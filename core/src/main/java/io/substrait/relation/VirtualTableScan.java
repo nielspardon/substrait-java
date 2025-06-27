@@ -45,7 +45,7 @@ public abstract class VirtualTableScan extends AbstractReadRel {
     return ImmutableVirtualTableScan.builder();
   }
 
-  private static class NamedFieldCountingTypeVisitor
+  private static final class NamedFieldCountingTypeVisitor
       implements TypeVisitor<Integer, RuntimeException> {
 
     private static final NamedFieldCountingTypeVisitor VISITOR =

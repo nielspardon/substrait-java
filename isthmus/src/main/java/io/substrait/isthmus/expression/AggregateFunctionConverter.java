@@ -108,7 +108,7 @@ public class AggregateFunctionConverter
     return signatures.get(lookupFunction);
   }
 
-  static class WrappedAggregateCall implements GenericCall {
+  static final class WrappedAggregateCall implements GenericCall {
     private final AggregateCall call;
     private final RelNode input;
     private final RexBuilder rexBuilder;

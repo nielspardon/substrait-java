@@ -112,7 +112,7 @@ public class WindowFunctionConverter
     return m.attemptMatch(wrapped, topLevelConverter);
   }
 
-  static class WrappedWindowCall implements FunctionConverter.GenericCall {
+  static final class WrappedWindowCall implements FunctionConverter.GenericCall {
     private final RexOver over;
     private final RexExpressionConverter rexExpressionConverter;
 

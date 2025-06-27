@@ -29,7 +29,7 @@ public class OneWaySimpleTest extends PlanTestBase {
     try {
       System.out.println(JsonFormat.printer().includingDefaultValueFields().print(plan));
     } catch (InvalidProtocolBufferException e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException(e);
     }
   }
 }

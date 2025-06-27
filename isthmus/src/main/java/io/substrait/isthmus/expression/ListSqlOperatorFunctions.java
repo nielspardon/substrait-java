@@ -11,9 +11,6 @@ import org.apache.calcite.sql.fun.SqlMultisetSetOperator;
 import org.apache.calcite.sql.fun.SqlStdOperatorTable;
 
 public class ListSqlOperatorFunctions {
-  static final org.slf4j.Logger logger =
-      org.slf4j.LoggerFactory.getLogger(ListSqlOperatorFunctions.class);
-
   public static void main(String[] args) {
     Map<String, SqlOperator> operators =
         Arrays.stream(SqlStdOperatorTable.class.getFields())
@@ -32,7 +29,7 @@ public class ListSqlOperatorFunctions {
                     SqlOperator op = (SqlOperator) f.get(null);
                     return true;
                   } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
+                    throw new IllegalStateException(e);
                   }
                 })
             .filter(f -> Modifier.isStatic(f.getModifiers()) && Modifier.isPublic(f.getModifiers()))
@@ -46,7 +43,7 @@ public class ListSqlOperatorFunctions {
     try {
       return (SqlOperator) f.get(null);
     } catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
+      throw new IllegalStateException(e);
     }
   }
 }
