@@ -30,7 +30,7 @@ public class PreCalciteAggregateValidator {
    * @param aggregate
    * @return
    */
-  public static boolean isValidCalciteAggregate(Aggregate aggregate) {
+  public static boolean isValidCalciteAggregate(final Aggregate aggregate) {
     return aggregate.getMeasures().stream()
             .allMatch(PreCalciteAggregateValidator::isValidCalciteMeasure)
         && aggregate.getGroupings().stream()
@@ -45,7 +45,7 @@ public class PreCalciteAggregateValidator {
    * @return true if the {@code measure} can be converted to a Calcite equivalent without changes,
    *     false otherwise.
    */
-  private static boolean isValidCalciteMeasure(Aggregate.Measure measure) {
+  private static boolean isValidCalciteMeasure(final Aggregate.Measure measure) {
     return
     // all function arguments to measures must be field references
     measure.getFunction().arguments().stream().allMatch(farg -> isSimpleFieldReference(farg))
@@ -67,7 +67,7 @@ public class PreCalciteAggregateValidator {
    * @return true if the {@code grouping} can be converted to a Calcite equivalent without changes,
    *     false otherwise.
    */
-  private static boolean isValidCalciteGrouping(Aggregate.Grouping grouping) {
+  private static boolean isValidCalciteGrouping(final Aggregate.Grouping grouping) {
     if (!grouping.getExpressions().stream().allMatch(e -> isSimpleFieldReference(e))) {
       // all grouping expressions must be field references
       return false;
@@ -81,7 +81,7 @@ public class PreCalciteAggregateValidator {
     // For example, if a grouping is defined as (0, 2, 1) in Substrait, Calcite will output it as
     // (0, 1, 2), which means that the Calcite output will no longer line up with the expectations
     // of the Substrait plan.
-    List<Integer> groupingFields =
+    final List<Integer> groupingFields =
         grouping.getExpressions().stream()
             // isSimpleFieldReference above guarantees that the expr is a FieldReference
             .map(expr -> getFieldRefOffset((FieldReference) expr))
@@ -90,17 +90,17 @@ public class PreCalciteAggregateValidator {
     return isOrdered(groupingFields);
   }
 
-  private static boolean isSimpleFieldReference(FunctionArg e) {
-    return e instanceof FieldReference fr
+  private static boolean isSimpleFieldReference(final FunctionArg e) {
+    return e instanceof final FieldReference fr
         && fr.segments().size() == 1
         && fr.segments().get(0) instanceof FieldReference.StructField;
   }
 
-  private static int getFieldRefOffset(FieldReference fr) {
+  private static int getFieldRefOffset(final FieldReference fr) {
     return ((FieldReference.StructField) fr.segments().get(0)).offset();
   }
 
-  private static boolean isOrdered(List<Integer> list) {
+  private static boolean isOrdered(final List<Integer> list) {
     for (int i = 1; i < list.size(); i++) {
       if (list.get(i - 1) > list.get(i)) {
         return false;
@@ -117,7 +117,7 @@ public class PreCalciteAggregateValidator {
     // Tracks the offset of the next expression added
     private int expressionOffset;
 
-    private PreCalciteAggregateTransformer(Aggregate aggregate) {
+    private PreCalciteAggregateTransformer(final Aggregate aggregate) {
       this.newExpressions = new ArrayList<>();
       // The Substrait project output includes all input fields, followed by expressions
       this.expressionOffset = aggregate.getInput().getRecordType().fields().size();
@@ -132,15 +132,15 @@ public class PreCalciteAggregateValidator {
      *   <li>Adding all groupings to this project so that they are referenced in "order"
      * </ul>
      */
-    public static Aggregate transformToValidCalciteAggregate(Aggregate aggregate) {
-      var at = new PreCalciteAggregateTransformer(aggregate);
+    public static Aggregate transformToValidCalciteAggregate(final Aggregate aggregate) {
+      final var at = new PreCalciteAggregateTransformer(aggregate);
 
-      List<Aggregate.Measure> newMeasures =
+      final List<Aggregate.Measure> newMeasures =
           aggregate.getMeasures().stream().map(at::updateMeasure).collect(Collectors.toList());
-      List<Aggregate.Grouping> newGroupings =
+      final List<Aggregate.Grouping> newGroupings =
           aggregate.getGroupings().stream().map(at::updateGrouping).collect(Collectors.toList());
 
-      Project preAggregateProject =
+      final Project preAggregateProject =
           Project.builder().input(aggregate.getInput()).expressions(at.newExpressions).build();
 
       return Aggregate.builder()
@@ -151,15 +151,15 @@ public class PreCalciteAggregateValidator {
           .build();
     }
 
-    private Aggregate.Measure updateMeasure(Aggregate.Measure measure) {
-      AggregateFunctionInvocation oldAggregateFunctionInvocation = measure.getFunction();
+    private Aggregate.Measure updateMeasure(final Aggregate.Measure measure) {
+      final AggregateFunctionInvocation oldAggregateFunctionInvocation = measure.getFunction();
 
-      List<Expression> newFunctionArgs =
+      final List<Expression> newFunctionArgs =
           oldAggregateFunctionInvocation.arguments().stream()
               .map(this::projectOutNonFieldReference)
               .collect(Collectors.toList());
 
-      List<Expression.SortField> newSortFields =
+      final List<Expression.SortField> newSortFields =
           oldAggregateFunctionInvocation.sort().stream()
               .map(
                   sf ->
@@ -169,10 +169,10 @@ public class PreCalciteAggregateValidator {
                           .build())
               .collect(Collectors.toList());
 
-      Optional<Expression> newPreMeasureFilter =
+      final Optional<Expression> newPreMeasureFilter =
           measure.getPreMeasureFilter().map(this::projectOutNonFieldReference);
 
-      AggregateFunctionInvocation newAggregateFunctionInvocation =
+      final AggregateFunctionInvocation newAggregateFunctionInvocation =
           AggregateFunctionInvocation.builder()
               .from(oldAggregateFunctionInvocation)
               .arguments(newFunctionArgs)
@@ -185,23 +185,23 @@ public class PreCalciteAggregateValidator {
           .build();
     }
 
-    private Aggregate.Grouping updateGrouping(Aggregate.Grouping grouping) {
+    private Aggregate.Grouping updateGrouping(final Aggregate.Grouping grouping) {
       // project out all groupings unconditionally, even field references
       // this ensures that out of order groupings are re-projected into in order groupings
-      List<Expression> newGroupingExpressions =
+      final List<Expression> newGroupingExpressions =
           grouping.getExpressions().stream().map(this::projectOut).collect(Collectors.toList());
       return Aggregate.Grouping.builder().expressions(newGroupingExpressions).build();
     }
 
-    private Expression projectOutNonFieldReference(FunctionArg farg) {
-      if ((farg instanceof Expression e)) {
+    private Expression projectOutNonFieldReference(final FunctionArg farg) {
+      if ((farg instanceof final Expression e)) {
         return projectOutNonFieldReference(e);
       } else {
         throw new IllegalArgumentException("cannot handle non-expression argument for aggregate");
       }
     }
 
-    private Expression projectOutNonFieldReference(Expression expr) {
+    private Expression projectOutNonFieldReference(final Expression expr) {
       if (isSimpleFieldReference(expr)) {
         return expr;
       }
@@ -213,7 +213,7 @@ public class PreCalciteAggregateValidator {
      * PreCalciteAggregateTransformer#expressionOffset} and returns a field reference to the new
      * expression
      */
-    private Expression projectOut(Expression expr) {
+    private Expression projectOut(final Expression expr) {
       newExpressions.add(expr);
       return FieldReference.builder()
           // create a field reference to the new expression, then update the expression offset

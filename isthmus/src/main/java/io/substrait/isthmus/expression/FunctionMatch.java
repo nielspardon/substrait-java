@@ -8,7 +8,7 @@ public class FunctionMatch {
 
   public static void load() {
 
-    Matcher m =
+    final Matcher m =
         new Matcher() {
 
           {
@@ -26,6 +26,6 @@ public class FunctionMatch {
 
   static class Matcher {
 
-    void m(String functionName, SqlOperator calciteOperator) {}
+    void m(final String functionName, final SqlOperator calciteOperator) {}
   }
 }

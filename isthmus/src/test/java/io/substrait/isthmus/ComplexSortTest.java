@@ -31,15 +31,15 @@ public class ComplexSortTest extends PlanTestBase {
    * information. A {@link RelNode} is only annotated if its {@link RelCollation} is not empty.
    */
   public static class CollationRelWriter extends RelWriterImpl {
-    public CollationRelWriter(StringWriter sw) {
+    public CollationRelWriter(final StringWriter sw) {
       super(new PrintWriter(sw), SqlExplainLevel.EXPPLAN_ATTRIBUTES, false);
     }
 
     @Override
-    protected void explain_(RelNode rel, List<Pair<String, @Nullable Object>> values) {
-      var collation = rel.getTraitSet().getCollation();
+    protected void explain_(final RelNode rel, final List<Pair<String, @Nullable Object>> values) {
+      final var collation = rel.getTraitSet().getCollation();
       if (!collation.isDefault()) {
-        StringBuilder s = new StringBuilder();
+        final StringBuilder s = new StringBuilder();
         spacer.spaces(s);
         s.append("Collation: ").append(collation.toString());
         pw.println(s);
@@ -53,7 +53,7 @@ public class ComplexSortTest extends PlanTestBase {
     // CREATE TABLE example (a VARCHAR)
     // SELECT a FROM example ORDER BY a
 
-    Rel rel =
+    final Rel rel =
         b.project(
             input -> b.fieldReferences(input, 0),
             b.remap(1),
@@ -64,15 +64,15 @@ public class ComplexSortTest extends PlanTestBase {
                             b.fieldReference(input, 0), Expression.SortDirection.ASC_NULLS_LAST)),
                 b.namedScan(List.of("example"), List.of("a"), List.of(R.STRING))));
 
-    String expected =
+    final String expected =
         """
         Collation: [0]
         LogicalSort(sort0=[$0], dir0=[ASC])
           LogicalTableScan(table=[[example]])
         """;
 
-    RelNode relReturned = substraitToCalcite.convert(rel);
-    var sw = new StringWriter();
+    final RelNode relReturned = substraitToCalcite.convert(rel);
+    final var sw = new StringWriter();
     relReturned.explain(new CollationRelWriter(sw));
     assertEquals(expected, sw.toString());
   }
@@ -82,7 +82,7 @@ public class ComplexSortTest extends PlanTestBase {
     // CREATE TABLE example (a VARCHAR)
     // SELECT a FROM example ORDER BY a::INT
 
-    Rel rel =
+    final Rel rel =
         b.project(
             input -> b.fieldReferences(input, 0),
             b.remap(1),
@@ -94,7 +94,7 @@ public class ComplexSortTest extends PlanTestBase {
                             Expression.SortDirection.ASC_NULLS_LAST)),
                 b.namedScan(List.of("example"), List.of("a"), List.of(R.STRING))));
 
-    String expected =
+    final String expected =
         """
          LogicalProject(a0=[$0])
            Collation: [1]
@@ -103,8 +103,8 @@ public class ComplexSortTest extends PlanTestBase {
                LogicalTableScan(table=[[example]])
          """;
 
-    RelNode relReturned = substraitToCalcite.convert(rel);
-    var sw = new StringWriter();
+    final RelNode relReturned = substraitToCalcite.convert(rel);
+    final var sw = new StringWriter();
     relReturned.explain(new CollationRelWriter(sw));
     assertEquals(expected, sw.toString());
   }
@@ -114,7 +114,7 @@ public class ComplexSortTest extends PlanTestBase {
     // CREATE TABLE example (a VARCHAR)
     // SELECT a::INT FROM example ORDER BY a::INT DESC NULLS LAST
 
-    Rel rel =
+    final Rel rel =
         b.project(
             input -> List.of(b.cast(b.fieldReference(input, 0), R.I32)),
             b.remap(1),
@@ -126,7 +126,7 @@ public class ComplexSortTest extends PlanTestBase {
                             Expression.SortDirection.DESC_NULLS_LAST)),
                 b.namedScan(List.of("example"), List.of("a"), List.of(R.STRING))));
 
-    String expected =
+    final String expected =
         """
         LogicalProject(a0=[CAST($0):INTEGER NOT NULL])
           Collation: [1 DESC-nulls-last]
@@ -135,8 +135,8 @@ public class ComplexSortTest extends PlanTestBase {
               LogicalTableScan(table=[[example]])
          """;
 
-    RelNode relReturned = substraitToCalcite.convert(rel);
-    var sw = new StringWriter();
+    final RelNode relReturned = substraitToCalcite.convert(rel);
+    final var sw = new StringWriter();
     relReturned.explain(new CollationRelWriter(sw));
     assertEquals(expected, sw.toString());
   }
@@ -146,7 +146,7 @@ public class ComplexSortTest extends PlanTestBase {
     // CREATE TABLE example (a VARCHAR)
     // SELECT a FROM example ORDER BY a::VARCHAR
 
-    Rel rel =
+    final Rel rel =
         b.project(
             input -> List.of(b.fieldReference(input, 0)),
             b.remap(1),
@@ -158,7 +158,7 @@ public class ComplexSortTest extends PlanTestBase {
                             Expression.SortDirection.DESC_NULLS_LAST)),
                 b.namedScan(List.of("example"), List.of("a"), List.of(R.STRING))));
 
-    String expected =
+    final String expected =
         """
         LogicalProject(a0=[$0])
           Collation: [1 DESC-nulls-last]
@@ -167,8 +167,8 @@ public class ComplexSortTest extends PlanTestBase {
               LogicalTableScan(table=[[example]])
         """;
 
-    RelNode relReturned = substraitToCalcite.convert(rel);
-    var sw = new StringWriter();
+    final RelNode relReturned = substraitToCalcite.convert(rel);
+    final var sw = new StringWriter();
     relReturned.explain(new CollationRelWriter(sw));
     assertEquals(expected, sw.toString());
   }
@@ -178,7 +178,7 @@ public class ComplexSortTest extends PlanTestBase {
     // CREATE TABLE example (a VARCHAR, b INT)
     // SELECT b, a FROM example ORDER BY a::INT DESC, -b + 42 ASC NULLS LAST
 
-    Rel rel =
+    final Rel rel =
         b.project(
             input -> List.of(b.fieldReference(input, 0), b.fieldReference(input, 1)),
             b.remap(2, 3),
@@ -193,7 +193,7 @@ public class ComplexSortTest extends PlanTestBase {
                             Expression.SortDirection.ASC_NULLS_LAST)),
                 b.namedScan(List.of("example"), List.of("a", "b"), List.of(R.STRING, R.I32))));
 
-    String expected =
+    final String expected =
         """
         LogicalProject(a0=[$0], b0=[$1])
           Collation: [2 DESC, 3]
@@ -202,8 +202,8 @@ public class ComplexSortTest extends PlanTestBase {
               LogicalTableScan(table=[[example]])
         """;
 
-    RelNode relReturned = substraitToCalcite.convert(rel);
-    var sw = new StringWriter();
+    final RelNode relReturned = substraitToCalcite.convert(rel);
+    final var sw = new StringWriter();
     relReturned.explain(new CollationRelWriter(sw));
     assertEquals(expected, sw.toString());
   }

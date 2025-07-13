@@ -21,67 +21,67 @@ import org.apache.calcite.rel.core.Values;
 /** A more generic version of RelShuttle that allows an alternative return value. */
 public abstract class RelNodeVisitor<OUTPUT, EXCEPTION extends Throwable> {
 
-  public OUTPUT visit(TableScan scan) throws EXCEPTION {
+  public OUTPUT visit(final TableScan scan) throws EXCEPTION {
     return visitOther(scan);
   }
 
-  public OUTPUT visit(TableFunctionScan scan) throws EXCEPTION {
+  public OUTPUT visit(final TableFunctionScan scan) throws EXCEPTION {
     return visitOther(scan);
   }
 
-  public OUTPUT visit(Values values) throws EXCEPTION {
+  public OUTPUT visit(final Values values) throws EXCEPTION {
     return visitOther(values);
   }
 
-  public OUTPUT visit(Filter filter) throws EXCEPTION {
+  public OUTPUT visit(final Filter filter) throws EXCEPTION {
     return visitOther(filter);
   }
 
-  public OUTPUT visit(Calc calc) throws EXCEPTION {
+  public OUTPUT visit(final Calc calc) throws EXCEPTION {
     return visitOther(calc);
   }
 
-  public OUTPUT visit(Project project) throws EXCEPTION {
+  public OUTPUT visit(final Project project) throws EXCEPTION {
     return visitOther(project);
   }
 
-  public OUTPUT visit(Join join) throws EXCEPTION {
+  public OUTPUT visit(final Join join) throws EXCEPTION {
     return visitOther(join);
   }
 
-  public OUTPUT visit(Correlate correlate) throws EXCEPTION {
+  public OUTPUT visit(final Correlate correlate) throws EXCEPTION {
     return visitOther(correlate);
   }
 
-  public OUTPUT visit(Union union) throws EXCEPTION {
+  public OUTPUT visit(final Union union) throws EXCEPTION {
     return visitOther(union);
   }
 
-  public OUTPUT visit(Intersect intersect) throws EXCEPTION {
+  public OUTPUT visit(final Intersect intersect) throws EXCEPTION {
     return visitOther(intersect);
   }
 
-  public OUTPUT visit(Minus minus) throws EXCEPTION {
+  public OUTPUT visit(final Minus minus) throws EXCEPTION {
     return visitOther(minus);
   }
 
-  public OUTPUT visit(Aggregate aggregate) throws EXCEPTION {
+  public OUTPUT visit(final Aggregate aggregate) throws EXCEPTION {
     return visitOther(aggregate);
   }
 
-  public OUTPUT visit(Match match) throws EXCEPTION {
+  public OUTPUT visit(final Match match) throws EXCEPTION {
     return visitOther(match);
   }
 
-  public OUTPUT visit(Sort sort) throws EXCEPTION {
+  public OUTPUT visit(final Sort sort) throws EXCEPTION {
     return visitOther(sort);
   }
 
-  public OUTPUT visit(Exchange exchange) throws EXCEPTION {
+  public OUTPUT visit(final Exchange exchange) throws EXCEPTION {
     return visitOther(exchange);
   }
 
-  public OUTPUT visit(TableModify modify) throws EXCEPTION {
+  public OUTPUT visit(final TableModify modify) throws EXCEPTION {
     return visitOther(modify);
   }
 
@@ -93,38 +93,38 @@ public abstract class RelNodeVisitor<OUTPUT, EXCEPTION extends Throwable> {
    * The method you call when you would normally call RelNode.accept(visitor). Instead call
    * RelVisitor.reverseAccept(RelNode) due to the lack of ability to extend base classes.
    */
-  public final OUTPUT reverseAccept(RelNode node) throws EXCEPTION {
-    if (node instanceof TableScan scan) {
+  public final OUTPUT reverseAccept(final RelNode node) throws EXCEPTION {
+    if (node instanceof final TableScan scan) {
       return this.visit(scan);
-    } else if (node instanceof TableFunctionScan scan) {
+    } else if (node instanceof final TableFunctionScan scan) {
       return this.visit(scan);
-    } else if (node instanceof Values values) {
+    } else if (node instanceof final Values values) {
       return this.visit(values);
-    } else if (node instanceof Filter filter) {
+    } else if (node instanceof final Filter filter) {
       return this.visit(filter);
-    } else if (node instanceof Calc calc) {
+    } else if (node instanceof final Calc calc) {
       return this.visit(calc);
-    } else if (node instanceof Project project) {
+    } else if (node instanceof final Project project) {
       return this.visit(project);
-    } else if (node instanceof Join join) {
+    } else if (node instanceof final Join join) {
       return this.visit(join);
-    } else if (node instanceof Correlate correlate) {
+    } else if (node instanceof final Correlate correlate) {
       return this.visit(correlate);
-    } else if (node instanceof Union union) {
+    } else if (node instanceof final Union union) {
       return this.visit(union);
-    } else if (node instanceof Intersect intersect) {
+    } else if (node instanceof final Intersect intersect) {
       return this.visit(intersect);
-    } else if (node instanceof Minus minus) {
+    } else if (node instanceof final Minus minus) {
       return this.visit(minus);
-    } else if (node instanceof Match match) {
+    } else if (node instanceof final Match match) {
       return this.visit(match);
-    } else if (node instanceof Sort sort) {
+    } else if (node instanceof final Sort sort) {
       return this.visit(sort);
-    } else if (node instanceof Exchange exchange) {
+    } else if (node instanceof final Exchange exchange) {
       return this.visit(exchange);
-    } else if (node instanceof Aggregate aggregate) {
+    } else if (node instanceof final Aggregate aggregate) {
       return this.visit(aggregate);
-    } else if (node instanceof TableModify modify) {
+    } else if (node instanceof final TableModify modify) {
       return this.visit(modify);
     } else {
       return this.visitOther(node);

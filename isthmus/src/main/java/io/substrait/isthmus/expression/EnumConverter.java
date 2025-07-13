@@ -75,7 +75,7 @@ public class EnumConverter {
   }
 
   private static Optional<Enum<?>> constructValue(
-      Class<? extends Enum<?>> cls, Supplier<Optional<String>> option) {
+      final Class<? extends Enum<?>> cls, final Supplier<Optional<String>> option) {
     if (cls.isAssignableFrom(TimeUnitRange.class)) {
       return option.get().map(TimeUnitRange::valueOf);
     }
@@ -88,12 +88,15 @@ public class EnumConverter {
   }
 
   static Optional<RexLiteral> toRex(
-      RexBuilder rexBuilder, SimpleExtension.Function fnDef, int argIdx, EnumArg e) {
-    ArgAnchor aAnch = argAnchor(fnDef, argIdx);
-    Optional<Class<? extends Enum<?>>> v =
+      final RexBuilder rexBuilder,
+      final SimpleExtension.Function fnDef,
+      final int argIdx,
+      final EnumArg e) {
+    final ArgAnchor aAnch = argAnchor(fnDef, argIdx);
+    final Optional<Class<? extends Enum<?>>> v =
         Optional.ofNullable(calciteEnumMap.getOrDefault(aAnch, null));
 
-    Supplier<Optional<String>> sOptionVal =
+    final Supplier<Optional<String>> sOptionVal =
         () -> {
           if (e.value().isPresent()) {
             return Optional.of(e.value().get());
@@ -106,18 +109,18 @@ public class EnumConverter {
   }
 
   private static Optional<SimpleExtension.EnumArgument> findEnumArg(
-      SimpleExtension.Function function, ArgAnchor enumAnchor) {
+      final SimpleExtension.Function function, final ArgAnchor enumAnchor) {
 
     if (enumAnchor.fn == function.getAnchor()) {
       return Optional.empty();
     } else {
 
-      List<Argument> args = function.args();
+      final List<Argument> args = function.args();
       if (args.size() <= enumAnchor.argIdx) {
         return Optional.empty();
       }
-      Argument arg = args.get(enumAnchor.argIdx);
-      if (arg instanceof SimpleExtension.EnumArgument ea) {
+      final Argument arg = args.get(enumAnchor.argIdx);
+      if (arg instanceof final SimpleExtension.EnumArgument ea) {
         return Optional.of(ea);
       } else {
         return Optional.empty();
@@ -126,13 +129,13 @@ public class EnumConverter {
   }
 
   static Optional<EnumArg> fromRex(
-      SimpleExtension.Function function, RexLiteral literal, int argIdx) {
+      final SimpleExtension.Function function, final RexLiteral literal, final int argIdx) {
     return switch (literal.getType().getSqlTypeName()) {
       case SYMBOL -> {
-        Object v = literal.getValue();
+        final Object v = literal.getValue();
         if (!literal.isNull() && (v instanceof Enum)) {
-          Enum<?> value = (Enum<?>) v;
-          ArgAnchor enumAnchor = argAnchor(function, argIdx);
+          final Enum<?> value = (Enum<?>) v;
+          final ArgAnchor enumAnchor = argAnchor(function, argIdx);
           yield findEnumArg(function, enumAnchor).map(ea -> EnumArg.of(ea, value.name()));
         } else {
           yield Optional.empty();
@@ -142,11 +145,11 @@ public class EnumConverter {
     };
   }
 
-  static boolean canConvert(Enum<?> value) {
+  static boolean canConvert(final Enum<?> value) {
     return value != null && calciteEnumMap.containsValue(value.getClass());
   }
 
-  static boolean isEnumValue(RexNode value) {
+  static boolean isEnumValue(final RexNode value) {
     return value instanceof RexLiteral && value.getType().getSqlTypeName() == SqlTypeName.SYMBOL;
   }
 
@@ -165,23 +168,23 @@ public class EnumConverter {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
       if (this == obj) {
         return true;
       }
       if (!(obj instanceof ArgAnchor)) {
         return false;
       }
-      ArgAnchor other = (ArgAnchor) obj;
+      final ArgAnchor other = (ArgAnchor) obj;
       return Objects.equals(fn, other.fn) && argIdx == other.argIdx;
     }
   }
 
-  private static ArgAnchor argAnchor(String fnNS, String fnSig, int argIdx) {
+  private static ArgAnchor argAnchor(final String fnNS, final String fnSig, final int argIdx) {
     return new ArgAnchor(SimpleExtension.FunctionAnchor.of(fnNS, fnSig), argIdx);
   }
 
-  private static ArgAnchor argAnchor(SimpleExtension.Function fnDef, int argIdx) {
+  private static ArgAnchor argAnchor(final SimpleExtension.Function fnDef, final int argIdx) {
     return new ArgAnchor(
         SimpleExtension.FunctionAnchor.of(fnDef.getAnchor().namespace(), fnDef.getAnchor().key()),
         argIdx);

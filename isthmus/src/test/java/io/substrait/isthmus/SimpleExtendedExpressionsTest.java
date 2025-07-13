@@ -26,15 +26,16 @@ public class SimpleExtendedExpressionsTest extends ExtendedExpressionTestBase {
 
   @ParameterizedTest
   @MethodSource("expressionTypeProvider")
-  public void testExtendedExpressionsRoundTrip(String sqlExpression)
+  public void testExtendedExpressionsRoundTrip(final String sqlExpression)
       throws SqlParseException, IOException {
     assertProtoExtendedExpressionRoundtrip(sqlExpression);
   }
 
   @ParameterizedTest
   @MethodSource("expressionTypeProvider")
-  public void testExtendedExpressionsDuplicateColumnIdentifierRoundTrip(String sqlExpression) {
-    IllegalArgumentException illegalArgumentException =
+  public void testExtendedExpressionsDuplicateColumnIdentifierRoundTrip(
+      final String sqlExpression) {
+    final IllegalArgumentException illegalArgumentException =
         assertThrows(
             IllegalArgumentException.class,
             () -> assertProtoExtendedExpressionRoundtrip(sqlExpression, "tpch/schema_error.sql"));
@@ -47,7 +48,7 @@ public class SimpleExtendedExpressionsTest extends ExtendedExpressionTestBase {
   @Test
   public void testExtendedExpressionsListExpressionRoundTrip()
       throws SqlParseException, IOException {
-    String[] expressions = {
+    final String[] expressions = {
       "2",
       "L_ORDERKEY",
       "L_ORDERKEY > 10",

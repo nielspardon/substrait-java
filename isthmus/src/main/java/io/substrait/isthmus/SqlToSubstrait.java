@@ -24,25 +24,27 @@ public class SqlToSubstrait extends SqlConverterBase {
     this(null);
   }
 
-  public SqlToSubstrait(FeatureBoard features) {
+  public SqlToSubstrait(final FeatureBoard features) {
     super(features);
   }
 
-  public Plan execute(String sql, Prepare.CatalogReader catalogReader) throws SqlParseException {
-    SqlValidator validator = new SubstraitSqlValidator(catalogReader);
+  public Plan execute(final String sql, final Prepare.CatalogReader catalogReader)
+      throws SqlParseException {
+    final SqlValidator validator = new SubstraitSqlValidator(catalogReader);
     return executeInner(sql, validator, catalogReader);
   }
 
   // Package protected for testing
-  List<RelRoot> sqlToRelNode(String sql, Prepare.CatalogReader catalogReader)
+  List<RelRoot> sqlToRelNode(final String sql, final Prepare.CatalogReader catalogReader)
       throws SqlParseException {
-    SqlValidator validator = new SubstraitSqlValidator(catalogReader);
+    final SqlValidator validator = new SubstraitSqlValidator(catalogReader);
     return sqlToRelNode(sql, validator, catalogReader);
   }
 
-  private Plan executeInner(String sql, SqlValidator validator, Prepare.CatalogReader catalogReader)
+  private Plan executeInner(
+      final String sql, final SqlValidator validator, final Prepare.CatalogReader catalogReader)
       throws SqlParseException {
-    var builder = io.substrait.plan.Plan.builder();
+    final var builder = io.substrait.plan.Plan.builder();
     builder.version(Version.builder().from(Version.DEFAULT_VERSION).producer("isthmus").build());
 
     // TODO: consider case in which one sql passes conversion while others don't
@@ -50,18 +52,18 @@ public class SqlToSubstrait extends SqlConverterBase {
         .map(root -> SubstraitRelVisitor.convert(root, EXTENSION_COLLECTION, featureBoard))
         .forEach(root -> builder.addRoots(root));
 
-    PlanProtoConverter planToProto = new PlanProtoConverter();
+    final PlanProtoConverter planToProto = new PlanProtoConverter();
 
     return planToProto.toProto(builder.build());
   }
 
   private List<RelRoot> sqlToRelNode(
-      String sql, SqlValidator validator, Prepare.CatalogReader catalogReader)
+      final String sql, final SqlValidator validator, final Prepare.CatalogReader catalogReader)
       throws SqlParseException {
-    SqlParser parser = SqlParser.create(sql, parserConfig);
-    var parsedList = parser.parseStmtList();
-    SqlToRelConverter converter = createSqlToRelConverter(validator, catalogReader);
-    List<RelRoot> roots =
+    final SqlParser parser = SqlParser.create(sql, parserConfig);
+    final var parsedList = parser.parseStmtList();
+    final SqlToRelConverter converter = createSqlToRelConverter(validator, catalogReader);
+    final List<RelRoot> roots =
         parsedList.stream()
             .map(parsed -> getBestExpRelRoot(converter, parsed))
             .collect(java.util.stream.Collectors.toList());
@@ -70,8 +72,8 @@ public class SqlToSubstrait extends SqlConverterBase {
 
   @VisibleForTesting
   SqlToRelConverter createSqlToRelConverter(
-      SqlValidator validator, Prepare.CatalogReader catalogReader) {
-    SqlToRelConverter converter =
+      final SqlValidator validator, final Prepare.CatalogReader catalogReader) {
+    final SqlToRelConverter converter =
         new SqlToRelConverter(
             null,
             validator,
@@ -83,11 +85,11 @@ public class SqlToSubstrait extends SqlConverterBase {
   }
 
   @VisibleForTesting
-  static RelRoot getBestExpRelRoot(SqlToRelConverter converter, SqlNode parsed) {
+  static RelRoot getBestExpRelRoot(final SqlToRelConverter converter, final SqlNode parsed) {
     RelRoot root = converter.convertQuery(parsed, true, true);
     {
-      var program = HepProgram.builder().build();
-      HepPlanner hepPlanner = new HepPlanner(program);
+      final var program = HepProgram.builder().build();
+      final HepPlanner hepPlanner = new HepPlanner(program);
       hepPlanner.setRoot(root.rel);
       root = root.withRel(hepPlanner.findBestExp());
     }

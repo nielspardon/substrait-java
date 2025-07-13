@@ -17,13 +17,13 @@ public class Substrait2SqlTest extends PlanTestBase {
 
   @Test
   public void simpleTest() throws Exception {
-    String query = "select p_size  from part where p_partkey > cast(100 as bigint)";
+    final String query = "select p_size  from part where p_partkey > cast(100 as bigint)";
     assertSqlSubstraitRelRoundTrip(query);
   }
 
   @Test
   public void simpleTest2() throws Exception {
-    String query =
+    final String query =
         "select l_partkey, l_discount from lineitem where l_orderkey > cast(100 as bigint)";
     assertSqlSubstraitRelRoundTrip(query);
   }
@@ -112,7 +112,7 @@ public class Substrait2SqlTest extends PlanTestBase {
 
   @ParameterizedTest
   @MethodSource("io.substrait.isthmus.utils.SetUtils#setTestConfig")
-  public void setTest(Set.SetOp op, boolean multi) throws Exception {
+  public void setTest(final Set.SetOp op, final boolean multi) throws Exception {
     assertSqlSubstraitRelRoundTrip(SetUtils.getSetQuery(op, multi));
   }
 
@@ -142,13 +142,13 @@ public class Substrait2SqlTest extends PlanTestBase {
 
   @Test
   public void simpleTestApproxCountDistinct() throws Exception {
-    String query = "select approx_count_distinct(l_tax)  from lineitem";
-    RelRoot relRoot = assertSqlSubstraitRelRoundTrip(query);
-    RelNode relNode = relRoot.project();
+    final String query = "select approx_count_distinct(l_tax)  from lineitem";
+    final RelRoot relRoot = assertSqlSubstraitRelRoundTrip(query);
+    final RelNode relNode = relRoot.project();
 
     // Assert converted Calcite RelNode has `approx_count_distinct`
     assertInstanceOf(LogicalAggregate.class, relNode);
-    LogicalAggregate aggregate = (LogicalAggregate) relNode;
+    final LogicalAggregate aggregate = (LogicalAggregate) relNode;
     assertEquals(
         SqlStdOperatorTable.APPROX_COUNT_DISTINCT,
         aggregate.getAggCallList().get(0).getAggregation());

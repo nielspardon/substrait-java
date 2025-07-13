@@ -21,8 +21,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 public class ProtoPlanConverterTest extends PlanTestBase {
 
-  private io.substrait.proto.Plan getProtoPlan(String query1) throws SqlParseException {
-    SqlToSubstrait s = new SqlToSubstrait();
+  private io.substrait.proto.Plan getProtoPlan(final String query1) throws SqlParseException {
+    final SqlToSubstrait s = new SqlToSubstrait();
     return s.execute(query1, TPCH_CATALOG);
   }
 
@@ -36,7 +36,7 @@ public class ProtoPlanConverterTest extends PlanTestBase {
     assertProtoPlanRoundrip("select l_orderkey,l_extendedprice from lineitem");
   }
 
-  private static void assertAggregateInvocationDistinct(io.substrait.proto.Plan plan) {
+  private static void assertAggregateInvocationDistinct(final io.substrait.proto.Plan plan) {
     assertEquals(
         AggregateFunction.AggregationInvocation.AGGREGATION_INVOCATION_DISTINCT,
         plan.getRelations(0)
@@ -51,8 +51,8 @@ public class ProtoPlanConverterTest extends PlanTestBase {
 
   @Test
   public void distinctCount() throws IOException, SqlParseException {
-    String distinctQuery = "select count(DISTINCT L_ORDERKEY) from lineitem";
-    io.substrait.proto.Plan protoPlan = getProtoPlan(distinctQuery);
+    final String distinctQuery = "select count(DISTINCT L_ORDERKEY) from lineitem";
+    final io.substrait.proto.Plan protoPlan = getProtoPlan(distinctQuery);
     assertAggregateInvocationDistinct(protoPlan);
     assertAggregateInvocationDistinct(
         new PlanProtoConverter().toProto(new ProtoPlanConverter().from(protoPlan)));
@@ -65,18 +65,18 @@ public class ProtoPlanConverterTest extends PlanTestBase {
 
   @Test
   public void crossJoin() throws IOException, SqlParseException {
-    int[] counter = new int[1];
-    var crossJoinCountingVisitor =
+    final int[] counter = new int[1];
+    final var crossJoinCountingVisitor =
         new RelCopyOnWriteVisitor<RuntimeException>() {
-          public Optional<Rel> visit(Cross cross, EmptyVisitationContext context)
+          public Optional<Rel> visit(final Cross cross, final EmptyVisitationContext context)
               throws RuntimeException {
             counter[0]++;
             return super.visit(cross, context);
           }
         };
-    var featureBoard = ImmutableFeatureBoard.builder().build();
+    final var featureBoard = ImmutableFeatureBoard.builder().build();
 
-    Plan plan1 =
+    final Plan plan1 =
         assertProtoPlanRoundrip(
             """
             select
@@ -93,7 +93,7 @@ public class ProtoPlanConverterTest extends PlanTestBase {
             t -> t.getInput().accept(crossJoinCountingVisitor, EmptyVisitationContext.INSTANCE));
     assertEquals(1, counter[0]);
 
-    Plan plan2 =
+    final Plan plan2 =
         assertProtoPlanRoundrip(
             """
             select
@@ -144,7 +144,7 @@ public class ProtoPlanConverterTest extends PlanTestBase {
 
   @ParameterizedTest
   @MethodSource("io.substrait.isthmus.utils.SetUtils#setTestConfig")
-  public void setTest(Set.SetOp op, boolean multi) throws Exception {
+  public void setTest(final Set.SetOp op, final boolean multi) throws Exception {
     assertProtoPlanRoundrip(SetUtils.getSetQuery(op, multi));
   }
 
@@ -174,7 +174,7 @@ public class ProtoPlanConverterTest extends PlanTestBase {
 
   @Test
   public void existsNestedCorrelatedSubquery() throws IOException, SqlParseException {
-    String sql =
+    final String sql =
         "SELECT p_partkey\n"
             + "FROM part p\n"
             + "WHERE EXISTS\n"

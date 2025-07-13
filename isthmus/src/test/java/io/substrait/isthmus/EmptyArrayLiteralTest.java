@@ -14,9 +14,9 @@ public class EmptyArrayLiteralTest extends PlanTestBase {
 
   @Test
   void emptyArrayLiteral() {
-    var colType = N.I8;
-    var emptyListLiteral = ExpressionCreator.emptyList(false, N.I8);
-    var rel =
+    final var colType = N.I8;
+    final var emptyListLiteral = ExpressionCreator.emptyList(false, N.I8);
+    final var rel =
         b.project(
             input -> List.of(emptyListLiteral),
             Rel.Remap.offset(1, 1),
@@ -26,9 +26,9 @@ public class EmptyArrayLiteralTest extends PlanTestBase {
 
   @Test
   void nullableEmptyArrayLiteral() {
-    var colType = N.I8;
-    var emptyListLiteral = ExpressionCreator.emptyList(true, N.I8);
-    var rel =
+    final var colType = N.I8;
+    final var emptyListLiteral = ExpressionCreator.emptyList(true, N.I8);
+    final var rel =
         b.project(
             input -> List.of(emptyListLiteral),
             Rel.Remap.offset(1, 1),

@@ -23,7 +23,7 @@ public class CallConverters {
   public static Function<TypeConverter, SimpleCallConverter> CAST =
       typeConverter ->
           (call, visitor) -> {
-            Expression.FailureBehavior failureBehavior;
+            final Expression.FailureBehavior failureBehavior;
             switch (call.getKind()) {
               case CAST:
                 failureBehavior = Expression.FailureBehavior.THROW_EXCEPTION;
@@ -61,13 +61,13 @@ public class CallConverters {
             if (call.getKind() != SqlKind.REINTERPRET) {
               return null;
             }
-            var operand = visitor.apply(call.getOperands().get(0));
-            var type = typeConverter.toSubstrait(call.getType());
+            final var operand = visitor.apply(call.getOperands().get(0));
+            final var type = typeConverter.toSubstrait(call.getType());
 
             // For now, we only support handling of SqlKind.REINTEPRETET for the case of stored
             // user-defined literals
-            if (operand instanceof Expression.FixedBinaryLiteral literal
-                && type instanceof Type.UserDefined t) {
+            if (operand instanceof final Expression.FixedBinaryLiteral literal
+                && type instanceof final Type.UserDefined t) {
               return Expression.UserDefinedLiteral.builder()
                   .uri(t.uri())
                   .name(t.name())
@@ -98,12 +98,12 @@ public class CallConverters {
         // else)
         assert call.getOperands().size() % 2 == 1;
 
-        var caseArgs =
+        final var caseArgs =
             call.getOperands().stream().map(visitor).collect(java.util.stream.Collectors.toList());
 
-        var last = caseArgs.size() - 1;
+        final var last = caseArgs.size() - 1;
         // for if/else, process in reverse to maintain query order
-        var caseConditions = new ArrayList<Expression.IfClause>();
+        final var caseConditions = new ArrayList<Expression.IfClause>();
         for (int i = 0; i < last; i += 2) {
           caseConditions.add(
               Expression.IfClause.builder()
@@ -112,7 +112,7 @@ public class CallConverters {
                   .build());
         }
 
-        var defaultResult = caseArgs.get(last);
+        final var defaultResult = caseArgs.get(last);
         return ExpressionCreator.ifThenStatement(defaultResult, caseConditions);
       };
 
@@ -122,18 +122,18 @@ public class CallConverters {
    * RexProgram, RexNode)}
    */
   public static Function<RexBuilder, SimpleCallConverter> CREATE_SEARCH_CONV =
-      (RexBuilder rexBuilder) ->
-          (RexCall call, Function<RexNode, Expression> visitor) -> {
+      (final RexBuilder rexBuilder) ->
+          (final RexCall call, final Function<RexNode, Expression> visitor) -> {
             if (call.getKind() != SqlKind.SEARCH) {
               return null;
             } else {
-              var expandSearch = RexUtil.expandSearch(rexBuilder, null, call);
+              final var expandSearch = RexUtil.expandSearch(rexBuilder, null, call);
               // if no expansion happened, avoid infinite recursion.
               return expandSearch.equals(call) ? null : visitor.apply(expandSearch);
             }
           };
 
-  public static List<CallConverter> defaults(TypeConverter typeConverter) {
+  public static List<CallConverter> defaults(final TypeConverter typeConverter) {
     return ImmutableList.of(
         new FieldSelectionConverter(typeConverter),
         CallConverters.CASE,
@@ -149,7 +149,7 @@ public class CallConverters {
 
     @Override
     default Optional<Expression> convert(
-        RexCall call, Function<RexNode, Expression> topLevelConverter) {
+        final RexCall call, final Function<RexNode, Expression> topLevelConverter) {
       return Optional.ofNullable(apply(call, topLevelConverter));
     }
   }

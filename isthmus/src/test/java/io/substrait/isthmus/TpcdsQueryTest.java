@@ -25,17 +25,17 @@ public class TpcdsQueryTest extends PlanTestBase {
    */
   @ParameterizedTest
   @MethodSource("testCases")
-  public void testQuery(int query) throws IOException {
-    String inputSql = asString(String.format("tpcds/queries/%02d.sql", query));
+  public void testQuery(final int query) throws IOException {
+    final String inputSql = asString(String.format("tpcds/queries/%02d.sql", query));
 
-    Plan plan = assertDoesNotThrow(() -> toSubstraitPlan(inputSql), "SQL to Substrait");
+    final Plan plan = assertDoesNotThrow(() -> toSubstraitPlan(inputSql), "SQL to Substrait");
 
     if (!fromSubstraitExclusions.contains(query)) {
       assertDoesNotThrow(() -> toSql(plan), "Substrait to SQL");
     }
   }
 
-  private Plan toSubstraitPlan(String sql) throws SqlParseException {
+  private Plan toSubstraitPlan(final String sql) throws SqlParseException {
     return toSubstraitPlan(sql, TPCDS_CATALOG);
   }
 }

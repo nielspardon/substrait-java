@@ -47,90 +47,90 @@ public class SubstraitExpressionConverterTest extends PlanTestBase {
 
   @Test
   public void switchExpression() {
-    var expr =
+    final var expr =
         b.switchExpression(
             b.fieldReference(commonTable, 0),
             List.of(b.switchClause(b.i32(0), b.fieldReference(commonTable, 3))),
             b.bool(false));
-    var calciteExpr = expr.accept(converter, Context.newContext());
+    final var calciteExpr = expr.accept(converter, Context.newContext());
 
     assertTypeMatch(calciteExpr.getType(), N.BOOLEAN);
   }
 
   @Test
   public void scalarSubQuery() {
-    Rel subQueryRel = createSubQueryRel();
+    final Rel subQueryRel = createSubQueryRel();
 
-    Expression.ScalarSubquery expr =
+    final Expression.ScalarSubquery expr =
         Expression.ScalarSubquery.builder().type(R.I64).input(subQueryRel).build();
 
-    Project query = b.project(input -> List.of(expr), b.emptyScan());
+    final Project query = b.project(input -> List.of(expr), b.emptyScan());
 
-    SubstraitToCalcite substraitToCalcite = new SubstraitToCalcite(extensions, typeFactory);
-    RelNode calciteRel = substraitToCalcite.convert(query);
+    final SubstraitToCalcite substraitToCalcite = new SubstraitToCalcite(extensions, typeFactory);
+    final RelNode calciteRel = substraitToCalcite.convert(query);
 
     assertInstanceOf(LogicalProject.class, calciteRel);
-    List<RexNode> calciteProjectExpr = ((LogicalProject) calciteRel).getProjects();
+    final List<RexNode> calciteProjectExpr = ((LogicalProject) calciteRel).getProjects();
     assertEquals(1, calciteProjectExpr.size());
     assertEquals(SqlKind.SCALAR_QUERY, calciteProjectExpr.get(0).getKind());
   }
 
   @Test
   public void existsSetPredicate() {
-    Rel subQueryRel = createSubQueryRel();
+    final Rel subQueryRel = createSubQueryRel();
 
-    Expression.SetPredicate expr =
+    final Expression.SetPredicate expr =
         Expression.SetPredicate.builder()
             .predicateOp(Expression.PredicateOp.PREDICATE_OP_EXISTS)
             .tuples(subQueryRel)
             .build();
 
-    Project query = b.project(input -> List.of(expr), b.emptyScan());
+    final Project query = b.project(input -> List.of(expr), b.emptyScan());
 
-    SubstraitToCalcite substraitToCalcite = new SubstraitToCalcite(extensions, typeFactory);
-    RelNode calciteRel = substraitToCalcite.convert(query);
+    final SubstraitToCalcite substraitToCalcite = new SubstraitToCalcite(extensions, typeFactory);
+    final RelNode calciteRel = substraitToCalcite.convert(query);
 
     assertInstanceOf(LogicalProject.class, calciteRel);
-    List<RexNode> calciteProjectExpr = ((LogicalProject) calciteRel).getProjects();
+    final List<RexNode> calciteProjectExpr = ((LogicalProject) calciteRel).getProjects();
     assertEquals(1, calciteProjectExpr.size());
     assertEquals(SqlKind.EXISTS, calciteProjectExpr.get(0).getKind());
   }
 
   @Test
   public void uniqueSetPredicate() {
-    Rel subQueryRel = createSubQueryRel();
+    final Rel subQueryRel = createSubQueryRel();
 
-    Expression.SetPredicate expr =
+    final Expression.SetPredicate expr =
         Expression.SetPredicate.builder()
             .predicateOp(Expression.PredicateOp.PREDICATE_OP_UNIQUE)
             .tuples(subQueryRel)
             .build();
 
-    Project query = b.project(input -> List.of(expr), b.emptyScan());
+    final Project query = b.project(input -> List.of(expr), b.emptyScan());
 
-    SubstraitToCalcite substraitToCalcite = new SubstraitToCalcite(extensions, typeFactory);
-    RelNode calciteRel = substraitToCalcite.convert(query);
+    final SubstraitToCalcite substraitToCalcite = new SubstraitToCalcite(extensions, typeFactory);
+    final RelNode calciteRel = substraitToCalcite.convert(query);
 
     assertInstanceOf(LogicalProject.class, calciteRel);
-    List<RexNode> calciteProjectExpr = ((LogicalProject) calciteRel).getProjects();
+    final List<RexNode> calciteProjectExpr = ((LogicalProject) calciteRel).getProjects();
     assertEquals(1, calciteProjectExpr.size());
     assertEquals(SqlKind.UNIQUE, calciteProjectExpr.get(0).getKind());
   }
 
   @Test
   public void unspecifiedSetPredicate() {
-    Rel subQueryRel = createSubQueryRel();
+    final Rel subQueryRel = createSubQueryRel();
 
-    Expression.SetPredicate expr =
+    final Expression.SetPredicate expr =
         Expression.SetPredicate.builder()
             .predicateOp(Expression.PredicateOp.PREDICATE_OP_UNSPECIFIED)
             .tuples(subQueryRel)
             .build();
 
-    Project query = b.project(input -> List.of(expr), b.emptyScan());
+    final Project query = b.project(input -> List.of(expr), b.emptyScan());
 
-    SubstraitToCalcite substraitToCalcite = new SubstraitToCalcite(extensions, typeFactory);
-    Exception exception =
+    final SubstraitToCalcite substraitToCalcite = new SubstraitToCalcite(extensions, typeFactory);
+    final Exception exception =
         assertThrows(
             UnsupportedOperationException.class,
             () -> {
@@ -165,7 +165,7 @@ public class SubstraitExpressionConverterTest extends PlanTestBase {
 
   @Test
   public void useSubstraitReturnTypeDuringScalarFunctionConversion() {
-    Expression.ScalarFunctionInvocation expr =
+    final Expression.ScalarFunctionInvocation expr =
         b.scalarFn(
             DefaultExtensionCatalog.FUNCTIONS_ARITHMETIC,
             "add:i32_i32",
@@ -175,13 +175,13 @@ public class SubstraitExpressionConverterTest extends PlanTestBase {
             b.i32(7),
             b.i32(42));
 
-    RexNode calciteExpr = expr.accept(expressionRexConverter, Context.newContext());
+    final RexNode calciteExpr = expr.accept(expressionRexConverter, Context.newContext());
     assertEquals(TypeConverter.DEFAULT.toCalcite(typeFactory, R.FP32), calciteExpr.getType());
   }
 
   @Test
   public void useSubstraitReturnTypeDuringWindowFunctionConversion() {
-    Expression.WindowFunctionInvocation expr =
+    final Expression.WindowFunctionInvocation expr =
         b.windowFn(
             DefaultExtensionCatalog.FUNCTIONS_ARITHMETIC,
             "row_number:",
@@ -195,12 +195,12 @@ public class SubstraitExpressionConverterTest extends PlanTestBase {
             WindowBound.UNBOUNDED,
             b.i32(42));
 
-    RexNode calciteExpr = expr.accept(expressionRexConverter, Context.newContext());
+    final RexNode calciteExpr = expr.accept(expressionRexConverter, Context.newContext());
     assertEquals(TypeConverter.DEFAULT.toCalcite(typeFactory, R.STRING), calciteExpr.getType());
   }
 
-  void assertTypeMatch(RelDataType actual, Type expected) {
-    Type type = TypeConverter.DEFAULT.toSubstrait(actual);
+  void assertTypeMatch(final RelDataType actual, final Type expected) {
+    final Type type = TypeConverter.DEFAULT.toSubstrait(actual);
     assertEquals(expected, type);
   }
 }

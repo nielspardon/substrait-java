@@ -58,22 +58,22 @@ public class SubstraitRelVisitor extends RelNodeVisitor<Rel, RuntimeException> {
   private Map<RexFieldAccess, Integer> fieldAccessDepthMap;
 
   public SubstraitRelVisitor(
-      RelDataTypeFactory typeFactory, SimpleExtension.ExtensionCollection extensions) {
+      final RelDataTypeFactory typeFactory, final SimpleExtension.ExtensionCollection extensions) {
     this(typeFactory, extensions, FEATURES_DEFAULT);
   }
 
   public SubstraitRelVisitor(
-      RelDataTypeFactory typeFactory,
-      SimpleExtension.ExtensionCollection extensions,
-      FeatureBoard features) {
+      final RelDataTypeFactory typeFactory,
+      final SimpleExtension.ExtensionCollection extensions,
+      final FeatureBoard features) {
     this.typeConverter = TypeConverter.DEFAULT;
-    var converters = new ArrayList<CallConverter>();
+    final var converters = new ArrayList<CallConverter>();
     converters.addAll(CallConverters.defaults(typeConverter));
     converters.add(new ScalarFunctionConverter(extensions.scalarFunctions(), typeFactory));
     converters.add(CallConverters.CREATE_SEARCH_CONV.apply(new RexBuilder(typeFactory)));
     this.aggregateFunctionConverter =
         new AggregateFunctionConverter(extensions.aggregateFunctions(), typeFactory);
-    var windowFunctionConverter =
+    final var windowFunctionConverter =
         new WindowFunctionConverter(extensions.windowFunctions(), typeFactory);
     this.rexExpressionConverter =
         new RexExpressionConverter(this, converters, windowFunctionConverter, typeConverter);
@@ -81,13 +81,13 @@ public class SubstraitRelVisitor extends RelNodeVisitor<Rel, RuntimeException> {
   }
 
   public SubstraitRelVisitor(
-      RelDataTypeFactory typeFactory,
-      ScalarFunctionConverter scalarFunctionConverter,
-      AggregateFunctionConverter aggregateFunctionConverter,
-      WindowFunctionConverter windowFunctionConverter,
-      TypeConverter typeConverter,
-      FeatureBoard features) {
-    var converters = new ArrayList<CallConverter>();
+      final RelDataTypeFactory typeFactory,
+      final ScalarFunctionConverter scalarFunctionConverter,
+      final AggregateFunctionConverter aggregateFunctionConverter,
+      final WindowFunctionConverter windowFunctionConverter,
+      final TypeConverter typeConverter,
+      final FeatureBoard features) {
+    final var converters = new ArrayList<CallConverter>();
     converters.addAll(CallConverters.defaults(typeConverter));
     converters.add(scalarFunctionConverter);
     converters.add(CallConverters.CREATE_SEARCH_CONV.apply(new RexBuilder(typeFactory)));
@@ -98,13 +98,13 @@ public class SubstraitRelVisitor extends RelNodeVisitor<Rel, RuntimeException> {
     this.featureBoard = features;
   }
 
-  protected Expression toExpression(RexNode node) {
+  protected Expression toExpression(final RexNode node) {
     return node.accept(rexExpressionConverter);
   }
 
   @Override
-  public Rel visit(org.apache.calcite.rel.core.TableScan scan) {
-    var type = typeConverter.toNamedStruct(scan.getRowType());
+  public Rel visit(final org.apache.calcite.rel.core.TableScan scan) {
+    final var type = typeConverter.toNamedStruct(scan.getRowType());
     return NamedScan.builder()
         .initialSchema(type)
         .addAllNames(scan.getTable().getQualifiedName())
@@ -112,23 +112,23 @@ public class SubstraitRelVisitor extends RelNodeVisitor<Rel, RuntimeException> {
   }
 
   @Override
-  public Rel visit(org.apache.calcite.rel.core.TableFunctionScan scan) {
+  public Rel visit(final org.apache.calcite.rel.core.TableFunctionScan scan) {
     return super.visit(scan);
   }
 
   @Override
-  public Rel visit(org.apache.calcite.rel.core.Values values) {
-    var type = typeConverter.toNamedStruct(values.getRowType());
+  public Rel visit(final org.apache.calcite.rel.core.Values values) {
+    final var type = typeConverter.toNamedStruct(values.getRowType());
     if (values.getTuples().isEmpty()) {
       return EmptyScan.builder().initialSchema(type).build();
     }
 
-    LiteralConverter literalConverter = new LiteralConverter(typeConverter);
-    List<Expression.StructLiteral> structs =
+    final LiteralConverter literalConverter = new LiteralConverter(typeConverter);
+    final List<Expression.StructLiteral> structs =
         values.getTuples().stream()
             .map(
                 list -> {
-                  var fields =
+                  final var fields =
                       list.stream()
                           .map(l -> literalConverter.convert(l))
                           .collect(Collectors.toUnmodifiableList());
@@ -139,19 +139,19 @@ public class SubstraitRelVisitor extends RelNodeVisitor<Rel, RuntimeException> {
   }
 
   @Override
-  public Rel visit(org.apache.calcite.rel.core.Filter filter) {
-    var condition = toExpression(filter.getCondition());
+  public Rel visit(final org.apache.calcite.rel.core.Filter filter) {
+    final var condition = toExpression(filter.getCondition());
     return Filter.builder().condition(condition).input(apply(filter.getInput())).build();
   }
 
   @Override
-  public Rel visit(org.apache.calcite.rel.core.Calc calc) {
+  public Rel visit(final org.apache.calcite.rel.core.Calc calc) {
     return super.visit(calc);
   }
 
   @Override
-  public Rel visit(org.apache.calcite.rel.core.Project project) {
-    var expressions =
+  public Rel visit(final org.apache.calcite.rel.core.Project project) {
+    final var expressions =
         project.getProjects().stream()
             .map(this::toExpression)
             .collect(java.util.stream.Collectors.toList());
@@ -166,11 +166,11 @@ public class SubstraitRelVisitor extends RelNodeVisitor<Rel, RuntimeException> {
   }
 
   @Override
-  public Rel visit(org.apache.calcite.rel.core.Join join) {
-    var left = apply(join.getLeft());
-    var right = apply(join.getRight());
-    var condition = toExpression(join.getCondition());
-    var joinType =
+  public Rel visit(final org.apache.calcite.rel.core.Join join) {
+    final var left = apply(join.getLeft());
+    final var right = apply(join.getRight());
+    final var condition = toExpression(join.getCondition());
+    final var joinType =
         switch (join.getJoinType()) {
           case INNER -> Join.JoinType.INNER;
           case LEFT -> Join.JoinType.LEFT;
@@ -190,14 +190,14 @@ public class SubstraitRelVisitor extends RelNodeVisitor<Rel, RuntimeException> {
   }
 
   @Override
-  public Rel visit(org.apache.calcite.rel.core.Correlate correlate) {
+  public Rel visit(final org.apache.calcite.rel.core.Correlate correlate) {
     // left input of correlated-join is similar to the left input of a logical join
     apply(correlate.getLeft());
 
     // right input of correlated-join is similar to a correlated sub-query
     apply(correlate.getRight());
 
-    var joinType =
+    final var joinType =
         switch (correlate.getJoinType()) {
           case INNER -> Join.JoinType.INNER; // corresponds to CROSS APPLY join
           case LEFT -> Join.JoinType.LEFT; // corresponds to OUTER APPLY join
@@ -208,41 +208,41 @@ public class SubstraitRelVisitor extends RelNodeVisitor<Rel, RuntimeException> {
   }
 
   @Override
-  public Rel visit(org.apache.calcite.rel.core.Union union) {
-    var inputs = apply(union.getInputs());
-    var setOp = union.all ? Set.SetOp.UNION_ALL : Set.SetOp.UNION_DISTINCT;
+  public Rel visit(final org.apache.calcite.rel.core.Union union) {
+    final var inputs = apply(union.getInputs());
+    final var setOp = union.all ? Set.SetOp.UNION_ALL : Set.SetOp.UNION_DISTINCT;
     return Set.builder().inputs(inputs).setOp(setOp).build();
   }
 
   @Override
-  public Rel visit(org.apache.calcite.rel.core.Intersect intersect) {
-    var inputs = apply(intersect.getInputs());
-    var setOp =
+  public Rel visit(final org.apache.calcite.rel.core.Intersect intersect) {
+    final var inputs = apply(intersect.getInputs());
+    final var setOp =
         intersect.all ? Set.SetOp.INTERSECTION_MULTISET_ALL : Set.SetOp.INTERSECTION_MULTISET;
     return Set.builder().inputs(inputs).setOp(setOp).build();
   }
 
   @Override
-  public Rel visit(org.apache.calcite.rel.core.Minus minus) {
-    var inputs = apply(minus.getInputs());
-    var setOp = minus.all ? Set.SetOp.MINUS_PRIMARY_ALL : Set.SetOp.MINUS_PRIMARY;
+  public Rel visit(final org.apache.calcite.rel.core.Minus minus) {
+    final var inputs = apply(minus.getInputs());
+    final var setOp = minus.all ? Set.SetOp.MINUS_PRIMARY_ALL : Set.SetOp.MINUS_PRIMARY;
     return Set.builder().inputs(inputs).setOp(setOp).build();
   }
 
   @Override
-  public Rel visit(org.apache.calcite.rel.core.Aggregate aggregate) {
-    var input = apply(aggregate.getInput());
-    Stream<ImmutableBitSet> sets;
+  public Rel visit(final org.apache.calcite.rel.core.Aggregate aggregate) {
+    final var input = apply(aggregate.getInput());
+    final Stream<ImmutableBitSet> sets;
     if (aggregate.groupSets != null) {
       sets = aggregate.groupSets.stream();
     } else {
       sets = Stream.of(aggregate.getGroupSet());
     }
 
-    var groupings =
+    final var groupings =
         sets.filter(s -> s != null).map(s -> fromGroupSet(s, input)).collect(Collectors.toList());
 
-    var aggCalls =
+    final var aggCalls =
         aggregate.getAggCallList().stream()
             .map(c -> fromAggCall(aggregate.getInput(), input.getRecordType(), c))
             .collect(Collectors.toList());
@@ -254,22 +254,23 @@ public class SubstraitRelVisitor extends RelNodeVisitor<Rel, RuntimeException> {
         .build();
   }
 
-  Aggregate.Grouping fromGroupSet(ImmutableBitSet bitSet, Rel input) {
-    List<Expression> references =
+  Aggregate.Grouping fromGroupSet(final ImmutableBitSet bitSet, final Rel input) {
+    final List<Expression> references =
         bitSet.asList().stream()
             .map(i -> FieldReference.newInputRelReference(i, input))
             .collect(Collectors.toList());
     return Aggregate.Grouping.builder().addAllExpressions(references).build();
   }
 
-  Aggregate.Measure fromAggCall(RelNode input, Type.Struct inputType, AggregateCall call) {
-    var invocation =
+  Aggregate.Measure fromAggCall(
+      final RelNode input, final Type.Struct inputType, final AggregateCall call) {
+    final var invocation =
         aggregateFunctionConverter.convert(
             input, inputType, call, t -> t.accept(rexExpressionConverter));
     if (invocation.isEmpty()) {
       throw new UnsupportedOperationException("Unable to find binding for call " + call);
     }
-    var builder = Aggregate.Measure.builder().function(invocation.get());
+    final var builder = Aggregate.Measure.builder().function(invocation.get());
     if (call.filterArg != -1) {
       builder.preMeasureFilter(FieldReference.newRootStructReference(call.filterArg, inputType));
     }
@@ -279,13 +280,13 @@ public class SubstraitRelVisitor extends RelNodeVisitor<Rel, RuntimeException> {
   }
 
   @Override
-  public Rel visit(org.apache.calcite.rel.core.Match match) {
+  public Rel visit(final org.apache.calcite.rel.core.Match match) {
     return super.visit(match);
   }
 
   @Override
-  public Rel visit(org.apache.calcite.rel.core.Sort sort) {
-    Rel input = apply(sort.getInput());
+  public Rel visit(final org.apache.calcite.rel.core.Sort sort) {
+    final Rel input = apply(sort.getInput());
     Rel output = input;
 
     // The Calcite Sort relation combines sorting along with offset and fetch/limit
@@ -293,7 +294,7 @@ public class SubstraitRelVisitor extends RelNodeVisitor<Rel, RuntimeException> {
     // Substrait splits this functionality into two different relations: SortRel, FetchRel
     // Add the SortRel to the relation tree first to match Calcite's application order
     if (!sort.getCollation().getFieldCollations().isEmpty()) {
-      List<Expression.SortField> fields =
+      final List<Expression.SortField> fields =
           sort.getCollation().getFieldCollations().stream()
               .map(t -> toSortField(t, input.getRecordType()))
               .collect(java.util.stream.Collectors.toList());
@@ -301,32 +302,32 @@ public class SubstraitRelVisitor extends RelNodeVisitor<Rel, RuntimeException> {
     }
 
     if (sort.fetch != null || sort.offset != null) {
-      Long offset = Optional.ofNullable(sort.offset).map(this::asLong).orElse(0L);
-      OptionalLong count =
+      final Long offset = Optional.ofNullable(sort.offset).map(this::asLong).orElse(0L);
+      final OptionalLong count =
           Optional.ofNullable(sort.fetch)
               .map(r -> OptionalLong.of(asLong(r)))
               .orElse(OptionalLong.empty());
 
-      var builder = Fetch.builder().input(output).offset(offset).count(count);
+      final var builder = Fetch.builder().input(output).offset(offset).count(count);
       output = builder.build();
     }
 
     return output;
   }
 
-  private long asLong(RexNode rex) {
-    var expr = toExpression(rex);
-    if (expr instanceof Expression.I64Literal i) {
+  private long asLong(final RexNode rex) {
+    final var expr = toExpression(rex);
+    if (expr instanceof final Expression.I64Literal i) {
       return i.value();
-    } else if (expr instanceof Expression.I32Literal i) {
+    } else if (expr instanceof final Expression.I32Literal i) {
       return i.value();
     }
     throw new UnsupportedOperationException("Unknown type: " + rex);
   }
 
   public static Expression.SortField toSortField(
-      RelFieldCollation collation, Type.Struct inputType) {
-    Expression.SortDirection direction =
+      final RelFieldCollation collation, final Type.Struct inputType) {
+    final Expression.SortDirection direction =
         switch (collation.direction) {
           case STRICTLY_ASCENDING, ASCENDING -> collation.nullDirection
                   == RelFieldCollation.NullDirection.LAST
@@ -346,64 +347,71 @@ public class SubstraitRelVisitor extends RelNodeVisitor<Rel, RuntimeException> {
   }
 
   @Override
-  public Rel visit(org.apache.calcite.rel.core.Exchange exchange) {
+  public Rel visit(final org.apache.calcite.rel.core.Exchange exchange) {
     return super.visit(exchange);
   }
 
   @Override
-  public Rel visit(org.apache.calcite.rel.core.TableModify modify) {
+  public Rel visit(final org.apache.calcite.rel.core.TableModify modify) {
     return super.visit(modify);
   }
 
   @Override
-  public Rel visitOther(RelNode other) {
+  public Rel visitOther(final RelNode other) {
     throw new UnsupportedOperationException("Unable to handle node: " + other);
   }
 
-  private void popFieldAccessDepthMap(RelNode root) {
+  private void popFieldAccessDepthMap(final RelNode root) {
     final OuterReferenceResolver resolver = new OuterReferenceResolver();
     resolver.apply(root);
     fieldAccessDepthMap = resolver.getFieldAccessDepthMap();
   }
 
-  public Integer getFieldAccessDepth(RexFieldAccess fieldAccess) {
+  public Integer getFieldAccessDepth(final RexFieldAccess fieldAccess) {
     return fieldAccessDepthMap.get(fieldAccess);
   }
 
-  public Rel apply(RelNode r) {
+  public Rel apply(final RelNode r) {
     return reverseAccept(r);
   }
 
-  public List<Rel> apply(List<RelNode> inputs) {
+  public List<Rel> apply(final List<RelNode> inputs) {
     return inputs.stream()
         .map(inputRel -> apply(inputRel))
         .collect(java.util.stream.Collectors.toList());
   }
 
-  public static Plan.Root convert(RelRoot relRoot, SimpleExtension.ExtensionCollection extensions) {
+  public static Plan.Root convert(
+      final RelRoot relRoot, final SimpleExtension.ExtensionCollection extensions) {
     return convert(relRoot, extensions, FEATURES_DEFAULT);
   }
 
   public static Plan.Root convert(
-      RelRoot relRoot, SimpleExtension.ExtensionCollection extensions, FeatureBoard features) {
-    SubstraitRelVisitor visitor =
+      final RelRoot relRoot,
+      final SimpleExtension.ExtensionCollection extensions,
+      final FeatureBoard features) {
+    final SubstraitRelVisitor visitor =
         new SubstraitRelVisitor(relRoot.rel.getCluster().getTypeFactory(), extensions, features);
     visitor.popFieldAccessDepthMap(relRoot.rel);
-    Rel rel = visitor.apply(relRoot.project());
+    final Rel rel = visitor.apply(relRoot.project());
 
     // Avoid using the names from relRoot.validatedRowType because if there are
     // nested types (i.e ROW, MAP, etc) the typeConverter will pad names correctly
-    List<String> names = visitor.typeConverter.toNamedStruct(relRoot.validatedRowType).names();
+    final List<String> names =
+        visitor.typeConverter.toNamedStruct(relRoot.validatedRowType).names();
     return Plan.Root.builder().input(rel).names(names).build();
   }
 
-  public static Rel convert(RelNode relNode, SimpleExtension.ExtensionCollection extensions) {
+  public static Rel convert(
+      final RelNode relNode, final SimpleExtension.ExtensionCollection extensions) {
     return convert(relNode, extensions, FEATURES_DEFAULT);
   }
 
   public static Rel convert(
-      RelNode relNode, SimpleExtension.ExtensionCollection extensions, FeatureBoard features) {
-    SubstraitRelVisitor visitor =
+      final RelNode relNode,
+      final SimpleExtension.ExtensionCollection extensions,
+      final FeatureBoard features) {
+    final SubstraitRelVisitor visitor =
         new SubstraitRelVisitor(relNode.getCluster().getTypeFactory(), extensions, features);
     visitor.popFieldAccessDepthMap(relNode);
     return visitor.apply(relNode);

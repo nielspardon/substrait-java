@@ -9,16 +9,16 @@ import org.apache.calcite.sql.type.SqlTypeName;
 public class WindowBoundConverter {
 
   /** Converts a {@link RexWindowBound} to a {@link WindowBound}. */
-  public static WindowBound toWindowBound(RexWindowBound rexWindowBound) {
+  public static WindowBound toWindowBound(final RexWindowBound rexWindowBound) {
     if (rexWindowBound.isCurrentRow()) {
       return WindowBound.CURRENT_ROW;
     }
     if (rexWindowBound.isUnbounded()) {
       return WindowBound.UNBOUNDED;
     } else {
-      if (rexWindowBound.getOffset() instanceof RexLiteral literal
+      if (rexWindowBound.getOffset() instanceof final RexLiteral literal
           && SqlTypeName.EXACT_TYPES.contains(literal.getTypeName())) {
-        BigDecimal offset = (BigDecimal) literal.getValue4();
+        final BigDecimal offset = (BigDecimal) literal.getValue4();
         if (rexWindowBound.isPreceding()) {
           return WindowBound.Preceding.of(offset.longValue());
         }

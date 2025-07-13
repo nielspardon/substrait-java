@@ -51,53 +51,53 @@ public abstract class FunctionConverter<
 
   protected final Multimap<String, SqlOperator> substraitFuncKeyToSqlOperatorMap;
 
-  public FunctionConverter(List<F> functions, RelDataTypeFactory typeFactory) {
+  public FunctionConverter(final List<F> functions, final RelDataTypeFactory typeFactory) {
     this(functions, Collections.EMPTY_LIST, typeFactory, TypeConverter.DEFAULT);
   }
 
   public FunctionConverter(
-      List<F> functions,
-      List<FunctionMappings.Sig> additionalSignatures,
-      RelDataTypeFactory typeFactory,
-      TypeConverter typeConverter) {
+      final List<F> functions,
+      final List<FunctionMappings.Sig> additionalSignatures,
+      final RelDataTypeFactory typeFactory,
+      final TypeConverter typeConverter) {
     this.rexBuilder = new RexBuilder(typeFactory);
     this.typeConverter = typeConverter;
-    var signatures =
+    final var signatures =
         new ArrayList<FunctionMappings.Sig>(getSigs().size() + additionalSignatures.size());
     signatures.addAll(additionalSignatures);
     signatures.addAll(getSigs());
     this.typeFactory = typeFactory;
     this.substraitFuncKeyToSqlOperatorMap = ArrayListMultimap.create();
 
-    var alm = ArrayListMultimap.<String, F>create();
-    for (var f : functions) {
+    final var alm = ArrayListMultimap.<String, F>create();
+    for (final var f : functions) {
       alm.put(f.name().toLowerCase(Locale.ROOT), f);
     }
 
-    ListMultimap<String, FunctionMappings.Sig> calciteOperators =
+    final ListMultimap<String, FunctionMappings.Sig> calciteOperators =
         signatures.stream()
             .collect(
                 Multimaps.toMultimap(
                     FunctionMappings.Sig::name, Function.identity(), ArrayListMultimap::create));
-    var matcherMap = new IdentityHashMap<SqlOperator, FunctionFinder>();
-    for (String key : alm.keySet()) {
-      var sigs = calciteOperators.get(key);
+    final var matcherMap = new IdentityHashMap<SqlOperator, FunctionFinder>();
+    for (final String key : alm.keySet()) {
+      final var sigs = calciteOperators.get(key);
       if (sigs.isEmpty()) {
         logger.atInfo().log("No binding for function: {}", key);
       }
 
-      for (var sig : sigs) {
-        var implList = alm.get(key);
+      for (final var sig : sigs) {
+        final var implList = alm.get(key);
         if (!implList.isEmpty()) {
           matcherMap.put(sig.operator(), new FunctionFinder(key, sig.operator(), implList));
         }
       }
     }
 
-    for (var entry : alm.entries()) {
-      String key = entry.getKey();
-      var func = entry.getValue();
-      for (FunctionMappings.Sig sig : calciteOperators.get(key)) {
+    for (final var entry : alm.entries()) {
+      final String key = entry.getKey();
+      final var func = entry.getValue();
+      for (final FunctionMappings.Sig sig : calciteOperators.get(key)) {
         substraitFuncKeyToSqlOperatorMap.put(func.key(), sig.operator());
       }
     }
@@ -105,9 +105,10 @@ public abstract class FunctionConverter<
     this.signatures = matcherMap;
   }
 
-  public Optional<SqlOperator> getSqlOperatorFromSubstraitFunc(String key, Type outputType) {
-    var resolver = getTypeBasedResolver();
-    var operators = substraitFuncKeyToSqlOperatorMap.get(key);
+  public Optional<SqlOperator> getSqlOperatorFromSubstraitFunc(
+      final String key, final Type outputType) {
+    final var resolver = getTypeBasedResolver();
+    final var operators = substraitFuncKeyToSqlOperatorMap.get(key);
     if (operators.isEmpty()) {
       return Optional.empty();
     }
@@ -118,8 +119,8 @@ public abstract class FunctionConverter<
     }
 
     // at least 2 operators. Use output type to resolve SqlOperator.
-    String outputTypeStr = outputType.accept(ToTypeString.INSTANCE);
-    var resolvedOperators =
+    final String outputTypeStr = outputType.accept(ToTypeString.INSTANCE);
+    final var resolvedOperators =
         operators.stream()
             .filter(
                 operator ->
@@ -152,7 +153,8 @@ public abstract class FunctionConverter<
     private final Optional<SingularArgumentMatcher<F>> singularInputType;
     private final Util.IntRange argRange;
 
-    public FunctionFinder(String substraitName, SqlOperator operator, List<F> functions) {
+    public FunctionFinder(
+        final String substraitName, final SqlOperator operator, final List<F> functions) {
       this.substraitName = substraitName;
       this.operator = operator;
       this.functions = functions;
@@ -161,9 +163,9 @@ public abstract class FunctionConverter<
               functions.stream().mapToInt(t -> t.getRange().getStartInclusive()).min().getAsInt(),
               functions.stream().mapToInt(t -> t.getRange().getEndExclusive()).max().getAsInt());
       this.singularInputType = getSingularInputType(functions);
-      var directMap = ImmutableMap.<String, F>builder();
-      for (var func : functions) {
-        String key = func.key();
+      final var directMap = ImmutableMap.<String, F>builder();
+      for (final var func : functions) {
+        final String key = func.key();
         directMap.put(key, func);
         if (func.requiredArguments().size() != func.args().size()) {
           directMap.put(F.constructKey(substraitName, func.requiredArguments()), func);
@@ -172,13 +174,13 @@ public abstract class FunctionConverter<
       this.directMap = directMap.build();
     }
 
-    public boolean allowedArgCount(int count) {
+    public boolean allowedArgCount(final int count) {
       return argRange.within(count);
     }
 
-    private Optional<F> signatureMatch(List<Type> inputTypes, Type outputType) {
-      for (F function : functions) {
-        List<SimpleExtension.Argument> args = function.requiredArguments();
+    private Optional<F> signatureMatch(final List<Type> inputTypes, final Type outputType) {
+      for (final F function : functions) {
+        final List<SimpleExtension.Argument> args = function.requiredArguments();
         // Make sure that arguments & return are within bounds and match the types
         if (function.returnType() instanceof ParameterizedType
             && isMatch(outputType, (ParameterizedType) function.returnType())
@@ -204,12 +206,12 @@ public abstract class FunctionConverter<
      * @return true if the {@code inputTypes} satisfy the {@code args}, false otherwise
      */
     private static boolean inputTypesMatchDefinedArguments(
-        List<Type> inputTypes, List<SimpleExtension.Argument> args) {
+        final List<Type> inputTypes, final List<SimpleExtension.Argument> args) {
 
-      Map<String, Set<Type>> wildcardToType = new HashMap<>();
+      final Map<String, Set<Type>> wildcardToType = new HashMap<>();
       for (int i = 0; i < inputTypes.size(); i++) {
-        Type givenType = inputTypes.get(i);
-        SimpleExtension.ValueArgument wantType =
+        final Type givenType = inputTypes.get(i);
+        final SimpleExtension.ValueArgument wantType =
             (SimpleExtension.ValueArgument)
                 args.get(
                     // Variadic arguments should match the last argument's type
@@ -243,20 +245,20 @@ public abstract class FunctionConverter<
      * these.
      */
     private static <F extends SimpleExtension.Function>
-        Optional<SingularArgumentMatcher<F>> getSingularInputType(List<F> functions) {
-      List<SingularArgumentMatcher> matchers = new ArrayList<>();
-      for (var f : functions) {
+        Optional<SingularArgumentMatcher<F>> getSingularInputType(final List<F> functions) {
+      final List<SingularArgumentMatcher> matchers = new ArrayList<>();
+      for (final var f : functions) {
 
         ParameterizedType firstType = null;
 
         // determine if all the required arguments are the of the same type. If so,
-        for (var a : f.requiredArguments()) {
+        for (final var a : f.requiredArguments()) {
           if (!(a instanceof SimpleExtension.ValueArgument)) {
             firstType = null;
             break;
           }
 
-          var pt = ((SimpleExtension.ValueArgument) a).value();
+          final var pt = ((SimpleExtension.ValueArgument) a).value();
 
           if (firstType == null) {
             firstType = pt;
@@ -282,9 +284,9 @@ public abstract class FunctionConverter<
     }
 
     public static <F extends SimpleExtension.Function> SingularArgumentMatcher<F> singular(
-        F function, ParameterizedType type) {
+        final F function, final ParameterizedType type) {
       return (inputType, outputType) -> {
-        var check = isMatch(inputType, type);
+        final var check = isMatch(inputType, type);
         if (check) {
           return Optional.of(function);
         }
@@ -292,10 +294,10 @@ public abstract class FunctionConverter<
       };
     }
 
-    public static SingularArgumentMatcher chained(List<SingularArgumentMatcher> matchers) {
+    public static SingularArgumentMatcher chained(final List<SingularArgumentMatcher> matchers) {
       return (inputType, outputType) -> {
-        for (var s : matchers) {
-          var outcome = s.tryMatch(inputType, outputType);
+        for (final var s : matchers) {
+          final var outcome = s.tryMatch(inputType, outputType);
           if (outcome.isPresent()) {
             return outcome;
           }
@@ -309,14 +311,14 @@ public abstract class FunctionConverter<
      * In case of a `RexLiteral` of an Enum value try both `req` and `op` signatures
      * for that argument position.
      */
-    private Stream<String> matchKeys(List<RexNode> rexOperands, List<String> opTypes) {
+    private Stream<String> matchKeys(final List<RexNode> rexOperands, final List<String> opTypes) {
 
       assert (rexOperands.size() == opTypes.size());
 
       if (rexOperands.isEmpty()) {
         return Stream.of("");
       } else {
-        List<List<String>> argTypeLists =
+        final List<List<String>> argTypeLists =
             Streams.zip(
                     rexOperands.stream(),
                     opTypes.stream(),
@@ -334,7 +336,8 @@ public abstract class FunctionConverter<
       }
     }
 
-    public Optional<T> attemptMatch(C call, Function<RexNode, Expression> topLevelConverter) {
+    public Optional<T> attemptMatch(
+        final C call, final Function<RexNode, Expression> topLevelConverter) {
 
       /*
        * Here the RexLiteral with an Enum value is mapped to String Literal.
@@ -342,33 +345,34 @@ public abstract class FunctionConverter<
        * Once a FunctionVariant is resolved we can map the String Literal
        * to a EnumArg.
        */
-      List<RexNode> operandsList = call.getOperands().collect(Collectors.toList());
-      List<Expression> operands =
+      final List<RexNode> operandsList = call.getOperands().collect(Collectors.toList());
+      final List<Expression> operands =
           call.getOperands().map(topLevelConverter).collect(Collectors.toList());
-      List<Type> opTypes = operands.stream().map(Expression::getType).collect(Collectors.toList());
+      final List<Type> opTypes =
+          operands.stream().map(Expression::getType).collect(Collectors.toList());
 
-      Type outputType = typeConverter.toSubstrait(call.getType());
+      final Type outputType = typeConverter.toSubstrait(call.getType());
 
       // try to do a direct match
-      List<String> typeStrings =
+      final List<String> typeStrings =
           opTypes.stream().map(t -> t.accept(ToTypeString.INSTANCE)).collect(Collectors.toList());
-      Stream<String> possibleKeys = matchKeys(operandsList, typeStrings);
+      final Stream<String> possibleKeys = matchKeys(operandsList, typeStrings);
 
-      Optional<String> directMatchKey =
+      final Optional<String> directMatchKey =
           possibleKeys
               .map(argList -> substraitName + ":" + argList)
               .filter(directMap::containsKey)
               .findFirst();
 
       if (directMatchKey.isPresent()) {
-        F variant = directMap.get(directMatchKey.get());
+        final F variant = directMap.get(directMatchKey.get());
         variant.validateOutputType(operands, outputType);
-        List<FunctionArg> funcArgs =
+        final List<FunctionArg> funcArgs =
             IntStream.range(0, operandsList.size())
                 .mapToObj(
                     i -> {
-                      RexNode r = operandsList.get(i);
-                      Expression o = operands.get(i);
+                      final RexNode r = operandsList.get(i);
+                      final Expression o = operands.get(i);
                       if (EnumConverter.isEnumValue(r)) {
                         return EnumConverter.fromRex(variant, (RexLiteral) r, i).orElse(null);
                       } else {
@@ -376,7 +380,8 @@ public abstract class FunctionConverter<
                       }
                     })
                 .collect(Collectors.toList());
-        boolean allArgsMapped = funcArgs.stream().filter(Objects::isNull).findFirst().isEmpty();
+        final boolean allArgsMapped =
+            funcArgs.stream().filter(Objects::isNull).findFirst().isEmpty();
         if (allArgsMapped) {
           return Optional.of(generateBinding(call, variant, funcArgs, outputType));
         } else {
@@ -385,11 +390,11 @@ public abstract class FunctionConverter<
       }
 
       if (singularInputType.isPresent()) {
-        Optional<T> coerced = matchCoerced(call, outputType, operands);
+        final Optional<T> coerced = matchCoerced(call, outputType, operands);
         if (coerced.isPresent()) {
           return coerced;
         }
-        Optional<T> leastRestrictive = matchByLeastRestrictive(call, outputType, operands);
+        final Optional<T> leastRestrictive = matchByLeastRestrictive(call, outputType, operands);
         if (leastRestrictive.isPresent()) {
           return leastRestrictive;
         }
@@ -398,39 +403,40 @@ public abstract class FunctionConverter<
     }
 
     private Optional<T> matchByLeastRestrictive(
-        C call, Type outputType, List<Expression> operands) {
-      RelDataType leastRestrictive =
+        final C call, final Type outputType, final List<Expression> operands) {
+      final RelDataType leastRestrictive =
           typeFactory.leastRestrictive(
               call.getOperands().map(RexNode::getType).collect(Collectors.toList()));
       if (leastRestrictive == null) {
         return Optional.empty();
       }
-      Type type = typeConverter.toSubstrait(leastRestrictive);
-      var out = singularInputType.orElseThrow().tryMatch(type, outputType);
+      final Type type = typeConverter.toSubstrait(leastRestrictive);
+      final var out = singularInputType.orElseThrow().tryMatch(type, outputType);
 
       return out.map(
           declaration -> {
-            var coercedArgs = coerceArguments(operands, type);
+            final var coercedArgs = coerceArguments(operands, type);
             declaration.validateOutputType(coercedArgs, outputType);
             return generateBinding(call, out.get(), coercedArgs, outputType);
           });
     }
 
-    private Optional<T> matchCoerced(C call, Type outputType, List<Expression> expressions) {
+    private Optional<T> matchCoerced(
+        final C call, final Type outputType, final List<Expression> expressions) {
       // Convert the operands to the proper Substrait type
-      List<Type> operandTypes =
+      final List<Type> operandTypes =
           call.getOperands()
               .map(RexNode::getType)
               .map(typeConverter::toSubstrait)
               .collect(Collectors.toList());
 
       // See if all the input types can be made to match the function
-      Optional<F> matchFunction = signatureMatch(operandTypes, outputType);
+      final Optional<F> matchFunction = signatureMatch(operandTypes, outputType);
       if (matchFunction.isEmpty()) {
         return Optional.empty();
       }
 
-      var coercedArgs =
+      final var coercedArgs =
           Streams.zip(
                   expressions.stream(), operandTypes.stream(), FunctionConverter::coerceArgument)
               .collect(Collectors.toList());
@@ -456,11 +462,12 @@ public abstract class FunctionConverter<
    * Coerced types according to an expected output type. Coercion is only done for type mismatches,
    * not for nullability or parameter mismatches.
    */
-  private static List<Expression> coerceArguments(List<Expression> arguments, Type targetType) {
+  private static List<Expression> coerceArguments(
+      final List<Expression> arguments, final Type targetType) {
     return arguments.stream().map(a -> coerceArgument(a, targetType)).collect(Collectors.toList());
   }
 
-  private static Expression coerceArgument(Expression argument, Type type) {
+  private static Expression coerceArgument(final Expression argument, final Type type) {
     if (isMatch(type, argument.getType())) {
       return argument;
     }
@@ -476,7 +483,8 @@ public abstract class FunctionConverter<
     Optional<F> tryMatch(Type type, Type outputType);
   }
 
-  private static boolean isMatch(ParameterizedType actualType, ParameterizedType targetType) {
+  private static boolean isMatch(
+      final ParameterizedType actualType, final ParameterizedType targetType) {
     if (targetType.isWildcard()) {
       return true;
     }

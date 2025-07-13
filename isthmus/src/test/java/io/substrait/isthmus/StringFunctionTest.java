@@ -15,126 +15,126 @@ public final class StringFunctionTest extends PlanTestBase {
 
   @ParameterizedTest
   @ValueSource(strings = {"c16", "vc32"})
-  void charLength(String column) throws Exception {
-    String query = String.format("SELECT char_length(%s) FROM strings", column);
+  void charLength(final String column) throws Exception {
+    final String query = String.format("SELECT char_length(%s) FROM strings", column);
     assertSqlSubstraitRelRoundTrip(query, CREATES);
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"vc32"})
-  void concat(String column) throws Exception {
-    String query = String.format("SELECT %s || %s FROM strings", column, column);
+  void concat(final String column) throws Exception {
+    final String query = String.format("SELECT %s || %s FROM strings", column, column);
     assertSqlSubstraitRelRoundTrip(query, CREATES);
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"c16", "vc32"})
-  void lower(String column) throws Exception {
-    String query = String.format("SELECT lower(%s) FROM strings", column);
+  void lower(final String column) throws Exception {
+    final String query = String.format("SELECT lower(%s) FROM strings", column);
     assertSqlSubstraitRelRoundTrip(query, CREATES);
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"c16", "vc32"})
-  void upper(String column) throws Exception {
-    String query = String.format("SELECT upper(%s) FROM strings", column);
+  void upper(final String column) throws Exception {
+    final String query = String.format("SELECT upper(%s) FROM strings", column);
     assertSqlSubstraitRelRoundTrip(query, CREATES);
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"c16", "vc32"})
-  void replace(String column) throws Exception {
-    String query =
+  void replace(final String column) throws Exception {
+    final String query =
         String.format("SELECT replace(%s, replace_from, replace_to) FROM replace_strings", column);
     assertSqlSubstraitRelRoundTrip(query, REPLACE_CREATES);
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"c16", "vc32"})
-  void substringWith1Param(String column) throws Exception {
-    String query = String.format("SELECT substring(%s, 42) FROM strings", column);
+  void substringWith1Param(final String column) throws Exception {
+    final String query = String.format("SELECT substring(%s, 42) FROM strings", column);
     assertSqlSubstraitRelRoundTrip(query, CREATES);
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"c16", "vc32"})
-  void substringWith2Params(String column) throws Exception {
-    String query = String.format("SELECT substring(%s, 42, 5) FROM strings", column);
+  void substringWith2Params(final String column) throws Exception {
+    final String query = String.format("SELECT substring(%s, 42, 5) FROM strings", column);
     assertSqlSubstraitRelRoundTrip(query, CREATES);
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"c16", "vc32"})
-  void substringFrom(String column) throws Exception {
-    String query = String.format("SELECT substring(%s FROM 42) FROM strings", column);
+  void substringFrom(final String column) throws Exception {
+    final String query = String.format("SELECT substring(%s FROM 42) FROM strings", column);
     assertSqlSubstraitRelRoundTrip(query, CREATES);
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"c16", "vc32"})
-  void substringFromFor(String column) throws Exception {
-    String query = String.format("SELECT substring(%s FROM 42 FOR 5) FROM strings", column);
+  void substringFromFor(final String column) throws Exception {
+    final String query = String.format("SELECT substring(%s FROM 42 FOR 5) FROM strings", column);
     assertSqlSubstraitRelRoundTrip(query, CREATES);
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"c16", "vc32", "vc"})
-  void trim(String column) throws Exception {
-    String query = String.format("SELECT TRIM(%s) FROM strings", column);
+  void trim(final String column) throws Exception {
+    final String query = String.format("SELECT TRIM(%s) FROM strings", column);
     assertSqlRoundTrip(query);
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"c16", "vc32", "vc"})
-  void trimSpecifiedCharacter(String column) throws Exception {
-    String query = String.format("SELECT TRIM(' ' FROM %s) FROM strings", column);
+  void trimSpecifiedCharacter(final String column) throws Exception {
+    final String query = String.format("SELECT TRIM(' ' FROM %s) FROM strings", column);
     assertSqlRoundTrip(query);
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"c16", "vc32", "vc"})
-  void trimBoth(String column) throws Exception {
-    String query = String.format("SELECT TRIM(BOTH FROM %s) FROM strings", column);
+  void trimBoth(final String column) throws Exception {
+    final String query = String.format("SELECT TRIM(BOTH FROM %s) FROM strings", column);
     assertSqlRoundTrip(query);
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"c16", "vc32", "vc"})
-  void trimBothSpecifiedCharacter(String column) throws Exception {
-    String query = String.format("SELECT TRIM(BOTH ' ' FROM %s) FROM strings", column);
+  void trimBothSpecifiedCharacter(final String column) throws Exception {
+    final String query = String.format("SELECT TRIM(BOTH ' ' FROM %s) FROM strings", column);
     assertSqlRoundTrip(query);
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"c16", "vc32", "vc"})
-  void trimLeading(String column) throws Exception {
-    String query = String.format("SELECT TRIM(LEADING FROM %s) FROM strings", column);
+  void trimLeading(final String column) throws Exception {
+    final String query = String.format("SELECT TRIM(LEADING FROM %s) FROM strings", column);
     assertSqlRoundTrip(query);
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"c16", "vc32", "vc"})
-  void trimLeadingSpecifiedCharacter(String column) throws Exception {
-    String query = String.format("SELECT TRIM(LEADING ' ' FROM %s) FROM strings", column);
+  void trimLeadingSpecifiedCharacter(final String column) throws Exception {
+    final String query = String.format("SELECT TRIM(LEADING ' ' FROM %s) FROM strings", column);
     assertSqlRoundTrip(query);
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"c16", "vc32", "vc"})
-  void trimTrailing(String column) throws Exception {
-    String query = String.format("SELECT TRIM(TRAILING FROM %s) FROM strings", column);
+  void trimTrailing(final String column) throws Exception {
+    final String query = String.format("SELECT TRIM(TRAILING FROM %s) FROM strings", column);
     assertSqlRoundTrip(query);
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"c16", "vc32", "vc"})
-  void trimTrailingSpecifiedCharacter(String column) throws Exception {
-    String query = String.format("SELECT TRIM(TRAILING ' ' FROM %s) FROM strings", column);
+  void trimTrailingSpecifiedCharacter(final String column) throws Exception {
+    final String query = String.format("SELECT TRIM(TRAILING ' ' FROM %s) FROM strings", column);
     assertSqlRoundTrip(query);
   }
 
-  private void assertSqlRoundTrip(String sql) throws SqlParseException {
-    Plan plan = assertProtoPlanRoundrip(sql, new SqlToSubstrait(), CREATES);
+  private void assertSqlRoundTrip(final String sql) throws SqlParseException {
+    final Plan plan = assertProtoPlanRoundrip(sql, new SqlToSubstrait(), CREATES);
     assertDoesNotThrow(() -> toSql(plan), "Substrait plan to SQL");
   }
 }

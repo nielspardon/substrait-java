@@ -60,14 +60,14 @@ public class SubstraitCreateStatementParser {
    * @return a list of {@link SubstraitTable}s generated from the CREATE statements
    * @throws SqlParseException
    */
-  public static List<SubstraitTable> processCreateStatements(String createStatements)
+  public static List<SubstraitTable> processCreateStatements(final String createStatements)
       throws SqlParseException {
-    SqlParser parser = SqlParser.create(createStatements, PARSER_CONFIG);
-    List<SubstraitTable> tableList = new ArrayList<>();
+    final SqlParser parser = SqlParser.create(createStatements, PARSER_CONFIG);
+    final List<SubstraitTable> tableList = new ArrayList<>();
 
-    SqlNodeList sqlNode = parser.parseStmtList();
-    for (SqlNode parsed : sqlNode) {
-      if (!(parsed instanceof SqlCreateTable create)) {
+    final SqlNodeList sqlNode = parser.parseStmtList();
+    for (final SqlNode parsed : sqlNode) {
+      if (!(parsed instanceof final SqlCreateTable create)) {
         throw fail("Not a valid CREATE TABLE statement.");
       }
 
@@ -79,11 +79,11 @@ public class SubstraitCreateStatementParser {
         throw fail("CTAS not supported.", create.name.getParserPosition());
       }
 
-      List<String> names = new ArrayList<>();
-      List<RelDataType> columnTypes = new ArrayList<>();
+      final List<String> names = new ArrayList<>();
+      final List<RelDataType> columnTypes = new ArrayList<>();
 
-      for (SqlNode node : create.columnList) {
-        if (!(node instanceof SqlColumnDeclaration col)) {
+      for (final SqlNode node : create.columnList) {
+        if (!(node instanceof final SqlColumnDeclaration col)) {
           if (node instanceof SqlKeyConstraint) {
             // key constraints declarations, like primary key declaration, are valid and should not
             // result in parse exceptions. Ignore the constraint declaration.
@@ -117,25 +117,25 @@ public class SubstraitCreateStatementParser {
    * @return a {@link CalciteCatalogReader} generated from the CREATE statements
    * @throws SqlParseException
    */
-  public static CalciteCatalogReader processCreateStatementsToCatalog(String... createStatements)
-      throws SqlParseException {
-    List<SubstraitTable> tables = new ArrayList<>();
-    for (String statement : createStatements) {
+  public static CalciteCatalogReader processCreateStatementsToCatalog(
+      final String... createStatements) throws SqlParseException {
+    final List<SubstraitTable> tables = new ArrayList<>();
+    for (final String statement : createStatements) {
       tables.addAll(processCreateStatements(statement));
     }
-    CalciteSchema rootSchema = CalciteSchema.createRootSchema(false);
-    for (SubstraitTable table : tables) {
+    final CalciteSchema rootSchema = CalciteSchema.createRootSchema(false);
+    for (final SubstraitTable table : tables) {
       rootSchema.add(table.getName(), table);
     }
-    List<String> defaultSchema = Collections.emptyList();
+    final List<String> defaultSchema = Collections.emptyList();
     return new CalciteCatalogReader(rootSchema, defaultSchema, TYPE_FACTORY, CONNECTION_CONFIG);
   }
 
-  private static SqlParseException fail(String text, SqlParserPos pos) {
+  private static SqlParseException fail(final String text, final SqlParserPos pos) {
     return new SqlParseException(text, pos, null, null, new RuntimeException("fake lineage"));
   }
 
-  private static SqlParseException fail(String text) {
+  private static SqlParseException fail(final String text) {
     return fail(text, SqlParserPos.ZERO);
   }
 }

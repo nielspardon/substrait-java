@@ -17,8 +17,8 @@ public class SetUtils {
    * @param multi whether to use more than two relations
    * @return a sql query
    */
-  public static String getSetQuery(Set.SetOp op, boolean multi) {
-    String opString =
+  public static String getSetQuery(final Set.SetOp op, final boolean multi) {
+    final String opString =
         switch (op) {
           case MINUS_PRIMARY -> "EXCEPT";
           case MINUS_PRIMARY_ALL -> "EXCEPT ALL";
@@ -30,7 +30,7 @@ public class SetUtils {
               "Unknown set operation is not supported");
         };
 
-    StringBuilder query = new StringBuilder();
+    final StringBuilder query = new StringBuilder();
     query.append(
         "select p_partkey as partkey, p_name as str, (p_partkey + p_partkey) as expr\n"
             + "from part where p_partkey > cast(100 as bigint)\n");

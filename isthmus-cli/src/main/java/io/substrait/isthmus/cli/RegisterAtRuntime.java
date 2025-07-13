@@ -22,9 +22,9 @@ import org.reflections.scanners.FieldAnnotationsScanner;
 import org.reflections.scanners.SubTypesScanner;
 
 public class RegisterAtRuntime implements Feature {
-  public void beforeAnalysis(BeforeAnalysisAccess access) {
+  public void beforeAnalysis(final BeforeAnalysisAccess access) {
     try {
-      Reflections substrait = new Reflections("io.substrait");
+      final Reflections substrait = new Reflections("io.substrait");
       // cli picocli
       register(IsthmusEntryPoint.class);
 
@@ -45,7 +45,7 @@ public class RegisterAtRuntime implements Feature {
       register(SimpleExtension.ValueArgument.class);
 
       // calcite items
-      Reflections calcite =
+      final Reflections calcite =
           new Reflections(
               "org.apache.calcite", new FieldAnnotationsScanner(), new SubTypesScanner());
       register(BuiltInMetadata.class);
@@ -92,12 +92,12 @@ public class RegisterAtRuntime implements Feature {
                 if (c.constructor != null) RuntimeReflection.register(c.constructor);
                 if (c.method != null) RuntimeReflection.register(c.method);
               });
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  private static void register(Class<?> c) {
+  private static void register(final Class<?> c) {
     RuntimeReflection.register(c);
     RuntimeReflection.register(c.getDeclaredConstructors());
     RuntimeReflection.register(c.getDeclaredFields());
@@ -107,7 +107,8 @@ public class RegisterAtRuntime implements Feature {
     RuntimeReflection.register(c.getMethods());
   }
 
-  private static void registerByAnnotation(Reflections reflections, Class<? extends Annotation> c) {
+  private static void registerByAnnotation(
+      final Reflections reflections, final Class<? extends Annotation> c) {
     reflections
         .getTypesAnnotatedWith(c)
         .forEach(
@@ -117,7 +118,7 @@ public class RegisterAtRuntime implements Feature {
             });
   }
 
-  private static void registerByParent(Reflections reflections, Class<?> c) {
+  private static void registerByParent(final Reflections reflections, final Class<?> c) {
     register(c);
     reflections.getSubTypesOf(c).forEach(RegisterAtRuntime::register);
   }

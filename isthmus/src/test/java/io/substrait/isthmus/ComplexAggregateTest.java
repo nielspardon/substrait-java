@@ -19,12 +19,14 @@ public class ComplexAggregateTest extends PlanTestBase {
   final TypeCreator R = TypeCreator.of(false);
   SubstraitBuilder b = new SubstraitBuilder(extensions);
 
-  Aggregate.Measure withPreMeasureFilter(Aggregate.Measure measure, Expression preMeasureFilter) {
+  Aggregate.Measure withPreMeasureFilter(
+      final Aggregate.Measure measure, final Expression preMeasureFilter) {
     return Aggregate.Measure.builder().from(measure).preMeasureFilter(preMeasureFilter).build();
   }
 
-  Aggregate.Measure withSort(Aggregate.Measure measure, List<Expression.SortField> sortFields) {
-    var afi =
+  Aggregate.Measure withSort(
+      final Aggregate.Measure measure, final List<Expression.SortField> sortFields) {
+    final var afi =
         AggregateFunctionInvocation.builder().from(measure.getFunction()).sort(sortFields).build();
     return Aggregate.Measure.builder().from(measure).function(afi).build();
   }
@@ -41,8 +43,9 @@ public class ComplexAggregateTest extends PlanTestBase {
    * @param pojo a pojo that requires transformation for use in Calcite
    * @param expectedTransform the expected transformation output
    */
-  protected void validateAggregateTransformation(Aggregate pojo, Rel expectedTransform) {
-    var converterPojo =
+  protected void validateAggregateTransformation(
+      final Aggregate pojo, final Rel expectedTransform) {
+    final var converterPojo =
         PreCalciteAggregateValidator.PreCalciteAggregateTransformer
             .transformToValidCalciteAggregate(pojo);
     assertEquals(expectedTransform, converterPojo);
@@ -51,22 +54,22 @@ public class ComplexAggregateTest extends PlanTestBase {
     new SubstraitToCalcite(EXTENSION_COLLECTION, typeFactory).convert(pojo);
   }
 
-  private List<Type> columnTypes = List.of(R.I32, R.I32, R.I32, R.I32);
-  private List<String> columnNames = List.of("a", "b", "c", "d");
-  private NamedScan table = b.namedScan(List.of("example"), columnNames, columnTypes);
+  private final List<Type> columnTypes = List.of(R.I32, R.I32, R.I32, R.I32);
+  private final List<String> columnNames = List.of("a", "b", "c", "d");
+  private final NamedScan table = b.namedScan(List.of("example"), columnNames, columnTypes);
 
-  private Aggregate.Grouping emptyGrouping = Aggregate.Grouping.builder().build();
+  private final Aggregate.Grouping emptyGrouping = Aggregate.Grouping.builder().build();
 
   @Test
   void handleComplexMeasureArgument() {
     // SELECT sum(c + 7) FROM example
-    var rel =
+    final var rel =
         b.aggregate(
             input -> emptyGrouping,
             input -> List.of(b.sum(b.add(b.fieldReference(input, 2), b.i32(7)))),
             table);
 
-    var expectedFinal =
+    final var expectedFinal =
         b.aggregate(
             input -> emptyGrouping,
             // sum call references input field
@@ -82,7 +85,7 @@ public class ComplexAggregateTest extends PlanTestBase {
   @Test
   void handleComplexPreMeasureFilter() {
     // SELECT sum(a) FILTER (b = 42) FROM example
-    var rel =
+    final var rel =
         b.aggregate(
             input -> emptyGrouping,
             input ->
@@ -91,7 +94,7 @@ public class ComplexAggregateTest extends PlanTestBase {
                         b.sum(input, 0), b.equal(b.fieldReference(input, 1), b.i32(42)))),
             table);
 
-    var expectedFinal =
+    final var expectedFinal =
         b.aggregate(
             input -> emptyGrouping,
             input -> List.of(withPreMeasureFilter(b.sum(input, 0), b.fieldReference(input, 4))),
@@ -103,7 +106,7 @@ public class ComplexAggregateTest extends PlanTestBase {
   @Test
   void handleComplexSortingArguments() {
     // SELECT sum(d ORDER BY -b ASC) FROM example
-    var rel =
+    final var rel =
         b.aggregate(
             input -> emptyGrouping,
             input ->
@@ -116,7 +119,7 @@ public class ComplexAggregateTest extends PlanTestBase {
                                 Expression.SortDirection.ASC_NULLS_FIRST)))),
             table);
 
-    var expectedFinal =
+    final var expectedFinal =
         b.aggregate(
             input -> emptyGrouping,
             input ->
@@ -137,7 +140,7 @@ public class ComplexAggregateTest extends PlanTestBase {
 
   @Test
   void handleComplexGroupingArgument() {
-    var rel =
+    final var rel =
         b.aggregate(
             input ->
                 b.grouping(
@@ -145,7 +148,7 @@ public class ComplexAggregateTest extends PlanTestBase {
             input -> List.of(),
             table);
 
-    var expectedFinal =
+    final var expectedFinal =
         b.aggregate(
             // grouping exprs are now field references to input
             input -> b.grouping(input, 4, 5),
@@ -161,9 +164,9 @@ public class ComplexAggregateTest extends PlanTestBase {
 
   @Test
   void handleOutOfOrderGroupingArguments() {
-    var rel = b.aggregate(input -> b.grouping(input, 1, 0, 2), input -> List.of(), table);
+    final var rel = b.aggregate(input -> b.grouping(input, 1, 0, 2), input -> List.of(), table);
 
-    var expectedFinal =
+    final var expectedFinal =
         b.aggregate(
             // grouping exprs are now field references to input
             input -> b.grouping(input, 4, 5, 6),
@@ -182,12 +185,12 @@ public class ComplexAggregateTest extends PlanTestBase {
 
   @Test
   void outOfOrderGroupingKeysHaveCorrectCalciteType() {
-    Rel rel =
+    final Rel rel =
         b.aggregate(
             input -> b.grouping(input, 2, 0),
             input -> List.of(),
             b.namedScan(List.of("foo"), List.of("a", "b", "c"), List.of(R.I64, R.I64, R.STRING)));
-    var relNode = new SubstraitToCalcite(EXTENSION_COLLECTION, typeFactory).convert(rel);
+    final var relNode = new SubstraitToCalcite(EXTENSION_COLLECTION, typeFactory).convert(rel);
     assertRowMatch(relNode.getRowType(), R.STRING, R.I64);
   }
 }

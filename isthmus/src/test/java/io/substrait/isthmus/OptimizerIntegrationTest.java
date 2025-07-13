@@ -19,29 +19,29 @@ public class OptimizerIntegrationTest extends PlanTestBase {
 
   @Test
   void conversionHandlesBuiltInSum0CallAddedByRule() throws SqlParseException, IOException {
-    var query =
+    final var query =
         "select O_CUSTKEY, count(distinct O_ORDERKEY), count(*) from orders group by O_CUSTKEY";
     // verify that the query works generally
     assertFullRoundTrip(query);
 
-    SqlToSubstrait sqlConverter = new SqlToSubstrait();
-    List<RelRoot> relRoots = sqlConverter.sqlToRelNode(query, TPCH_CATALOG);
+    final SqlToSubstrait sqlConverter = new SqlToSubstrait();
+    final List<RelRoot> relRoots = sqlConverter.sqlToRelNode(query, TPCH_CATALOG);
     assertEquals(1, relRoots.size());
-    RelRoot planRoot = relRoots.get(0);
-    RelNode originalPlan = planRoot.rel;
+    final RelRoot planRoot = relRoots.get(0);
+    final RelNode originalPlan = planRoot.rel;
 
     // Create a program to apply the AGGREGATE_EXPAND_DISTINCT_AGGREGATES_TO_JOIN rule.
     // This will introduce a SqlSumEmptyIsZeroAggFunction to the plan.
     // This function does not have a mapping to Substrait.
     // SubstraitSumEmptyIsZeroAggFunction is the variant which has a mapping.
     // See io.substrait.isthmus.AggregateFunctions for details
-    HepProgram program =
+    final HepProgram program =
         new HepProgramBuilder()
             .addRuleInstance(CoreRules.AGGREGATE_EXPAND_DISTINCT_AGGREGATES_TO_JOIN)
             .build();
-    HepPlanner planner = new HepPlanner(program);
+    final HepPlanner planner = new HepPlanner(program);
     planner.setRoot(originalPlan);
-    var newPlan = planner.findBestExp();
+    final var newPlan = planner.findBestExp();
 
     assertDoesNotThrow(
         () ->

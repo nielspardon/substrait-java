@@ -9,14 +9,17 @@ import org.junit.jupiter.api.Test;
 
 public class ApplyJoinPlanTest extends PlanTestBase {
 
-  private static RelRoot getCalcitePlan(String sql) throws SqlParseException {
-    SqlToSubstrait s = new SqlToSubstrait();
+  private static RelRoot getCalcitePlan(final String sql) throws SqlParseException {
+    final SqlToSubstrait s = new SqlToSubstrait();
     return s.sqlToRelNode(sql, TPCDS_CATALOG).get(0);
   }
 
   private static void validateOuterRef(
-      Map<RexFieldAccess, Integer> fieldAccessDepthMap, String refName, String colName, int depth) {
-    var entry =
+      final Map<RexFieldAccess, Integer> fieldAccessDepthMap,
+      final String refName,
+      final String colName,
+      final int depth) {
+    final var entry =
         fieldAccessDepthMap.entrySet().stream()
             .filter(f -> f.getKey().getReferenceExpr().toString().equals(refName))
             .filter(f -> f.getKey().getField().getName().equals(colName))
@@ -25,9 +28,9 @@ public class ApplyJoinPlanTest extends PlanTestBase {
     Assertions.assertTrue(entry.isPresent());
   }
 
-  private static Map<RexFieldAccess, Integer> buildOuterFieldRefMap(RelRoot root) {
+  private static Map<RexFieldAccess, Integer> buildOuterFieldRefMap(final RelRoot root) {
     final OuterReferenceResolver resolver = new OuterReferenceResolver();
-    var fieldAccessDepthMap = resolver.getFieldAccessDepthMap();
+    final var fieldAccessDepthMap = resolver.getFieldAccessDepthMap();
     Assertions.assertEquals(0, fieldAccessDepthMap.size());
     resolver.apply(root.rel);
     return fieldAccessDepthMap;
@@ -35,8 +38,7 @@ public class ApplyJoinPlanTest extends PlanTestBase {
 
   @Test
   public void lateralJoinQuery() throws SqlParseException {
-    String sql;
-    sql =
+    final String sql =
         """
             SELECT ss_sold_date_sk, ss_item_sk, ss_customer_sk
             FROM store_sales CROSS JOIN LATERAL
@@ -52,13 +54,13 @@ public class ApplyJoinPlanTest extends PlanTestBase {
     */
 
     // validate outer reference map
-    RelRoot root = getCalcitePlan(sql);
-    Map<RexFieldAccess, Integer> fieldAccessDepthMap = buildOuterFieldRefMap(root);
+    final RelRoot root = getCalcitePlan(sql);
+    final Map<RexFieldAccess, Integer> fieldAccessDepthMap = buildOuterFieldRefMap(root);
     Assertions.assertEquals(1, fieldAccessDepthMap.size());
     validateOuterRef(fieldAccessDepthMap, "$cor0", "SS_ITEM_SK", 1);
 
     // TODO validate end to end conversion
-    var sE2E = new SqlToSubstrait();
+    final var sE2E = new SqlToSubstrait();
     Assertions.assertThrows(
         UnsupportedOperationException.class,
         () -> sE2E.execute(sql, TPCDS_CATALOG),
@@ -67,17 +69,16 @@ public class ApplyJoinPlanTest extends PlanTestBase {
 
   @Test
   public void outerApplyQuery() throws SqlParseException {
-    String sql;
-    sql =
+    final String sql =
         """
        SELECT ss_sold_date_sk, ss_item_sk, ss_customer_sk
         FROM store_sales OUTER APPLY
           (select i_item_sk from item where item.i_item_sk = store_sales.ss_item_sk)
        """;
 
-    RelRoot root = getCalcitePlan(sql);
+    final RelRoot root = getCalcitePlan(sql);
 
-    Map<RexFieldAccess, Integer> fieldAccessDepthMap = buildOuterFieldRefMap(root);
+    final Map<RexFieldAccess, Integer> fieldAccessDepthMap = buildOuterFieldRefMap(root);
     Assertions.assertEquals(1, fieldAccessDepthMap.size());
     validateOuterRef(fieldAccessDepthMap, "$cor0", "SS_ITEM_SK", 1);
 
@@ -90,8 +91,7 @@ public class ApplyJoinPlanTest extends PlanTestBase {
 
   @Test
   public void nestedApplyJoinQuery() throws SqlParseException {
-    String sql;
-    sql =
+    final String sql =
         """
             SELECT ss_sold_date_sk, ss_item_sk, ss_customer_sk
             FROM store_sales CROSS APPLY
@@ -114,11 +114,11 @@ public class ApplyJoinPlanTest extends PlanTestBase {
                 LogicalFilter(condition=[AND(=($4, $cor0.I_ITEM_SK), =($4, $cor2.SS_ITEM_SK))])
                   LogicalTableScan(table=[[tpcds, PROMOTION]])
      */
-    FeatureBoard featureBoard = ImmutableFeatureBoard.builder().build();
-    SqlToSubstrait s = new SqlToSubstrait(featureBoard);
-    RelRoot root = getCalcitePlan(sql);
+    final FeatureBoard featureBoard = ImmutableFeatureBoard.builder().build();
+    final SqlToSubstrait s = new SqlToSubstrait(featureBoard);
+    final RelRoot root = getCalcitePlan(sql);
 
-    Map<RexFieldAccess, Integer> fieldAccessDepthMap = buildOuterFieldRefMap(root);
+    final Map<RexFieldAccess, Integer> fieldAccessDepthMap = buildOuterFieldRefMap(root);
     Assertions.assertEquals(3, fieldAccessDepthMap.size());
     validateOuterRef(fieldAccessDepthMap, "$cor2", "SS_ITEM_SK", 1);
     validateOuterRef(fieldAccessDepthMap, "$cor2", "SS_ITEM_SK", 2);
@@ -133,15 +133,14 @@ public class ApplyJoinPlanTest extends PlanTestBase {
 
   @Test
   public void crossApplyQuery() throws SqlParseException {
-    String sql;
-    sql =
+    final String sql =
         """
             SELECT ss_sold_date_sk, ss_item_sk, ss_customer_sk
             FROM store_sales CROSS APPLY
               (select i_item_sk from item where item.i_item_sk = store_sales.ss_item_sk)""";
 
-    FeatureBoard featureBoard = ImmutableFeatureBoard.builder().build();
-    SqlToSubstrait s = new SqlToSubstrait(featureBoard);
+    final FeatureBoard featureBoard = ImmutableFeatureBoard.builder().build();
+    final SqlToSubstrait s = new SqlToSubstrait(featureBoard);
 
     // TODO validate end to end conversion
     Assertions.assertThrows(

@@ -37,8 +37,8 @@ public class AggregateFunctions {
    * @return an optional containing the Substrait equivalent of the given {@code aggFunction} if
    *     conversion was needed, empty otherwise.
    */
-  public static Optional<SqlAggFunction> toSubstraitAggVariant(SqlAggFunction aggFunction) {
-    if (aggFunction instanceof SqlMinMaxAggFunction fun) {
+  public static Optional<SqlAggFunction> toSubstraitAggVariant(final SqlAggFunction aggFunction) {
+    if (aggFunction instanceof final SqlMinMaxAggFunction fun) {
       return Optional.of(
           fun.getKind() == SqlKind.MIN ? AggregateFunctions.MIN : AggregateFunctions.MAX);
     } else if (aggFunction instanceof SqlAvgAggFunction) {
@@ -54,12 +54,12 @@ public class AggregateFunctions {
 
   /** Extension of {@link SqlMinMaxAggFunction} that ALWAYS infers a nullable return type */
   private static class SubstraitSqlMinMaxAggFunction extends SqlMinMaxAggFunction {
-    public SubstraitSqlMinMaxAggFunction(SqlKind kind) {
+    public SubstraitSqlMinMaxAggFunction(final SqlKind kind) {
       super(kind);
     }
 
     @Override
-    public RelDataType inferReturnType(SqlOperatorBinding opBinding) {
+    public RelDataType inferReturnType(final SqlOperatorBinding opBinding) {
       return ReturnTypes.ARG0_FORCE_NULLABLE.inferReturnType(opBinding);
     }
   }
@@ -73,19 +73,19 @@ public class AggregateFunctions {
     }
 
     @Override
-    public RelDataType inferReturnType(SqlOperatorBinding opBinding) {
+    public RelDataType inferReturnType(final SqlOperatorBinding opBinding) {
       return ReturnTypes.ARG0_FORCE_NULLABLE.inferReturnType(opBinding);
     }
   }
 
   /** Extension of {@link SqlAvgAggFunction} that ALWAYS infers a nullable return type */
   private static class SubstraitAvgAggFunction extends SqlAvgAggFunction {
-    public SubstraitAvgAggFunction(SqlKind kind) {
+    public SubstraitAvgAggFunction(final SqlKind kind) {
       super(kind);
     }
 
     @Override
-    public RelDataType inferReturnType(SqlOperatorBinding opBinding) {
+    public RelDataType inferReturnType(final SqlOperatorBinding opBinding) {
       return ReturnTypes.ARG0_FORCE_NULLABLE.inferReturnType(opBinding);
     }
   }
@@ -108,7 +108,7 @@ public class AggregateFunctions {
     }
 
     @Override
-    public RelDataType inferReturnType(SqlOperatorBinding opBinding) {
+    public RelDataType inferReturnType(final SqlOperatorBinding opBinding) {
       return ReturnTypes.BIGINT.inferReturnType(opBinding);
     }
   }

@@ -15,11 +15,11 @@ public class AggregateFunctionConverterTest extends PlanTestBase {
 
   @Test
   void testFunctionFinderMatch() {
-    AggregateFunctionConverter converter =
+    final AggregateFunctionConverter converter =
         new AggregateFunctionConverter(
             extensions.aggregateFunctions(), List.of(), typeFactory, TypeConverter.DEFAULT);
 
-    var functionFinder =
+    final var functionFinder =
         converter.getFunctionFinder(
             AggregateCall.create(
                 new SqlSumEmptyIsZeroAggFunction(),

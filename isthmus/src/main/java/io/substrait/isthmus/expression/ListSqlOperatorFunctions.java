@@ -14,8 +14,8 @@ public class ListSqlOperatorFunctions {
   static final org.slf4j.Logger logger =
       org.slf4j.LoggerFactory.getLogger(ListSqlOperatorFunctions.class);
 
-  public static void main(String[] args) {
-    Map<String, SqlOperator> operators =
+  public static void main(final String[] args) {
+    final Map<String, SqlOperator> operators =
         Arrays.stream(SqlStdOperatorTable.class.getFields())
             .filter(
                 f -> {
@@ -29,9 +29,9 @@ public class ListSqlOperatorFunctions {
                   }
 
                   try {
-                    SqlOperator op = (SqlOperator) f.get(null);
+                    final SqlOperator op = (SqlOperator) f.get(null);
                     return true;
-                  } catch (IllegalAccessException e) {
+                  } catch (final IllegalAccessException e) {
                     throw new RuntimeException(e);
                   }
                 })
@@ -42,10 +42,10 @@ public class ListSqlOperatorFunctions {
     System.out.println("Operator count: " + operators.size());
   }
 
-  private static SqlOperator toOp(Field f) {
+  private static SqlOperator toOp(final Field f) {
     try {
       return (SqlOperator) f.get(null);
-    } catch (IllegalAccessException e) {
+    } catch (final IllegalAccessException e) {
       throw new RuntimeException(e);
     }
   }

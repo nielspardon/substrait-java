@@ -16,14 +16,14 @@ public class UserTypeFactory {
   private final String uri;
   private final String name;
 
-  public UserTypeFactory(String uri, String name) {
+  public UserTypeFactory(final String uri, final String name) {
     this.uri = uri;
     this.name = name;
     this.N = new InnerType(true, name);
     this.R = new InnerType(false, name);
   }
 
-  public RelDataType createCalcite(boolean nullable) {
+  public RelDataType createCalcite(final boolean nullable) {
     if (nullable) {
       return N;
     } else {
@@ -31,11 +31,11 @@ public class UserTypeFactory {
     }
   }
 
-  public Type createSubstrait(boolean nullable) {
+  public Type createSubstrait(final boolean nullable) {
     return TypeCreator.of(nullable).userDefined(uri, name);
   }
 
-  public boolean isTypeFromFactory(RelDataType type) {
+  public boolean isTypeFromFactory(final RelDataType type) {
     return type == N || type == R;
   }
 
@@ -43,7 +43,7 @@ public class UserTypeFactory {
     private final boolean nullable;
     private final String name;
 
-    private InnerType(boolean nullable, String name) {
+    private InnerType(final boolean nullable, final String name) {
       computeDigest();
       this.nullable = nullable;
       this.name = name;
@@ -60,7 +60,7 @@ public class UserTypeFactory {
     }
 
     @Override
-    protected void generateTypeString(StringBuilder sb, boolean withDetail) {
+    protected void generateTypeString(final StringBuilder sb, final boolean withDetail) {
       sb.append(name);
     }
   }
