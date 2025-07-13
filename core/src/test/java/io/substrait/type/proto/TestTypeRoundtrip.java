@@ -13,7 +13,7 @@ public class TestTypeRoundtrip {
 
   @ParameterizedTest
   @ValueSource(booleans = {true, false})
-  public void roundtrip(boolean n) {
+  public void roundtrip(final boolean n) {
     t(creator(n).BOOLEAN);
     t(creator(n).I8);
     t(creator(n).I16);
@@ -42,10 +42,10 @@ public class TestTypeRoundtrip {
     t(creator(n).struct(creator(n).TIME, creator(n).TIMESTAMP, creator(n).TIMESTAMP_TZ));
   }
 
-  private ExtensionCollector lookup = new ExtensionCollector();
-  private TypeProtoConverter typeProtoConverter = new TypeProtoConverter(lookup);
+  private final ExtensionCollector lookup = new ExtensionCollector();
+  private final TypeProtoConverter typeProtoConverter = new TypeProtoConverter(lookup);
 
-  private ProtoTypeConverter protoTypeConverter =
+  private final ProtoTypeConverter protoTypeConverter =
       new ProtoTypeConverter(lookup, SimpleExtension.ExtensionCollection.builder().build());
 
   /*
@@ -53,12 +53,12 @@ public class TestTypeRoundtrip {
    *
    * @param type
    */
-  private void t(Type type) {
-    var converted = type.accept(typeProtoConverter);
+  private void t(final Type type) {
+    final var converted = type.accept(typeProtoConverter);
     assertEquals(type, protoTypeConverter.from(converted));
   }
 
-  private TypeCreator creator(boolean nullable) {
+  private TypeCreator creator(final boolean nullable) {
     return nullable ? TypeCreator.NULLABLE : TypeCreator.REQUIRED;
   }
 }

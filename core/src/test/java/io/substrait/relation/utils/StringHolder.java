@@ -29,12 +29,12 @@ public class StringHolder
 
   private final String value;
 
-  public StringHolder(String value) {
+  public StringHolder(final String value) {
     this.value = value;
   }
 
   @Override
-  public Any toProto(RelProtoConverter relProtoConverter) {
+  public Any toProto(final RelProtoConverter relProtoConverter) {
     return com.google.protobuf.Any.pack(com.google.protobuf.StringValue.of(this.value));
   }
 
@@ -44,12 +44,12 @@ public class StringHolder
   }
 
   @Override
-  public Type.Struct deriveRecordType(Rel input) {
+  public Type.Struct deriveRecordType(final Rel input) {
     return TypeCreator.NULLABLE.struct();
   }
 
   @Override
-  public Type.Struct deriveRecordType(List<Rel> inputs) {
+  public Type.Struct deriveRecordType(final List<Rel> inputs) {
     return TypeCreator.NULLABLE.struct();
   }
 
@@ -59,10 +59,10 @@ public class StringHolder
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(final Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    StringHolder that = (StringHolder) o;
+    final StringHolder that = (StringHolder) o;
     return Objects.equals(value, that.value);
   }
 

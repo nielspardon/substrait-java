@@ -15,30 +15,32 @@ import io.substrait.util.EmptyVisitationContext;
 public class ExtendedExpressionProtoConverter {
 
   public ExtendedExpression toProto(
-      io.substrait.extendedexpression.ExtendedExpression extendedExpression) {
+      final io.substrait.extendedexpression.ExtendedExpression extendedExpression) {
 
-    ExtendedExpression.Builder builder = ExtendedExpression.newBuilder();
-    ExtensionCollector functionCollector = new ExtensionCollector();
+    final ExtendedExpression.Builder builder = ExtendedExpression.newBuilder();
+    final ExtensionCollector functionCollector = new ExtensionCollector();
 
     final ExpressionProtoConverter expressionProtoConverter =
         new ExpressionProtoConverter(functionCollector, null);
 
-    for (io.substrait.extendedexpression.ExtendedExpression.ExpressionReferenceBase
+    for (final io.substrait.extendedexpression.ExtendedExpression.ExpressionReferenceBase
         expressionReference : extendedExpression.getReferredExpressions()) {
       if (expressionReference
-          instanceof io.substrait.extendedexpression.ExtendedExpression.ExpressionReference et) {
-        io.substrait.proto.Expression expressionProto =
+          instanceof
+          final io.substrait.extendedexpression.ExtendedExpression.ExpressionReference
+          et) {
+        final io.substrait.proto.Expression expressionProto =
             et.getExpression().accept(expressionProtoConverter, EmptyVisitationContext.INSTANCE);
-        ExpressionReference.Builder expressionReferenceBuilder =
+        final ExpressionReference.Builder expressionReferenceBuilder =
             ExpressionReference.newBuilder()
                 .setExpression(expressionProto)
                 .addAllOutputNames(expressionReference.getOutputNames());
         builder.addReferredExpr(expressionReferenceBuilder);
       } else if (expressionReference
           instanceof
-          io.substrait.extendedexpression.ExtendedExpression.AggregateFunctionReference
+          final io.substrait.extendedexpression.ExtendedExpression.AggregateFunctionReference
           aft) {
-        ExpressionReference.Builder expressionReferenceBuilder =
+        final ExpressionReference.Builder expressionReferenceBuilder =
             ExpressionReference.newBuilder()
                 .setMeasure(
                     new AggregateFunctionProtoConverter(functionCollector)

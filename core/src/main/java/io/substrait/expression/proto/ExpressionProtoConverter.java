@@ -32,7 +32,7 @@ public class ExpressionProtoConverter
   protected final ExtensionCollector extensionCollector;
 
   public ExpressionProtoConverter(
-      ExtensionCollector extensionCollector, RelProtoConverter relProtoConverter) {
+      final ExtensionCollector extensionCollector, final RelProtoConverter relProtoConverter) {
     this.extensionCollector = extensionCollector;
     this.relProtoConverter = relProtoConverter;
     this.typeProtoConverter = new TypeProtoConverter(extensionCollector);
@@ -46,117 +46,132 @@ public class ExpressionProtoConverter
     return this.typeProtoConverter;
   }
 
-  public io.substrait.proto.Expression toProto(io.substrait.expression.Expression expression) {
+  public io.substrait.proto.Expression toProto(
+      final io.substrait.expression.Expression expression) {
     return expression.accept(this, EmptyVisitationContext.INSTANCE);
   }
 
   public List<io.substrait.proto.Expression> toProto(
-      List<io.substrait.expression.Expression> expressions) {
+      final List<io.substrait.expression.Expression> expressions) {
     return expressions.stream().map(this::toProto).collect(Collectors.toList());
   }
 
-  protected io.substrait.proto.Rel toProto(io.substrait.relation.Rel rel) {
+  protected io.substrait.proto.Rel toProto(final io.substrait.relation.Rel rel) {
     return relProtoConverter.toProto(rel);
   }
 
-  protected io.substrait.proto.Type toProto(io.substrait.type.Type type) {
+  protected io.substrait.proto.Type toProto(final io.substrait.type.Type type) {
     return typeProtoConverter.toProto(type);
   }
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.NullLiteral expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.NullLiteral expr,
+      final EmptyVisitationContext context) {
     return lit(bldr -> bldr.setNull(toProto(expr.type())));
   }
 
-  private Expression lit(Consumer<Expression.Literal.Builder> consumer) {
-    var builder = Expression.Literal.newBuilder();
+  private Expression lit(final Consumer<Expression.Literal.Builder> consumer) {
+    final var builder = Expression.Literal.newBuilder();
     consumer.accept(builder);
     return Expression.newBuilder().setLiteral(builder).build();
   }
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.BoolLiteral expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.BoolLiteral expr,
+      final EmptyVisitationContext context) {
     return lit(bldr -> bldr.setNullable(expr.nullable()).setBoolean(expr.value()));
   }
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.I8Literal expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.I8Literal expr,
+      final EmptyVisitationContext context) {
     return lit(bldr -> bldr.setNullable(expr.nullable()).setI8(expr.value()));
   }
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.I16Literal expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.I16Literal expr,
+      final EmptyVisitationContext context) {
     return lit(bldr -> bldr.setNullable(expr.nullable()).setI16(expr.value()));
   }
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.I32Literal expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.I32Literal expr,
+      final EmptyVisitationContext context) {
     return lit(bldr -> bldr.setNullable(expr.nullable()).setI32(expr.value()));
   }
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.I64Literal expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.I64Literal expr,
+      final EmptyVisitationContext context) {
     return lit(bldr -> bldr.setNullable(expr.nullable()).setI64(expr.value()));
   }
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.FP32Literal expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.FP32Literal expr,
+      final EmptyVisitationContext context) {
     return lit(bldr -> bldr.setNullable(expr.nullable()).setFp32(expr.value()));
   }
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.FP64Literal expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.FP64Literal expr,
+      final EmptyVisitationContext context) {
     return lit(bldr -> bldr.setNullable(expr.nullable()).setFp64(expr.value()));
   }
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.StrLiteral expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.StrLiteral expr,
+      final EmptyVisitationContext context) {
     return lit(bldr -> bldr.setNullable(expr.nullable()).setString(expr.value()));
   }
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.BinaryLiteral expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.BinaryLiteral expr,
+      final EmptyVisitationContext context) {
     return lit(bldr -> bldr.setNullable(expr.nullable()).setBinary(expr.value()));
   }
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.TimeLiteral expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.TimeLiteral expr,
+      final EmptyVisitationContext context) {
     return lit(bldr -> bldr.setNullable(expr.nullable()).setTime(expr.value()));
   }
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.DateLiteral expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.DateLiteral expr,
+      final EmptyVisitationContext context) {
     return lit(bldr -> bldr.setNullable(expr.nullable()).setDate(expr.value()));
   }
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.TimestampLiteral expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.TimestampLiteral expr,
+      final EmptyVisitationContext context) {
     return lit(bldr -> bldr.setNullable(expr.nullable()).setTimestamp(expr.value()));
   }
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.TimestampTZLiteral expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.TimestampTZLiteral expr,
+      final EmptyVisitationContext context) {
     return lit(bldr -> bldr.setNullable(expr.nullable()).setTimestampTz(expr.value()));
   }
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.PrecisionTimestampLiteral expr,
-      EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.PrecisionTimestampLiteral expr,
+      final EmptyVisitationContext context) {
     return lit(
         bldr ->
             bldr.setNullable(expr.nullable())
@@ -170,8 +185,8 @@ public class ExpressionProtoConverter
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.PrecisionTimestampTZLiteral expr,
-      EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.PrecisionTimestampTZLiteral expr,
+      final EmptyVisitationContext context) {
     return lit(
         bldr ->
             bldr.setNullable(expr.nullable())
@@ -185,7 +200,8 @@ public class ExpressionProtoConverter
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.IntervalYearLiteral expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.IntervalYearLiteral expr,
+      final EmptyVisitationContext context) {
     return lit(
         bldr ->
             bldr.setNullable(expr.nullable())
@@ -197,7 +213,8 @@ public class ExpressionProtoConverter
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.IntervalDayLiteral expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.IntervalDayLiteral expr,
+      final EmptyVisitationContext context) {
     return lit(
         bldr ->
             bldr.setNullable(expr.nullable())
@@ -211,8 +228,8 @@ public class ExpressionProtoConverter
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.IntervalCompoundLiteral expr,
-      EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.IntervalCompoundLiteral expr,
+      final EmptyVisitationContext context) {
     return lit(
         bldr ->
             bldr.setNullable(expr.nullable())
@@ -232,19 +249,22 @@ public class ExpressionProtoConverter
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.UUIDLiteral expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.UUIDLiteral expr,
+      final EmptyVisitationContext context) {
     return lit(bldr -> bldr.setNullable(expr.nullable()).setUuid(expr.toBytes()));
   }
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.FixedCharLiteral expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.FixedCharLiteral expr,
+      final EmptyVisitationContext context) {
     return lit(bldr -> bldr.setNullable(expr.nullable()).setFixedChar(expr.value()));
   }
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.VarCharLiteral expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.VarCharLiteral expr,
+      final EmptyVisitationContext context) {
     return lit(
         bldr ->
             bldr.setNullable(expr.nullable())
@@ -256,13 +276,15 @@ public class ExpressionProtoConverter
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.FixedBinaryLiteral expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.FixedBinaryLiteral expr,
+      final EmptyVisitationContext context) {
     return lit(bldr -> bldr.setNullable(expr.nullable()).setFixedBinary(expr.value()));
   }
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.DecimalLiteral expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.DecimalLiteral expr,
+      final EmptyVisitationContext context) {
     return lit(
         bldr ->
             bldr.setNullable(expr.nullable())
@@ -275,15 +297,16 @@ public class ExpressionProtoConverter
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.MapLiteral expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.MapLiteral expr,
+      final EmptyVisitationContext context) {
     return lit(
         bldr -> {
-          var keyValues =
+          final var keyValues =
               expr.values().entrySet().stream()
                   .map(
                       e -> {
-                        var key = toLiteral(e.getKey());
-                        var value = toLiteral(e.getValue());
+                        final var key = toLiteral(e.getKey());
+                        final var value = toLiteral(e.getValue());
                         return Expression.Literal.Map.KeyValue.newBuilder()
                             .setKey(key)
                             .setValue(value)
@@ -297,10 +320,11 @@ public class ExpressionProtoConverter
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.EmptyMapLiteral expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.EmptyMapLiteral expr,
+      final EmptyVisitationContext context) {
     return lit(
         bldr -> {
-          var protoMapType = toProto(expr.getType());
+          final var protoMapType = toProto(expr.getType());
           bldr.setEmptyMap(protoMapType.getMap())
               // For empty maps, the Literal message's own nullable field should be ignored
               // in favor of the nullability of the Type.Map in the literal's
@@ -313,10 +337,11 @@ public class ExpressionProtoConverter
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.ListLiteral expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.ListLiteral expr,
+      final EmptyVisitationContext context) {
     return lit(
         bldr -> {
-          var values =
+          final var values =
               expr.values().stream()
                   .map(this::toLiteral)
                   .collect(java.util.stream.Collectors.toList());
@@ -327,11 +352,12 @@ public class ExpressionProtoConverter
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.EmptyListLiteral expr, EmptyVisitationContext context)
+      final io.substrait.expression.Expression.EmptyListLiteral expr,
+      final EmptyVisitationContext context)
       throws RuntimeException {
     return lit(
         builder -> {
-          var protoListType = toProto(expr.getType());
+          final var protoListType = toProto(expr.getType());
           builder
               .setEmptyList(protoListType.getList())
               // For empty lists, the Literal message's own nullable field should be ignored
@@ -345,10 +371,11 @@ public class ExpressionProtoConverter
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.StructLiteral expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.StructLiteral expr,
+      final EmptyVisitationContext context) {
     return lit(
         bldr -> {
-          var values =
+          final var values =
               expr.fields().stream()
                   .map(this::toLiteral)
                   .collect(java.util.stream.Collectors.toList());
@@ -359,8 +386,9 @@ public class ExpressionProtoConverter
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.UserDefinedLiteral expr, EmptyVisitationContext context) {
-    var typeReference =
+      final io.substrait.expression.Expression.UserDefinedLiteral expr,
+      final EmptyVisitationContext context) {
+    final var typeReference =
         extensionCollector.getTypeReference(SimpleExtension.TypeAnchor.of(expr.uri(), expr.name()));
     return lit(
         bldr -> {
@@ -371,22 +399,22 @@ public class ExpressionProtoConverter
                         .setTypeReference(typeReference)
                         .setValue(Any.parseFrom(expr.value())))
                 .build();
-          } catch (InvalidProtocolBufferException e) {
+          } catch (final InvalidProtocolBufferException e) {
             throw new RuntimeException(e);
           }
         });
   }
 
-  private Expression.Literal toLiteral(io.substrait.expression.Expression expression) {
-    var e = toProto(expression);
+  private Expression.Literal toLiteral(final io.substrait.expression.Expression expression) {
+    final var e = toProto(expression);
     assert e.getRexTypeCase() == Expression.RexTypeCase.LITERAL;
     return e.getLiteral();
   }
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.Switch expr, EmptyVisitationContext context) {
-    var clauses =
+      final io.substrait.expression.Expression.Switch expr, final EmptyVisitationContext context) {
+    final var clauses =
         expr.switchClauses().stream()
             .map(
                 s ->
@@ -406,8 +434,8 @@ public class ExpressionProtoConverter
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.IfThen expr, EmptyVisitationContext context) {
-    var clauses =
+      final io.substrait.expression.Expression.IfThen expr, final EmptyVisitationContext context) {
+    final var clauses =
         expr.ifClauses().stream()
             .map(
                 s ->
@@ -424,10 +452,10 @@ public class ExpressionProtoConverter
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.ScalarFunctionInvocation expr,
-      EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.ScalarFunctionInvocation expr,
+      final EmptyVisitationContext context) {
 
-    var argVisitor = FunctionArg.toProto(typeProtoConverter, this);
+    final var argVisitor = FunctionArg.toProto(typeProtoConverter, this);
 
     return Expression.newBuilder()
         .setScalarFunction(
@@ -445,7 +473,7 @@ public class ExpressionProtoConverter
         .build();
   }
 
-  public static FunctionOption from(io.substrait.expression.FunctionOption option) {
+  public static FunctionOption from(final io.substrait.expression.FunctionOption option) {
     return FunctionOption.newBuilder()
         .setName(option.getName())
         .addAllPreference(option.values())
@@ -454,7 +482,7 @@ public class ExpressionProtoConverter
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.Cast expr, EmptyVisitationContext context) {
+      final io.substrait.expression.Expression.Cast expr, final EmptyVisitationContext context) {
     return Expression.newBuilder()
         .setCast(
             Expression.Cast.newBuilder()
@@ -466,7 +494,8 @@ public class ExpressionProtoConverter
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.SingleOrList expr, EmptyVisitationContext context)
+      final io.substrait.expression.Expression.SingleOrList expr,
+      final EmptyVisitationContext context)
       throws RuntimeException {
     return Expression.newBuilder()
         .setSingularOrList(
@@ -478,7 +507,8 @@ public class ExpressionProtoConverter
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.MultiOrList expr, EmptyVisitationContext context)
+      final io.substrait.expression.Expression.MultiOrList expr,
+      final EmptyVisitationContext context)
       throws RuntimeException {
     return Expression.newBuilder()
         .setMultiOrList(
@@ -496,25 +526,26 @@ public class ExpressionProtoConverter
   }
 
   @Override
-  public Expression visit(FieldReference expr, EmptyVisitationContext context) {
+  public Expression visit(final FieldReference expr, final EmptyVisitationContext context) {
 
     Expression.ReferenceSegment seg = null;
-    for (var segment : expr.segments()) {
-      Expression.ReferenceSegment.Builder protoSegment;
-      if (segment instanceof FieldReference.StructField f) {
-        var bldr = Expression.ReferenceSegment.StructField.newBuilder().setField(f.offset());
+    for (final var segment : expr.segments()) {
+      final Expression.ReferenceSegment.Builder protoSegment;
+      if (segment instanceof final FieldReference.StructField f) {
+        final var bldr = Expression.ReferenceSegment.StructField.newBuilder().setField(f.offset());
         if (seg != null) {
           bldr.setChild(seg);
         }
         protoSegment = Expression.ReferenceSegment.newBuilder().setStructField(bldr);
-      } else if (segment instanceof FieldReference.ListElement f) {
-        var bldr = Expression.ReferenceSegment.ListElement.newBuilder().setOffset(f.offset());
+      } else if (segment instanceof final FieldReference.ListElement f) {
+        final var bldr = Expression.ReferenceSegment.ListElement.newBuilder().setOffset(f.offset());
         if (seg != null) {
           bldr.setChild(seg);
         }
         protoSegment = Expression.ReferenceSegment.newBuilder().setListElement(bldr);
-      } else if (segment instanceof FieldReference.MapKey f) {
-        var bldr = Expression.ReferenceSegment.MapKey.newBuilder().setMapKey(toLiteral(f.key()));
+      } else if (segment instanceof final FieldReference.MapKey f) {
+        final var bldr =
+            Expression.ReferenceSegment.MapKey.newBuilder().setMapKey(toLiteral(f.key()));
         if (seg != null) {
           bldr.setChild(seg);
         }
@@ -522,11 +553,11 @@ public class ExpressionProtoConverter
       } else {
         throw new IllegalArgumentException("Unhandled type: " + segment);
       }
-      var builtSegment = protoSegment.build();
+      final var builtSegment = protoSegment.build();
       seg = builtSegment;
     }
 
-    var out = Expression.FieldReference.newBuilder().setDirectReference(seg);
+    final var out = Expression.FieldReference.newBuilder().setDirectReference(seg);
 
     if (expr.inputExpression().isPresent()) {
       out.setExpression(toProto(expr.inputExpression().get()));
@@ -543,7 +574,8 @@ public class ExpressionProtoConverter
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.SetPredicate expr, EmptyVisitationContext context)
+      final io.substrait.expression.Expression.SetPredicate expr,
+      final EmptyVisitationContext context)
       throws RuntimeException {
     return Expression.newBuilder()
         .setSubquery(
@@ -559,7 +591,8 @@ public class ExpressionProtoConverter
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.ScalarSubquery expr, EmptyVisitationContext context)
+      final io.substrait.expression.Expression.ScalarSubquery expr,
+      final EmptyVisitationContext context)
       throws RuntimeException {
     return Expression.newBuilder()
         .setSubquery(
@@ -572,7 +605,8 @@ public class ExpressionProtoConverter
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.InPredicate expr, EmptyVisitationContext context)
+      final io.substrait.expression.Expression.InPredicate expr,
+      final EmptyVisitationContext context)
       throws RuntimeException {
     return Expression.newBuilder()
         .setSubquery(
@@ -588,19 +622,19 @@ public class ExpressionProtoConverter
 
   @Override
   public Expression visit(
-      io.substrait.expression.Expression.WindowFunctionInvocation expr,
-      EmptyVisitationContext context)
+      final io.substrait.expression.Expression.WindowFunctionInvocation expr,
+      final EmptyVisitationContext context)
       throws RuntimeException {
-    var argVisitor = FunctionArg.toProto(typeProtoConverter, this);
-    List<FunctionArgument> args =
+    final var argVisitor = FunctionArg.toProto(typeProtoConverter, this);
+    final List<FunctionArgument> args =
         expr.arguments().stream()
             .map(a -> a.accept(expr.declaration(), 0, argVisitor, context))
             .collect(java.util.stream.Collectors.toList());
-    Type outputType = toProto(expr.getType());
+    final Type outputType = toProto(expr.getType());
 
-    List<Expression> partitionExprs = toProto(expr.partitionBy());
+    final List<Expression> partitionExprs = toProto(expr.partitionBy());
 
-    List<SortField> sortFields =
+    final List<SortField> sortFields =
         expr.sort().stream()
             .map(
                 s ->
@@ -610,8 +644,8 @@ public class ExpressionProtoConverter
                         .build())
             .collect(java.util.stream.Collectors.toList());
 
-    Expression.WindowFunction.Bound lowerBound = BoundConverter.convert(expr.lowerBound());
-    Expression.WindowFunction.Bound upperBound = BoundConverter.convert(expr.upperBound());
+    final Expression.WindowFunction.Bound lowerBound = BoundConverter.convert(expr.lowerBound());
+    final Expression.WindowFunction.Bound upperBound = BoundConverter.convert(expr.upperBound());
 
     return Expression.newBuilder()
         .setWindowFunction(
@@ -636,7 +670,7 @@ public class ExpressionProtoConverter
   public static class BoundConverter
       implements WindowBound.WindowBoundVisitor<Expression.WindowFunction.Bound, RuntimeException> {
 
-    public static Expression.WindowFunction.Bound convert(WindowBound bound) {
+    public static Expression.WindowFunction.Bound convert(final WindowBound bound) {
       return bound.accept(TO_BOUND_VISITOR);
     }
 
@@ -645,7 +679,7 @@ public class ExpressionProtoConverter
     private BoundConverter() {}
 
     @Override
-    public Expression.WindowFunction.Bound visit(WindowBound.Preceding preceding) {
+    public Expression.WindowFunction.Bound visit(final WindowBound.Preceding preceding) {
       return Expression.WindowFunction.Bound.newBuilder()
           .setPreceding(
               Expression.WindowFunction.Bound.Preceding.newBuilder().setOffset(preceding.offset()))
@@ -653,7 +687,7 @@ public class ExpressionProtoConverter
     }
 
     @Override
-    public Expression.WindowFunction.Bound visit(WindowBound.Following following) {
+    public Expression.WindowFunction.Bound visit(final WindowBound.Following following) {
       return Expression.WindowFunction.Bound.newBuilder()
           .setFollowing(
               Expression.WindowFunction.Bound.Following.newBuilder().setOffset(following.offset()))
@@ -661,14 +695,14 @@ public class ExpressionProtoConverter
     }
 
     @Override
-    public Expression.WindowFunction.Bound visit(WindowBound.CurrentRow currentRow) {
+    public Expression.WindowFunction.Bound visit(final WindowBound.CurrentRow currentRow) {
       return Expression.WindowFunction.Bound.newBuilder()
           .setCurrentRow(Expression.WindowFunction.Bound.CurrentRow.getDefaultInstance())
           .build();
     }
 
     @Override
-    public Expression.WindowFunction.Bound visit(WindowBound.Unbounded unbounded) {
+    public Expression.WindowFunction.Bound visit(final WindowBound.Unbounded unbounded) {
       return Expression.WindowFunction.Bound.newBuilder()
           .setUnbounded(Expression.WindowFunction.Bound.Unbounded.getDefaultInstance())
           .build();

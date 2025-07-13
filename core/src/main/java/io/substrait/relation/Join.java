@@ -40,9 +40,9 @@ public abstract class Join extends BiRel implements HasExtension {
     @Deprecated
     ANTI(JoinRel.JoinType.JOIN_TYPE_LEFT_ANTI);
 
-    private JoinRel.JoinType proto;
+    private final JoinRel.JoinType proto;
 
-    JoinType(JoinRel.JoinType proto) {
+    JoinType(final JoinRel.JoinType proto) {
       this.proto = proto;
     }
 
@@ -50,8 +50,8 @@ public abstract class Join extends BiRel implements HasExtension {
       return proto;
     }
 
-    public static JoinType fromProto(JoinRel.JoinType proto) {
-      for (var v : values()) {
+    public static JoinType fromProto(final JoinRel.JoinType proto) {
+      for (final var v : values()) {
         if (v.proto == proto) {
           return v;
         }
@@ -63,7 +63,7 @@ public abstract class Join extends BiRel implements HasExtension {
 
   @Override
   protected Type.Struct deriveRecordType() {
-    Stream<Type> leftTypes =
+    final Stream<Type> leftTypes =
         switch (getJoinType()) {
           case RIGHT, OUTER, RIGHT_SINGLE -> getLeft().getRecordType().fields().stream()
               .map(TypeCreator::asNullable);
@@ -75,7 +75,7 @@ public abstract class Join extends BiRel implements HasExtension {
             // field
           default -> getLeft().getRecordType().fields().stream();
         };
-    Stream<Type> rightTypes =
+    final Stream<Type> rightTypes =
         switch (getJoinType()) {
           case LEFT, OUTER, LEFT_SINGLE -> getRight().getRecordType().fields().stream()
               .map(TypeCreator::asNullable);
@@ -92,7 +92,7 @@ public abstract class Join extends BiRel implements HasExtension {
 
   @Override
   public <O, C extends VisitationContext, E extends Exception> O accept(
-      RelVisitor<O, C, E> visitor, C context) throws E {
+      final RelVisitor<O, C, E> visitor, final C context) throws E {
     return visitor.visit(this, context);
   }
 

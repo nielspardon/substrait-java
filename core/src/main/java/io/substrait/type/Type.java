@@ -12,7 +12,7 @@ import org.immutables.value.Value;
 public interface Type extends TypeExpression, ParameterizedType, NullableType, FunctionArg {
   static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Type.class);
 
-  public static TypeCreator withNullability(boolean nullable) {
+  public static TypeCreator withNullability(final boolean nullable) {
     return nullable ? TypeCreator.NULLABLE : TypeCreator.REQUIRED;
   }
 
@@ -20,7 +20,10 @@ public interface Type extends TypeExpression, ParameterizedType, NullableType, F
 
   @Override
   default <R, C extends VisitationContext, E extends Throwable> R accept(
-      SimpleExtension.Function fnDef, int argIdx, FuncArgVisitor<R, C, E> fnArgVisitor, C context)
+      final SimpleExtension.Function fnDef,
+      final int argIdx,
+      final FuncArgVisitor<R, C, E> fnArgVisitor,
+      final C context)
       throws E {
     return fnArgVisitor.visitType(fnDef, argIdx, this, context);
   }
@@ -398,7 +401,7 @@ public interface Type extends TypeExpression, ParameterizedType, NullableType, F
     }
 
     @Override
-    public <R, E extends Throwable> R accept(TypeVisitor<R, E> typeVisitor) throws E {
+    public <R, E extends Throwable> R accept(final TypeVisitor<R, E> typeVisitor) throws E {
       return typeVisitor.visit(this);
     }
   }

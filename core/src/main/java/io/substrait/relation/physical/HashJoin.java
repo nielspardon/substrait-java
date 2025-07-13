@@ -36,14 +36,14 @@ public abstract class HashJoin extends BiRel implements HasExtension {
     LEFT_ANTI(HashJoinRel.JoinType.JOIN_TYPE_LEFT_ANTI),
     RIGHT_ANTI(HashJoinRel.JoinType.JOIN_TYPE_RIGHT_ANTI);
 
-    private HashJoinRel.JoinType proto;
+    private final HashJoinRel.JoinType proto;
 
-    JoinType(HashJoinRel.JoinType proto) {
+    JoinType(final HashJoinRel.JoinType proto) {
       this.proto = proto;
     }
 
-    public static JoinType fromProto(HashJoinRel.JoinType proto) {
-      for (var v : values()) {
+    public static JoinType fromProto(final HashJoinRel.JoinType proto) {
+      for (final var v : values()) {
         if (v.proto == proto) {
           return v;
         }
@@ -58,14 +58,14 @@ public abstract class HashJoin extends BiRel implements HasExtension {
 
   @Override
   protected Type.Struct deriveRecordType() {
-    Stream<Type> leftTypes =
+    final Stream<Type> leftTypes =
         switch (getJoinType()) {
           case RIGHT, OUTER -> getLeft().getRecordType().fields().stream()
               .map(TypeCreator::asNullable);
           case RIGHT_ANTI, RIGHT_SEMI -> Stream.empty();
           default -> getLeft().getRecordType().fields().stream();
         };
-    Stream<Type> rightTypes =
+    final Stream<Type> rightTypes =
         switch (getJoinType()) {
           case LEFT, OUTER -> getRight().getRecordType().fields().stream()
               .map(TypeCreator::asNullable);
@@ -77,7 +77,7 @@ public abstract class HashJoin extends BiRel implements HasExtension {
 
   @Override
   public <O, C extends VisitationContext, E extends Exception> O accept(
-      RelVisitor<O, C, E> visitor, C context) throws E {
+      final RelVisitor<O, C, E> visitor, final C context) throws E {
     return visitor.visit(this, context);
   }
 

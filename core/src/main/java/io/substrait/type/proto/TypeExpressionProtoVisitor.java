@@ -11,7 +11,7 @@ public class TypeExpressionProtoVisitor
   static final org.slf4j.Logger logger =
       org.slf4j.LoggerFactory.getLogger(TypeExpressionProtoVisitor.class);
 
-  public TypeExpressionProtoVisitor(ExtensionCollector extensionCollector) {
+  public TypeExpressionProtoVisitor(final ExtensionCollector extensionCollector) {
     super(extensionCollector, "Unexpected expression type. This shouldn't happen.");
   }
 
@@ -28,7 +28,7 @@ public class TypeExpressionProtoVisitor
 
   @Override
   public DerivationExpression visit(final TypeExpression.BinaryOperation expr) {
-    var opType =
+    final var opType =
         switch (expr.opType()) {
           case ADD -> DerivationExpression.BinaryOp.BinaryOpType.BINARY_OP_TYPE_PLUS;
           case SUBTRACT -> DerivationExpression.BinaryOp.BinaryOpType.BINARY_OP_TYPE_MINUS;
@@ -82,7 +82,7 @@ public class TypeExpressionProtoVisitor
 
   @Override
   public DerivationExpression visit(final TypeExpression.ReturnProgram expr) {
-    var assignments =
+    final var assignments =
         expr.assignments().stream()
             .map(
                 a ->
@@ -91,7 +91,7 @@ public class TypeExpressionProtoVisitor
                         .setExpression(a.expr().accept(this))
                         .build())
             .collect(java.util.stream.Collectors.toList());
-    var finalExpr = expr.finalExpression().accept(this);
+    final var finalExpr = expr.finalExpression().accept(this);
     return DerivationExpression.newBuilder()
         .setReturnProgram(
             DerivationExpression.ReturnProgram.newBuilder()
@@ -102,47 +102,47 @@ public class TypeExpressionProtoVisitor
   }
 
   @Override
-  public DerivationExpression visit(ParameterizedType.FixedChar expr) {
+  public DerivationExpression visit(final ParameterizedType.FixedChar expr) {
     return typeContainer(expr).fixedChar(expr.length().value());
   }
 
   @Override
-  public DerivationExpression visit(ParameterizedType.VarChar expr) {
+  public DerivationExpression visit(final ParameterizedType.VarChar expr) {
     return typeContainer(expr).varChar(expr.length().value());
   }
 
   @Override
-  public DerivationExpression visit(ParameterizedType.FixedBinary expr) {
+  public DerivationExpression visit(final ParameterizedType.FixedBinary expr) {
     return typeContainer(expr).fixedBinary(expr.length().value());
   }
 
   @Override
-  public DerivationExpression visit(ParameterizedType.Decimal expr) {
+  public DerivationExpression visit(final ParameterizedType.Decimal expr) {
     return typeContainer(expr).decimal(expr.precision().accept(this), expr.scale().accept(this));
   }
 
   @Override
-  public DerivationExpression visit(ParameterizedType.IntervalDay expr) {
+  public DerivationExpression visit(final ParameterizedType.IntervalDay expr) {
     return typeContainer(expr).intervalDay(expr.precision().accept(this));
   }
 
   @Override
-  public DerivationExpression visit(ParameterizedType.IntervalCompound expr) {
+  public DerivationExpression visit(final ParameterizedType.IntervalCompound expr) {
     return typeContainer(expr).intervalCompound(expr.precision().accept(this));
   }
 
   @Override
-  public DerivationExpression visit(ParameterizedType.PrecisionTimestamp expr) {
+  public DerivationExpression visit(final ParameterizedType.PrecisionTimestamp expr) {
     return typeContainer(expr).precisionTimestamp(expr.precision().accept(this));
   }
 
   @Override
-  public DerivationExpression visit(TypeExpression.PrecisionTimestampTZ expr) {
+  public DerivationExpression visit(final TypeExpression.PrecisionTimestampTZ expr) {
     return typeContainer(expr).precisionTimestampTZ(expr.precision().accept(this));
   }
 
   @Override
-  public DerivationExpression visit(ParameterizedType.Struct expr) {
+  public DerivationExpression visit(final ParameterizedType.Struct expr) {
     return typeContainer(expr)
         .struct(
             expr.fields().stream()
@@ -151,42 +151,42 @@ public class TypeExpressionProtoVisitor
   }
 
   @Override
-  public DerivationExpression visit(ParameterizedType.ListType expr) {
+  public DerivationExpression visit(final ParameterizedType.ListType expr) {
     return typeContainer(expr).list(expr.name().accept(this));
   }
 
   @Override
-  public DerivationExpression visit(ParameterizedType.Map expr) {
+  public DerivationExpression visit(final ParameterizedType.Map expr) {
     return typeContainer(expr).map(expr.key().accept(this), expr.value().accept(this));
   }
 
   @Override
-  public DerivationExpression visit(ParameterizedType.StringLiteral stringLiteral) {
+  public DerivationExpression visit(final ParameterizedType.StringLiteral stringLiteral) {
     return DerivationExpression.newBuilder().setTypeParameterName(stringLiteral.value()).build();
   }
 
   @Override
-  public DerivationExpression visit(TypeExpression.FixedChar expr) {
+  public DerivationExpression visit(final TypeExpression.FixedChar expr) {
     return typeContainer(expr).fixedChar(expr.length().accept(this));
   }
 
   @Override
-  public DerivationExpression visit(TypeExpression.VarChar expr) {
+  public DerivationExpression visit(final TypeExpression.VarChar expr) {
     return typeContainer(expr).varChar(expr.length().accept(this));
   }
 
   @Override
-  public DerivationExpression visit(TypeExpression.FixedBinary expr) {
+  public DerivationExpression visit(final TypeExpression.FixedBinary expr) {
     return typeContainer(expr).fixedBinary(expr.length().accept(this));
   }
 
   @Override
-  public DerivationExpression visit(TypeExpression.Decimal expr) {
+  public DerivationExpression visit(final TypeExpression.Decimal expr) {
     return typeContainer(expr).decimal(expr.precision().accept(this), expr.scale().accept(this));
   }
 
   @Override
-  public DerivationExpression visit(TypeExpression.Struct expr) {
+  public DerivationExpression visit(final TypeExpression.Struct expr) {
     return typeContainer(expr)
         .struct(
             expr.fields().stream()
@@ -195,12 +195,12 @@ public class TypeExpressionProtoVisitor
   }
 
   @Override
-  public DerivationExpression visit(TypeExpression.ListType expr) {
+  public DerivationExpression visit(final TypeExpression.ListType expr) {
     return typeContainer(expr).list(expr.elementType().accept(this));
   }
 
   @Override
-  public DerivationExpression visit(TypeExpression.Map expr) {
+  public DerivationExpression visit(final TypeExpression.Map expr) {
     return typeContainer(expr).map(expr.key().accept(this), expr.value().accept(this));
   }
 
@@ -211,7 +211,7 @@ public class TypeExpressionProtoVisitor
       super(nullability);
     }
 
-    public DerivationExpression fixedChar(DerivationExpression len) {
+    public DerivationExpression fixedChar(final DerivationExpression len) {
       return wrap(
           DerivationExpression.ExpressionFixedChar.newBuilder()
               .setLength(len)
@@ -229,7 +229,7 @@ public class TypeExpressionProtoVisitor
       return DerivationExpression.newBuilder().setIntegerParameterName(name).build();
     }
 
-    public DerivationExpression varChar(DerivationExpression len) {
+    public DerivationExpression varChar(final DerivationExpression len) {
       return wrap(
           DerivationExpression.ExpressionVarChar.newBuilder()
               .setLength(len)
@@ -237,7 +237,7 @@ public class TypeExpressionProtoVisitor
               .build());
     }
 
-    public DerivationExpression fixedBinary(DerivationExpression len) {
+    public DerivationExpression fixedBinary(final DerivationExpression len) {
       return wrap(
           DerivationExpression.ExpressionFixedBinary.newBuilder()
               .setLength(len)
@@ -246,7 +246,7 @@ public class TypeExpressionProtoVisitor
     }
 
     public DerivationExpression decimal(
-        DerivationExpression scale, DerivationExpression precision) {
+        final DerivationExpression scale, final DerivationExpression precision) {
       return wrap(
           DerivationExpression.ExpressionDecimal.newBuilder()
               .setScale(scale)
@@ -256,7 +256,7 @@ public class TypeExpressionProtoVisitor
     }
 
     @Override
-    public DerivationExpression precisionTime(DerivationExpression precision) {
+    public DerivationExpression precisionTime(final DerivationExpression precision) {
       return wrap(
           DerivationExpression.ExpressionPrecisionTime.newBuilder()
               .setPrecision(precision)
@@ -265,7 +265,7 @@ public class TypeExpressionProtoVisitor
     }
 
     @Override
-    public DerivationExpression precisionTimestamp(DerivationExpression precision) {
+    public DerivationExpression precisionTimestamp(final DerivationExpression precision) {
       return wrap(
           DerivationExpression.ExpressionPrecisionTimestamp.newBuilder()
               .setPrecision(precision)
@@ -274,7 +274,7 @@ public class TypeExpressionProtoVisitor
     }
 
     @Override
-    public DerivationExpression precisionTimestampTZ(DerivationExpression precision) {
+    public DerivationExpression precisionTimestampTZ(final DerivationExpression precision) {
       return wrap(
           DerivationExpression.ExpressionPrecisionTimestampTZ.newBuilder()
               .setPrecision(precision)
@@ -283,7 +283,7 @@ public class TypeExpressionProtoVisitor
     }
 
     @Override
-    public DerivationExpression intervalDay(DerivationExpression precision) {
+    public DerivationExpression intervalDay(final DerivationExpression precision) {
       return wrap(
           DerivationExpression.ExpressionIntervalDay.newBuilder()
               .setPrecision(precision)
@@ -292,7 +292,7 @@ public class TypeExpressionProtoVisitor
     }
 
     @Override
-    public DerivationExpression intervalCompound(DerivationExpression precision) {
+    public DerivationExpression intervalCompound(final DerivationExpression precision) {
       return wrap(
           DerivationExpression.ExpressionIntervalCompound.newBuilder()
               .setPrecision(precision)
@@ -300,7 +300,7 @@ public class TypeExpressionProtoVisitor
               .build());
     }
 
-    public DerivationExpression struct(Iterable<DerivationExpression> types) {
+    public DerivationExpression struct(final Iterable<DerivationExpression> types) {
       return wrap(
           DerivationExpression.ExpressionStruct.newBuilder()
               .addAllTypes(types)
@@ -308,11 +308,11 @@ public class TypeExpressionProtoVisitor
               .build());
     }
 
-    public DerivationExpression param(String name) {
+    public DerivationExpression param(final String name) {
       return DerivationExpression.newBuilder().setTypeParameterName(name).build();
     }
 
-    public DerivationExpression list(DerivationExpression type) {
+    public DerivationExpression list(final DerivationExpression type) {
       return wrap(
           DerivationExpression.ExpressionList.newBuilder()
               .setType(type)
@@ -320,7 +320,8 @@ public class TypeExpressionProtoVisitor
               .build());
     }
 
-    public DerivationExpression map(DerivationExpression key, DerivationExpression value) {
+    public DerivationExpression map(
+        final DerivationExpression key, final DerivationExpression value) {
       return wrap(
           DerivationExpression.ExpressionMap.newBuilder()
               .setKey(key)
@@ -330,65 +331,65 @@ public class TypeExpressionProtoVisitor
     }
 
     @Override
-    public DerivationExpression userDefined(int ref) {
+    public DerivationExpression userDefined(final int ref) {
       throw new UnsupportedOperationException(
           "User defined types are not supported in Derivation Expressions for now");
     }
 
     @Override
     protected DerivationExpression wrap(final Object o) {
-      var bldr = DerivationExpression.newBuilder();
-      if (o instanceof Type.Boolean t) {
+      final var bldr = DerivationExpression.newBuilder();
+      if (o instanceof final Type.Boolean t) {
         return bldr.setBool(t).build();
-      } else if (o instanceof Type.I8 t) {
+      } else if (o instanceof final Type.I8 t) {
         return bldr.setI8(t).build();
-      } else if (o instanceof Type.I16 t) {
+      } else if (o instanceof final Type.I16 t) {
         return bldr.setI16(t).build();
-      } else if (o instanceof Type.I32 t) {
+      } else if (o instanceof final Type.I32 t) {
         return bldr.setI32(t).build();
-      } else if (o instanceof Type.I64 t) {
+      } else if (o instanceof final Type.I64 t) {
         return bldr.setI64(t).build();
-      } else if (o instanceof Type.FP32 t) {
+      } else if (o instanceof final Type.FP32 t) {
         return bldr.setFp32(t).build();
-      } else if (o instanceof Type.FP64 t) {
+      } else if (o instanceof final Type.FP64 t) {
         return bldr.setFp64(t).build();
-      } else if (o instanceof Type.String t) {
+      } else if (o instanceof final Type.String t) {
         return bldr.setString(t).build();
-      } else if (o instanceof Type.Binary t) {
+      } else if (o instanceof final Type.Binary t) {
         return bldr.setBinary(t).build();
-      } else if (o instanceof Type.Timestamp t) {
+      } else if (o instanceof final Type.Timestamp t) {
         return bldr.setTimestamp(t).build();
-      } else if (o instanceof Type.Date t) {
+      } else if (o instanceof final Type.Date t) {
         return bldr.setDate(t).build();
-      } else if (o instanceof Type.Time t) {
+      } else if (o instanceof final Type.Time t) {
         return bldr.setTime(t).build();
-      } else if (o instanceof Type.TimestampTZ t) {
+      } else if (o instanceof final Type.TimestampTZ t) {
         return bldr.setTimestampTz(t).build();
-      } else if (o instanceof Type.IntervalYear t) {
+      } else if (o instanceof final Type.IntervalYear t) {
         return bldr.setIntervalYear(t).build();
-      } else if (o instanceof DerivationExpression.ExpressionIntervalDay t) {
+      } else if (o instanceof final DerivationExpression.ExpressionIntervalDay t) {
         return bldr.setIntervalDay(t).build();
-      } else if (o instanceof DerivationExpression.ExpressionIntervalCompound t) {
+      } else if (o instanceof final DerivationExpression.ExpressionIntervalCompound t) {
         return bldr.setIntervalCompound(t).build();
-      } else if (o instanceof DerivationExpression.ExpressionFixedChar t) {
+      } else if (o instanceof final DerivationExpression.ExpressionFixedChar t) {
         return bldr.setFixedChar(t).build();
-      } else if (o instanceof DerivationExpression.ExpressionVarChar t) {
+      } else if (o instanceof final DerivationExpression.ExpressionVarChar t) {
         return bldr.setVarchar(t).build();
-      } else if (o instanceof DerivationExpression.ExpressionFixedBinary t) {
+      } else if (o instanceof final DerivationExpression.ExpressionFixedBinary t) {
         return bldr.setFixedBinary(t).build();
-      } else if (o instanceof DerivationExpression.ExpressionDecimal t) {
+      } else if (o instanceof final DerivationExpression.ExpressionDecimal t) {
         return bldr.setDecimal(t).build();
-      } else if (o instanceof DerivationExpression.ExpressionPrecisionTimestamp t) {
+      } else if (o instanceof final DerivationExpression.ExpressionPrecisionTimestamp t) {
         return bldr.setPrecisionTimestamp(t).build();
-      } else if (o instanceof DerivationExpression.ExpressionPrecisionTimestampTZ t) {
+      } else if (o instanceof final DerivationExpression.ExpressionPrecisionTimestampTZ t) {
         return bldr.setPrecisionTimestampTz(t).build();
-      } else if (o instanceof DerivationExpression.ExpressionStruct t) {
+      } else if (o instanceof final DerivationExpression.ExpressionStruct t) {
         return bldr.setStruct(t).build();
-      } else if (o instanceof DerivationExpression.ExpressionList t) {
+      } else if (o instanceof final DerivationExpression.ExpressionList t) {
         return bldr.setList(t).build();
-      } else if (o instanceof DerivationExpression.ExpressionMap t) {
+      } else if (o instanceof final DerivationExpression.ExpressionMap t) {
         return bldr.setMap(t).build();
-      } else if (o instanceof Type.UUID t) {
+      } else if (o instanceof final Type.UUID t) {
         return bldr.setUuid(t).build();
       }
       throw new UnsupportedOperationException("Unable to wrap type of " + o.getClass());

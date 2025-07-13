@@ -30,31 +30,41 @@ public interface FunctionArg {
   }
 
   static FuncArgVisitor<FunctionArgument, EmptyVisitationContext, RuntimeException> toProto(
-      TypeExpressionVisitor<io.substrait.proto.Type, RuntimeException> typeVisitor,
-      ExpressionVisitor<io.substrait.proto.Expression, EmptyVisitationContext, RuntimeException>
+      final TypeExpressionVisitor<io.substrait.proto.Type, RuntimeException> typeVisitor,
+      final ExpressionVisitor<
+              io.substrait.proto.Expression, EmptyVisitationContext, RuntimeException>
           expressionVisitor) {
 
     return new FuncArgVisitor<>() {
 
       @Override
       public FunctionArgument visitExpr(
-          SimpleExtension.Function fnDef, int argIdx, Expression e, EmptyVisitationContext context)
+          final SimpleExtension.Function fnDef,
+          final int argIdx,
+          final Expression e,
+          final EmptyVisitationContext context)
           throws RuntimeException {
-        var pE = e.accept(expressionVisitor, context);
+        final var pE = e.accept(expressionVisitor, context);
         return FunctionArgument.newBuilder().setValue(pE).build();
       }
 
       @Override
       public FunctionArgument visitType(
-          SimpleExtension.Function fnDef, int argIdx, Type t, EmptyVisitationContext context)
+          final SimpleExtension.Function fnDef,
+          final int argIdx,
+          final Type t,
+          final EmptyVisitationContext context)
           throws RuntimeException {
-        var pTyp = t.accept(typeVisitor);
+        final var pTyp = t.accept(typeVisitor);
         return FunctionArgument.newBuilder().setType(pTyp).build();
       }
 
       @Override
       public FunctionArgument visitEnumArg(
-          SimpleExtension.Function fnDef, int argIdx, EnumArg ea, EmptyVisitationContext context)
+          final SimpleExtension.Function fnDef,
+          final int argIdx,
+          final EnumArg ea,
+          final EmptyVisitationContext context)
           throws RuntimeException {
         var enumBldr = FunctionArgument.newBuilder();
 
@@ -75,20 +85,21 @@ public interface FunctionArg {
     private final ProtoTypeConverter protoTypeConverter;
 
     public ProtoFrom(
-        ProtoExpressionConverter protoExprConverter, ProtoTypeConverter protoTypeConverter) {
+        final ProtoExpressionConverter protoExprConverter,
+        final ProtoTypeConverter protoTypeConverter) {
       this.protoExprConverter = protoExprConverter;
       this.protoTypeConverter = protoTypeConverter;
     }
 
     public FunctionArg convert(
-        SimpleExtension.Function funcDef, int argIdx, FunctionArgument fArg) {
+        final SimpleExtension.Function funcDef, final int argIdx, final FunctionArgument fArg) {
       return switch (fArg.getArgTypeCase()) {
         case TYPE -> protoTypeConverter.from(fArg.getType());
         case VALUE -> protoExprConverter.from(fArg.getValue());
         case ENUM -> {
-          SimpleExtension.EnumArgument enumArgDef =
+          final SimpleExtension.EnumArgument enumArgDef =
               (SimpleExtension.EnumArgument) funcDef.args().get(argIdx);
-          var optionValue = fArg.getEnum();
+          final var optionValue = fArg.getEnum();
           yield EnumArg.of(enumArgDef, optionValue);
         }
         default -> throw new UnsupportedOperationException(

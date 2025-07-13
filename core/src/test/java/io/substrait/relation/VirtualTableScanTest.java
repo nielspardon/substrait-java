@@ -19,7 +19,7 @@ class VirtualTableScanTest extends TestBase {
 
   @Test
   void check() {
-    VirtualTableScan virtualTableScan =
+    final VirtualTableScan virtualTableScan =
         ImmutableVirtualTableScan.builder()
             .initialSchema(
                 NamedStruct.of(
@@ -60,9 +60,9 @@ class VirtualTableScanTest extends TestBase {
   }
 
   private Map<Expression.Literal, Expression.Literal> mapOf(
-      Expression.Literal key, Expression.Literal value) {
+      final Expression.Literal key, final Expression.Literal value) {
     // Map.of() comes only in Java 9 and the "core" module is on Java 8
-    HashMap<Expression.Literal, Expression.Literal> map = new HashMap<>();
+    final HashMap<Expression.Literal, Expression.Literal> map = new HashMap<>();
     map.put(key, value);
     return map;
   }

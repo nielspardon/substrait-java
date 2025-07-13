@@ -19,8 +19,8 @@ import org.junit.jupiter.api.Test;
 
 public class LocalFilesRoundtripTest extends TestBase {
 
-  private void assertLocalFilesRoundtrip(FileOrFiles file) {
-    var builder =
+  private void assertLocalFilesRoundtrip(final FileOrFiles file) {
+    final var builder =
         LocalFiles.builder()
             .initialSchema(
                 NamedStruct.builder()
@@ -48,15 +48,15 @@ public class LocalFilesRoundtripTest extends TestBase {
                     ExpressionCreator.i32(false, 1)))
         .ifPresent(builder::filter);
 
-    var localFiles = builder.build();
-    var protoFileRel = relProtoConverter.toProto(localFiles);
+    final var localFiles = builder.build();
+    final var protoFileRel = relProtoConverter.toProto(localFiles);
     assertTrue(protoFileRel.getRead().hasFilter());
     assertEquals(protoFileRel, relProtoConverter.toProto(protoRelConverter.from(protoFileRel)));
   }
 
   private ImmutableFileOrFiles.Builder setPath(
-      ImmutableFileOrFiles.Builder builder,
-      ReadRel.LocalFiles.FileOrFiles.PathTypeCase pathTypeCase) {
+      final ImmutableFileOrFiles.Builder builder,
+      final ReadRel.LocalFiles.FileOrFiles.PathTypeCase pathTypeCase) {
     return switch (pathTypeCase) {
       case URI_PATH -> builder.pathType(FileOrFiles.PathType.URI_PATH).path("path");
       case URI_PATH_GLOB -> builder.pathType(FileOrFiles.PathType.URI_PATH_GLOB).path("path");
@@ -67,8 +67,8 @@ public class LocalFilesRoundtripTest extends TestBase {
   }
 
   private ImmutableFileOrFiles.Builder setFileFormat(
-      ImmutableFileOrFiles.Builder builder,
-      ReadRel.LocalFiles.FileOrFiles.FileFormatCase fileFormatCase) {
+      final ImmutableFileOrFiles.Builder builder,
+      final ReadRel.LocalFiles.FileOrFiles.FileFormatCase fileFormatCase) {
     return switch (fileFormatCase) {
       case PARQUET -> builder.fileFormat(FileFormat.ParquetReadOptions.builder().build());
       case ARROW -> builder.fileFormat(FileFormat.ArrowReadOptions.builder().build());

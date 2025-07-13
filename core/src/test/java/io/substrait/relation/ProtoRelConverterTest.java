@@ -28,7 +28,7 @@ public class ProtoRelConverterTest extends TestBase {
     static final StringHolder ENHANCED = new StringHolder("ENHANCED");
     static final StringHolder OPTIMIZED = new StringHolder("OPTIMIZED");
 
-    Rel relWithExtension(AdvancedExtension advancedExtension) {
+    Rel relWithExtension(final AdvancedExtension advancedExtension) {
       return NamedScan.builder()
           .from(commonTable)
           .commonExtension(advancedExtension)
@@ -47,25 +47,25 @@ public class ProtoRelConverterTest extends TestBase {
 
     @Test
     void emptyAdvancedExtension() {
-      Rel rel = emptyAdvancedExtension;
-      io.substrait.proto.Rel protoRel = relProtoConverter.toProto(rel);
-      Rel relReturned = protoRelConverter.from(protoRel);
+      final Rel rel = emptyAdvancedExtension;
+      final io.substrait.proto.Rel protoRel = relProtoConverter.toProto(rel);
+      final Rel relReturned = protoRelConverter.from(protoRel);
       assertEquals(rel, relReturned);
     }
 
     @Test
     void enhancementOnlyAdvancedExtension() {
-      Rel rel = advancedExtensionWithEnhancement;
-      io.substrait.proto.Rel protoRel = relProtoConverter.toProto(rel);
+      final Rel rel = advancedExtensionWithEnhancement;
+      final io.substrait.proto.Rel protoRel = relProtoConverter.toProto(rel);
       // Enhancements are not handled by the default ProtoRelConverter
       assertThrows(RuntimeException.class, () -> protoRelConverter.from(protoRel));
     }
 
     @Test
     void optimizationOnlyAdvancedExtension() {
-      Rel rel = advancedExtensionWithOptimization;
-      io.substrait.proto.Rel protoRel = relProtoConverter.toProto(rel);
-      Rel relReturned = protoRelConverter.from(protoRel);
+      final Rel rel = advancedExtensionWithOptimization;
+      final io.substrait.proto.Rel protoRel = relProtoConverter.toProto(rel);
+      final Rel relReturned = protoRelConverter.from(protoRel);
 
       // The optimization is serialized correctly to protobuf.
       // When it is read back in, the default ProtoRelConverter drops it.
@@ -75,8 +75,8 @@ public class ProtoRelConverterTest extends TestBase {
 
     @Test
     void advancedExtensionWithEnhancementAndOptimization() {
-      Rel rel = advancedExtensionWithEnhancementAndOptimization;
-      io.substrait.proto.Rel protoRel = relProtoConverter.toProto(rel);
+      final Rel rel = advancedExtensionWithEnhancementAndOptimization;
+      final io.substrait.proto.Rel protoRel = relProtoConverter.toProto(rel);
       // Enhancements are not handled by the default ProtoRelConverter
       assertThrows(RuntimeException.class, () -> protoRelConverter.from(protoRel));
     }
@@ -91,36 +91,37 @@ public class ProtoRelConverterTest extends TestBase {
 
     @Test
     void extensionLeaf() {
-      Rel rel = ExtensionLeaf.from(new StringHolder("DETAILS")).build();
-      io.substrait.proto.Rel protoRel = relProtoConverter.toProto(rel);
-      Rel relReturned = protoRelConverter.from(protoRel);
+      final Rel rel = ExtensionLeaf.from(new StringHolder("DETAILS")).build();
+      final io.substrait.proto.Rel protoRel = relProtoConverter.toProto(rel);
+      final Rel relReturned = protoRelConverter.from(protoRel);
 
       assertNotEquals(rel, relReturned);
     }
 
     @Test
     void extensionSingle() {
-      Rel rel = ExtensionSingle.from(new StringHolder("DETAILS"), commonTable).build();
-      io.substrait.proto.Rel protoRel = relProtoConverter.toProto(rel);
-      Rel relReturned = protoRelConverter.from(protoRel);
+      final Rel rel = ExtensionSingle.from(new StringHolder("DETAILS"), commonTable).build();
+      final io.substrait.proto.Rel protoRel = relProtoConverter.toProto(rel);
+      final Rel relReturned = protoRelConverter.from(protoRel);
 
       assertNotEquals(rel, relReturned);
     }
 
     @Test
     void extensionMulti() {
-      Rel rel = ExtensionMulti.from(new StringHolder("DETAILS"), commonTable, commonTable).build();
-      io.substrait.proto.Rel protoRel = relProtoConverter.toProto(rel);
-      Rel relReturned = protoRelConverter.from(protoRel);
+      final Rel rel =
+          ExtensionMulti.from(new StringHolder("DETAILS"), commonTable, commonTable).build();
+      final io.substrait.proto.Rel protoRel = relProtoConverter.toProto(rel);
+      final Rel relReturned = protoRelConverter.from(protoRel);
 
       assertNotEquals(rel, relReturned);
     }
 
     @Test
     void extensionTable() {
-      Rel rel = ExtensionTable.from(new StringHolder("DETAILS")).build();
-      io.substrait.proto.Rel protoRel = relProtoConverter.toProto(rel);
-      Rel relReturned = protoRelConverter.from(protoRel);
+      final Rel rel = ExtensionTable.from(new StringHolder("DETAILS")).build();
+      final io.substrait.proto.Rel protoRel = relProtoConverter.toProto(rel);
+      final Rel relReturned = protoRelConverter.from(protoRel);
 
       assertNotEquals(rel, relReturned);
     }
@@ -132,25 +133,25 @@ public class ProtoRelConverterTest extends TestBase {
 
     @Test
     void relWithHint() {
-      Rel relWithHints =
+      final Rel relWithHints =
           NamedScan.builder()
               .from(commonTable)
               .hint(Hint.builder().addOutputNames("Test hint").build())
               .build();
-      io.substrait.proto.Rel protoRel = relProtoConverter.toProto(relWithHints);
-      Rel relReturned = protoRelConverter.from(protoRel);
+      final io.substrait.proto.Rel protoRel = relProtoConverter.toProto(relWithHints);
+      final Rel relReturned = protoRelConverter.from(protoRel);
       assertEquals(relWithHints, relReturned);
     }
 
     @Test
     void relWithHints() {
-      Rel relWithHints =
+      final Rel relWithHints =
           NamedScan.builder()
               .from(commonTable)
               .hint(Hint.builder().addAllOutputNames(Arrays.asList("Hint 1", "Hint 2")).build())
               .build();
-      io.substrait.proto.Rel protoRel = relProtoConverter.toProto(relWithHints);
-      Rel relReturned = protoRelConverter.from(protoRel);
+      final io.substrait.proto.Rel protoRel = relProtoConverter.toProto(relWithHints);
+      final Rel relReturned = protoRelConverter.from(protoRel);
       assertEquals(relWithHints, relReturned);
     }
   }

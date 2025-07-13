@@ -50,45 +50,46 @@ public class SubstraitBuilder {
 
   private final SimpleExtension.ExtensionCollection extensions;
 
-  public SubstraitBuilder(SimpleExtension.ExtensionCollection extensions) {
+  public SubstraitBuilder(final SimpleExtension.ExtensionCollection extensions) {
     this.extensions = extensions;
   }
 
   // Relations
-  public Aggregate.Measure measure(AggregateFunctionInvocation aggFn) {
+  public Aggregate.Measure measure(final AggregateFunctionInvocation aggFn) {
     return Aggregate.Measure.builder().function(aggFn).build();
   }
 
-  public Aggregate.Measure measure(AggregateFunctionInvocation aggFn, Expression preMeasureFilter) {
+  public Aggregate.Measure measure(
+      final AggregateFunctionInvocation aggFn, final Expression preMeasureFilter) {
     return Aggregate.Measure.builder().function(aggFn).preMeasureFilter(preMeasureFilter).build();
   }
 
   public Aggregate aggregate(
-      Function<Rel, Aggregate.Grouping> groupingFn,
-      Function<Rel, List<Aggregate.Measure>> measuresFn,
-      Rel input) {
-    Function<Rel, List<Aggregate.Grouping>> groupingsFn =
+      final Function<Rel, Aggregate.Grouping> groupingFn,
+      final Function<Rel, List<Aggregate.Measure>> measuresFn,
+      final Rel input) {
+    final Function<Rel, List<Aggregate.Grouping>> groupingsFn =
         groupingFn.andThen(g -> Stream.of(g).collect(Collectors.toList()));
     return aggregate(groupingsFn, measuresFn, Optional.empty(), input);
   }
 
   public Aggregate aggregate(
-      Function<Rel, Aggregate.Grouping> groupingFn,
-      Function<Rel, List<Aggregate.Measure>> measuresFn,
-      Rel.Remap remap,
-      Rel input) {
-    Function<Rel, List<Aggregate.Grouping>> groupingsFn =
+      final Function<Rel, Aggregate.Grouping> groupingFn,
+      final Function<Rel, List<Aggregate.Measure>> measuresFn,
+      final Rel.Remap remap,
+      final Rel input) {
+    final Function<Rel, List<Aggregate.Grouping>> groupingsFn =
         groupingFn.andThen(g -> Stream.of(g).collect(Collectors.toList()));
     return aggregate(groupingsFn, measuresFn, Optional.of(remap), input);
   }
 
   private Aggregate aggregate(
-      Function<Rel, List<Aggregate.Grouping>> groupingsFn,
-      Function<Rel, List<Aggregate.Measure>> measuresFn,
-      Optional<Rel.Remap> remap,
-      Rel input) {
-    var groupings = groupingsFn.apply(input);
-    var measures = measuresFn.apply(input);
+      final Function<Rel, List<Aggregate.Grouping>> groupingsFn,
+      final Function<Rel, List<Aggregate.Measure>> measuresFn,
+      final Optional<Rel.Remap> remap,
+      final Rel input) {
+    final var groupings = groupingsFn.apply(input);
+    final var measures = measuresFn.apply(input);
     return Aggregate.builder()
         .groupings(groupings)
         .measures(measures)
@@ -97,93 +98,107 @@ public class SubstraitBuilder {
         .build();
   }
 
-  public Cross cross(Rel left, Rel right) {
+  public Cross cross(final Rel left, final Rel right) {
     return cross(left, right, Optional.empty());
   }
 
-  public Cross cross(Rel left, Rel right, Rel.Remap remap) {
+  public Cross cross(final Rel left, final Rel right, final Rel.Remap remap) {
     return cross(left, right, Optional.of(remap));
   }
 
-  private Cross cross(Rel left, Rel right, Optional<Rel.Remap> remap) {
+  private Cross cross(final Rel left, final Rel right, final Optional<Rel.Remap> remap) {
     return Cross.builder().left(left).right(right).remap(remap).build();
   }
 
-  public Fetch fetch(long offset, long count, Rel input) {
+  public Fetch fetch(final long offset, final long count, final Rel input) {
     return fetch(offset, OptionalLong.of(count), Optional.empty(), input);
   }
 
-  public Fetch fetch(long offset, long count, Rel.Remap remap, Rel input) {
+  public Fetch fetch(final long offset, final long count, final Rel.Remap remap, final Rel input) {
     return fetch(offset, OptionalLong.of(count), Optional.of(remap), input);
   }
 
-  public Fetch limit(long limit, Rel input) {
+  public Fetch limit(final long limit, final Rel input) {
     return fetch(0, OptionalLong.of(limit), Optional.empty(), input);
   }
 
-  public Fetch limit(long limit, Rel.Remap remap, Rel input) {
+  public Fetch limit(final long limit, final Rel.Remap remap, final Rel input) {
     return fetch(0, OptionalLong.of(limit), Optional.of(remap), input);
   }
 
-  public Fetch offset(long offset, Rel input) {
+  public Fetch offset(final long offset, final Rel input) {
     return fetch(offset, OptionalLong.empty(), Optional.empty(), input);
   }
 
-  public Fetch offset(long offset, Rel.Remap remap, Rel input) {
+  public Fetch offset(final long offset, final Rel.Remap remap, final Rel input) {
     return fetch(offset, OptionalLong.empty(), Optional.of(remap), input);
   }
 
-  private Fetch fetch(long offset, OptionalLong count, Optional<Rel.Remap> remap, Rel input) {
+  private Fetch fetch(
+      final long offset,
+      final OptionalLong count,
+      final Optional<Rel.Remap> remap,
+      final Rel input) {
     return Fetch.builder().offset(offset).count(count).input(input).remap(remap).build();
   }
 
-  public Filter filter(Function<Rel, Expression> conditionFn, Rel input) {
+  public Filter filter(final Function<Rel, Expression> conditionFn, final Rel input) {
     return filter(conditionFn, Optional.empty(), input);
   }
 
-  public Filter filter(Function<Rel, Expression> conditionFn, Rel.Remap remap, Rel input) {
+  public Filter filter(
+      final Function<Rel, Expression> conditionFn, final Rel.Remap remap, final Rel input) {
     return filter(conditionFn, Optional.of(remap), input);
   }
 
   private Filter filter(
-      Function<Rel, Expression> conditionFn, Optional<Rel.Remap> remap, Rel input) {
-    var condition = conditionFn.apply(input);
+      final Function<Rel, Expression> conditionFn,
+      final Optional<Rel.Remap> remap,
+      final Rel input) {
+    final var condition = conditionFn.apply(input);
     return Filter.builder().input(input).condition(condition).remap(remap).build();
   }
 
   @Desugar
   public record JoinInput(Rel left, Rel right) {}
 
-  public Join innerJoin(Function<JoinInput, Expression> conditionFn, Rel left, Rel right) {
+  public Join innerJoin(
+      final Function<JoinInput, Expression> conditionFn, final Rel left, final Rel right) {
     return join(conditionFn, Join.JoinType.INNER, left, right);
   }
 
   public Join innerJoin(
-      Function<JoinInput, Expression> conditionFn, Rel.Remap remap, Rel left, Rel right) {
+      final Function<JoinInput, Expression> conditionFn,
+      final Rel.Remap remap,
+      final Rel left,
+      final Rel right) {
     return join(conditionFn, Join.JoinType.INNER, remap, left, right);
   }
 
   public Join join(
-      Function<JoinInput, Expression> conditionFn, Join.JoinType joinType, Rel left, Rel right) {
+      final Function<JoinInput, Expression> conditionFn,
+      final Join.JoinType joinType,
+      final Rel left,
+      final Rel right) {
     return join(conditionFn, joinType, Optional.empty(), left, right);
   }
 
   public Join join(
-      Function<JoinInput, Expression> conditionFn,
-      Join.JoinType joinType,
-      Rel.Remap remap,
-      Rel left,
-      Rel right) {
+      final Function<JoinInput, Expression> conditionFn,
+      final Join.JoinType joinType,
+      final Rel.Remap remap,
+      final Rel left,
+      final Rel right) {
     return join(conditionFn, joinType, Optional.of(remap), left, right);
   }
 
   private Join join(
-      Function<JoinInput, Expression> conditionFn,
-      Join.JoinType joinType,
-      Optional<Rel.Remap> remap,
-      Rel left,
-      Rel right) {
-    var condition = conditionFn.apply(new JoinInput(left, right));
+      final Function<JoinInput, Expression> conditionFn,
+      final Join.JoinType joinType,
+      final Optional<Rel.Remap> remap,
+      final Rel left,
+      final Rel right) {
+    final var condition = conditionFn.apply(new JoinInput(left, right));
     return Join.builder()
         .left(left)
         .right(right)
@@ -194,21 +209,21 @@ public class SubstraitBuilder {
   }
 
   public HashJoin hashJoin(
-      List<Integer> leftKeys,
-      List<Integer> rightKeys,
-      HashJoin.JoinType joinType,
-      Rel left,
-      Rel right) {
+      final List<Integer> leftKeys,
+      final List<Integer> rightKeys,
+      final HashJoin.JoinType joinType,
+      final Rel left,
+      final Rel right) {
     return hashJoin(leftKeys, rightKeys, joinType, Optional.empty(), left, right);
   }
 
   public HashJoin hashJoin(
-      List<Integer> leftKeys,
-      List<Integer> rightKeys,
-      HashJoin.JoinType joinType,
-      Optional<Rel.Remap> remap,
-      Rel left,
-      Rel right) {
+      final List<Integer> leftKeys,
+      final List<Integer> rightKeys,
+      final HashJoin.JoinType joinType,
+      final Optional<Rel.Remap> remap,
+      final Rel left,
+      final Rel right) {
     return HashJoin.builder()
         .left(left)
         .right(right)
@@ -222,21 +237,21 @@ public class SubstraitBuilder {
   }
 
   public MergeJoin mergeJoin(
-      List<Integer> leftKeys,
-      List<Integer> rightKeys,
-      MergeJoin.JoinType joinType,
-      Rel left,
-      Rel right) {
+      final List<Integer> leftKeys,
+      final List<Integer> rightKeys,
+      final MergeJoin.JoinType joinType,
+      final Rel left,
+      final Rel right) {
     return mergeJoin(leftKeys, rightKeys, joinType, Optional.empty(), left, right);
   }
 
   public MergeJoin mergeJoin(
-      List<Integer> leftKeys,
-      List<Integer> rightKeys,
-      MergeJoin.JoinType joinType,
-      Optional<Rel.Remap> remap,
-      Rel left,
-      Rel right) {
+      final List<Integer> leftKeys,
+      final List<Integer> rightKeys,
+      final MergeJoin.JoinType joinType,
+      final Optional<Rel.Remap> remap,
+      final Rel left,
+      final Rel right) {
     return MergeJoin.builder()
         .left(left)
         .right(right)
@@ -250,20 +265,20 @@ public class SubstraitBuilder {
   }
 
   public NestedLoopJoin nestedLoopJoin(
-      Function<JoinInput, Expression> conditionFn,
-      NestedLoopJoin.JoinType joinType,
-      Rel left,
-      Rel right) {
+      final Function<JoinInput, Expression> conditionFn,
+      final NestedLoopJoin.JoinType joinType,
+      final Rel left,
+      final Rel right) {
     return nestedLoopJoin(conditionFn, joinType, Optional.empty(), left, right);
   }
 
   private NestedLoopJoin nestedLoopJoin(
-      Function<JoinInput, Expression> conditionFn,
-      NestedLoopJoin.JoinType joinType,
-      Optional<Rel.Remap> remap,
-      Rel left,
-      Rel right) {
-    var condition = conditionFn.apply(new JoinInput(left, right));
+      final Function<JoinInput, Expression> conditionFn,
+      final NestedLoopJoin.JoinType joinType,
+      final Optional<Rel.Remap> remap,
+      final Rel left,
+      final Rel right) {
+    final var condition = conditionFn.apply(new JoinInput(left, right));
     return NestedLoopJoin.builder()
         .left(left)
         .right(right)
@@ -274,25 +289,27 @@ public class SubstraitBuilder {
   }
 
   public NamedScan namedScan(
-      Iterable<String> tableName, Iterable<String> columnNames, Iterable<Type> types) {
+      final Iterable<String> tableName,
+      final Iterable<String> columnNames,
+      final Iterable<Type> types) {
     return namedScan(tableName, columnNames, types, Optional.empty());
   }
 
   public NamedScan namedScan(
-      Iterable<String> tableName,
-      Iterable<String> columnNames,
-      Iterable<Type> types,
-      Rel.Remap remap) {
+      final Iterable<String> tableName,
+      final Iterable<String> columnNames,
+      final Iterable<Type> types,
+      final Rel.Remap remap) {
     return namedScan(tableName, columnNames, types, Optional.of(remap));
   }
 
   private NamedScan namedScan(
-      Iterable<String> tableName,
-      Iterable<String> columnNames,
-      Iterable<Type> types,
-      Optional<Rel.Remap> remap) {
-    var struct = Type.Struct.builder().addAllFields(types).nullable(false).build();
-    var namedStruct = NamedStruct.of(columnNames, struct);
+      final Iterable<String> tableName,
+      final Iterable<String> columnNames,
+      final Iterable<Type> types,
+      final Optional<Rel.Remap> remap) {
+    final var struct = Type.Struct.builder().addAllFields(types).nullable(false).build();
+    final var namedStruct = NamedStruct.of(columnNames, struct);
     return NamedScan.builder().names(tableName).initialSchema(namedStruct).remap(remap).build();
   }
 
@@ -302,90 +319,97 @@ public class SubstraitBuilder {
         .build();
   }
 
-  public Project project(Function<Rel, Iterable<? extends Expression>> expressionsFn, Rel input) {
+  public Project project(
+      final Function<Rel, Iterable<? extends Expression>> expressionsFn, final Rel input) {
     return project(expressionsFn, Optional.empty(), input);
   }
 
   public Project project(
-      Function<Rel, Iterable<? extends Expression>> expressionsFn, Rel.Remap remap, Rel input) {
+      final Function<Rel, Iterable<? extends Expression>> expressionsFn,
+      final Rel.Remap remap,
+      final Rel input) {
     return project(expressionsFn, Optional.of(remap), input);
   }
 
   private Project project(
-      Function<Rel, Iterable<? extends Expression>> expressionsFn,
-      Optional<Rel.Remap> remap,
-      Rel input) {
-    var expressions = expressionsFn.apply(input);
+      final Function<Rel, Iterable<? extends Expression>> expressionsFn,
+      final Optional<Rel.Remap> remap,
+      final Rel input) {
+    final var expressions = expressionsFn.apply(input);
     return Project.builder().input(input).expressions(expressions).remap(remap).build();
   }
 
-  public Expand expand(Function<Rel, Iterable<? extends Expand.ExpandField>> fieldsFn, Rel input) {
+  public Expand expand(
+      final Function<Rel, Iterable<? extends Expand.ExpandField>> fieldsFn, final Rel input) {
     return expand(fieldsFn, Optional.empty(), input);
   }
 
   public Expand expand(
-      Function<Rel, Iterable<? extends Expand.ExpandField>> fieldsFn, Rel.Remap remap, Rel input) {
+      final Function<Rel, Iterable<? extends Expand.ExpandField>> fieldsFn,
+      final Rel.Remap remap,
+      final Rel input) {
     return expand(fieldsFn, Optional.of(remap), input);
   }
 
   private Expand expand(
-      Function<Rel, Iterable<? extends Expand.ExpandField>> fieldsFn,
-      Optional<Rel.Remap> remap,
-      Rel input) {
-    var fields = fieldsFn.apply(input);
+      final Function<Rel, Iterable<? extends Expand.ExpandField>> fieldsFn,
+      final Optional<Rel.Remap> remap,
+      final Rel input) {
+    final var fields = fieldsFn.apply(input);
     return Expand.builder().input(input).fields(fields).remap(remap).build();
   }
 
-  public Set set(Set.SetOp op, Rel... inputs) {
+  public Set set(final Set.SetOp op, final Rel... inputs) {
     return set(op, Optional.empty(), inputs);
   }
 
-  public Set set(Set.SetOp op, Rel.Remap remap, Rel... inputs) {
+  public Set set(final Set.SetOp op, final Rel.Remap remap, final Rel... inputs) {
     return set(op, Optional.of(remap), inputs);
   }
 
-  private Set set(Set.SetOp op, Optional<Rel.Remap> remap, Rel... inputs) {
+  private Set set(final Set.SetOp op, final Optional<Rel.Remap> remap, final Rel... inputs) {
     return Set.builder().setOp(op).remap(remap).addAllInputs(Arrays.asList(inputs)).build();
   }
 
-  public Sort sort(Function<Rel, Iterable<? extends Expression.SortField>> sortFieldFn, Rel input) {
+  public Sort sort(
+      final Function<Rel, Iterable<? extends Expression.SortField>> sortFieldFn, final Rel input) {
     return sort(sortFieldFn, Optional.empty(), input);
   }
 
   public Sort sort(
-      Function<Rel, Iterable<? extends Expression.SortField>> sortFieldFn,
-      Rel.Remap remap,
-      Rel input) {
+      final Function<Rel, Iterable<? extends Expression.SortField>> sortFieldFn,
+      final Rel.Remap remap,
+      final Rel input) {
     return sort(sortFieldFn, Optional.of(remap), input);
   }
 
   private Sort sort(
-      Function<Rel, Iterable<? extends Expression.SortField>> sortFieldFn,
-      Optional<Rel.Remap> remap,
-      Rel input) {
-    var condition = sortFieldFn.apply(input);
+      final Function<Rel, Iterable<? extends Expression.SortField>> sortFieldFn,
+      final Optional<Rel.Remap> remap,
+      final Rel input) {
+    final var condition = sortFieldFn.apply(input);
     return Sort.builder().input(input).sortFields(condition).remap(remap).build();
   }
 
   // Expressions
 
-  public Expression.BoolLiteral bool(boolean v) {
+  public Expression.BoolLiteral bool(final boolean v) {
     return Expression.BoolLiteral.builder().value(v).build();
   }
 
-  public Expression.I32Literal i32(int v) {
+  public Expression.I32Literal i32(final int v) {
     return Expression.I32Literal.builder().value(v).build();
   }
 
-  public Expression.FP64Literal fp64(double v) {
+  public Expression.FP64Literal fp64(final double v) {
     return Expression.FP64Literal.builder().value(v).build();
   }
 
-  public Expression.StrLiteral str(String s) {
+  public Expression.StrLiteral str(final String s) {
     return Expression.StrLiteral.builder().value(s).build();
   }
 
-  public Expression cast(Expression input, Type type) {
+  public Expression cast(final Expression input, final Type type) {
     return Cast.builder()
         .input(input)
         .type(type)
@@ -393,46 +417,46 @@ public class SubstraitBuilder {
         .build();
   }
 
-  public FieldReference fieldReference(Rel input, int index) {
+  public FieldReference fieldReference(final Rel input, final int index) {
     return FieldReference.newInputRelReference(index, input);
   }
 
-  public List<FieldReference> fieldReferences(Rel input, int... indexes) {
+  public List<FieldReference> fieldReferences(final Rel input, final int... indexes) {
     return Arrays.stream(indexes)
         .mapToObj(index -> fieldReference(input, index))
         .collect(java.util.stream.Collectors.toList());
   }
 
-  public FieldReference fieldReference(List<Rel> inputs, int index) {
+  public FieldReference fieldReference(final List<Rel> inputs, final int index) {
     return FieldReference.newInputRelReference(index, inputs);
   }
 
-  public List<FieldReference> fieldReferences(List<Rel> inputs, int... indexes) {
+  public List<FieldReference> fieldReferences(final List<Rel> inputs, final int... indexes) {
     return Arrays.stream(indexes)
         .mapToObj(index -> fieldReference(inputs, index))
         .collect(java.util.stream.Collectors.toList());
   }
 
-  public IfThen ifThen(Iterable<? extends IfClause> ifClauses, Expression elseClause) {
+  public IfThen ifThen(final Iterable<? extends IfClause> ifClauses, final Expression elseClause) {
     return IfThen.builder().addAllIfClauses(ifClauses).elseClause(elseClause).build();
   }
 
-  public IfClause ifClause(Expression condition, Expression then) {
+  public IfClause ifClause(final Expression condition, final Expression then) {
     return IfClause.builder().condition(condition).then(then).build();
   }
 
-  public Expression singleOrList(Expression condition, Expression... options) {
+  public Expression singleOrList(final Expression condition, final Expression... options) {
     return SingleOrList.builder().condition(condition).addOptions(options).build();
   }
 
-  public Expression.InPredicate inPredicate(Rel haystack, Expression... needles) {
+  public Expression.InPredicate inPredicate(final Rel haystack, final Expression... needles) {
     return Expression.InPredicate.builder()
         .addAllNeedles(Arrays.asList(needles))
         .haystack(haystack)
         .build();
   }
 
-  public List<Expression.SortField> sortFields(Rel input, int... indexes) {
+  public List<Expression.SortField> sortFields(final Rel input, final int... indexes) {
     return Arrays.stream(indexes)
         .mapToObj(
             index ->
@@ -444,16 +468,18 @@ public class SubstraitBuilder {
   }
 
   public Expression.SortField sortField(
-      Expression expression, Expression.SortDirection sortDirection) {
+      final Expression expression, final Expression.SortDirection sortDirection) {
     return Expression.SortField.builder().expr(expression).direction(sortDirection).build();
   }
 
-  public SwitchClause switchClause(Expression.Literal condition, Expression then) {
+  public SwitchClause switchClause(final Expression.Literal condition, final Expression then) {
     return SwitchClause.builder().condition(condition).then(then).build();
   }
 
   public Switch switchExpression(
-      Expression match, Iterable<? extends SwitchClause> clauses, Expression defaultClause) {
+      final Expression match,
+      final Iterable<? extends SwitchClause> clauses,
+      final Expression defaultClause) {
     return Switch.builder()
         .match(match)
         .addAllSwitchClauses(clauses)
@@ -464,8 +490,8 @@ public class SubstraitBuilder {
   // Aggregate Functions
 
   public AggregateFunctionInvocation aggregateFn(
-      String namespace, String key, Type outputType, Expression... args) {
-    var declaration =
+      final String namespace, final String key, final Type outputType, final Expression... args) {
+    final var declaration =
         extensions.getAggregateFunction(SimpleExtension.FunctionAnchor.of(namespace, key));
     return AggregateFunctionInvocation.builder()
         .arguments(Arrays.stream(args).collect(java.util.stream.Collectors.toList()))
@@ -476,17 +502,17 @@ public class SubstraitBuilder {
         .build();
   }
 
-  public Aggregate.Grouping grouping(Rel input, int... indexes) {
-    var columns = fieldReferences(input, indexes);
+  public Aggregate.Grouping grouping(final Rel input, final int... indexes) {
+    final var columns = fieldReferences(input, indexes);
     return Aggregate.Grouping.builder().addAllExpressions(columns).build();
   }
 
-  public Aggregate.Grouping grouping(Expression... expressions) {
+  public Aggregate.Grouping grouping(final Expression... expressions) {
     return Aggregate.Grouping.builder().addExpressions(expressions).build();
   }
 
-  public Aggregate.Measure count(Rel input, int field) {
-    var declaration =
+  public Aggregate.Measure count(final Rel input, final int field) {
+    final var declaration =
         extensions.getAggregateFunction(
             SimpleExtension.FunctionAnchor.of(
                 DefaultExtensionCatalog.FUNCTIONS_AGGREGATE_GENERIC, "count:any"));
@@ -500,11 +526,11 @@ public class SubstraitBuilder {
             .build());
   }
 
-  public Aggregate.Measure min(Rel input, int field) {
+  public Aggregate.Measure min(final Rel input, final int field) {
     return min(fieldReference(input, field));
   }
 
-  public Aggregate.Measure min(Expression expr) {
+  public Aggregate.Measure min(final Expression expr) {
     return singleArgumentArithmeticAggregate(
         expr,
         "min",
@@ -512,11 +538,11 @@ public class SubstraitBuilder {
         TypeCreator.asNullable(expr.getType()));
   }
 
-  public Aggregate.Measure max(Rel input, int field) {
+  public Aggregate.Measure max(final Rel input, final int field) {
     return max(fieldReference(input, field));
   }
 
-  public Aggregate.Measure max(Expression expr) {
+  public Aggregate.Measure max(final Expression expr) {
     return singleArgumentArithmeticAggregate(
         expr,
         "max",
@@ -524,11 +550,11 @@ public class SubstraitBuilder {
         TypeCreator.asNullable(expr.getType()));
   }
 
-  public Aggregate.Measure avg(Rel input, int field) {
+  public Aggregate.Measure avg(final Rel input, final int field) {
     return avg(fieldReference(input, field));
   }
 
-  public Aggregate.Measure avg(Expression expr) {
+  public Aggregate.Measure avg(final Expression expr) {
     return singleArgumentArithmeticAggregate(
         expr,
         "avg",
@@ -536,11 +562,11 @@ public class SubstraitBuilder {
         TypeCreator.asNullable(expr.getType()));
   }
 
-  public Aggregate.Measure sum(Rel input, int field) {
+  public Aggregate.Measure sum(final Rel input, final int field) {
     return sum(fieldReference(input, field));
   }
 
-  public Aggregate.Measure sum(Expression expr) {
+  public Aggregate.Measure sum(final Expression expr) {
     return singleArgumentArithmeticAggregate(
         expr,
         "sum",
@@ -548,11 +574,11 @@ public class SubstraitBuilder {
         TypeCreator.asNullable(expr.getType()));
   }
 
-  public Aggregate.Measure sum0(Rel input, int field) {
+  public Aggregate.Measure sum0(final Rel input, final int field) {
     return sum(fieldReference(input, field));
   }
 
-  public Aggregate.Measure sum0(Expression expr) {
+  public Aggregate.Measure sum0(final Expression expr) {
     return singleArgumentArithmeticAggregate(
         expr,
         "sum0",
@@ -561,9 +587,9 @@ public class SubstraitBuilder {
   }
 
   private Aggregate.Measure singleArgumentArithmeticAggregate(
-      Expression expr, String functionName, Type outputType) {
-    String typeString = ToTypeString.apply(expr.getType());
-    var declaration =
+      final Expression expr, final String functionName, final Type outputType) {
+    final String typeString = ToTypeString.apply(expr.getType());
+    final var declaration =
         extensions.getAggregateFunction(
             SimpleExtension.FunctionAnchor.of(
                 DefaultExtensionCatalog.FUNCTIONS_ARITHMETIC,
@@ -583,9 +609,9 @@ public class SubstraitBuilder {
 
   // Scalar Functions
 
-  public Expression.ScalarFunctionInvocation negate(Expression expr) {
+  public Expression.ScalarFunctionInvocation negate(final Expression expr) {
     // output type of negate is the same as the input type
-    var outputType = expr.getType();
+    final var outputType = expr.getType();
     return scalarFn(
         DefaultExtensionCatalog.FUNCTIONS_ARITHMETIC,
         String.format("negate:%s", ToTypeString.apply(outputType)),
@@ -593,29 +619,31 @@ public class SubstraitBuilder {
         expr);
   }
 
-  public Expression.ScalarFunctionInvocation add(Expression left, Expression right) {
+  public Expression.ScalarFunctionInvocation add(final Expression left, final Expression right) {
     return arithmeticFunction("add", left, right);
   }
 
-  public Expression.ScalarFunctionInvocation subtract(Expression left, Expression right) {
+  public Expression.ScalarFunctionInvocation subtract(
+      final Expression left, final Expression right) {
     return arithmeticFunction("substract", left, right);
   }
 
-  public Expression.ScalarFunctionInvocation multiply(Expression left, Expression right) {
+  public Expression.ScalarFunctionInvocation multiply(
+      final Expression left, final Expression right) {
     return arithmeticFunction("multiply", left, right);
   }
 
-  public Expression.ScalarFunctionInvocation divide(Expression left, Expression right) {
+  public Expression.ScalarFunctionInvocation divide(final Expression left, final Expression right) {
     return arithmeticFunction("divide", left, right);
   }
 
   private Expression.ScalarFunctionInvocation arithmeticFunction(
-      String fname, Expression left, Expression right) {
-    var leftTypeStr = ToTypeString.apply(left.getType());
-    var rightTypeStr = ToTypeString.apply(right.getType());
-    var key = String.format("%s:%s_%s", fname, leftTypeStr, rightTypeStr);
+      final String fname, final Expression left, final Expression right) {
+    final var leftTypeStr = ToTypeString.apply(left.getType());
+    final var rightTypeStr = ToTypeString.apply(right.getType());
+    final var key = String.format("%s:%s_%s", fname, leftTypeStr, rightTypeStr);
 
-    var isOutputNullable = left.getType().nullable() || right.getType().nullable();
+    final var isOutputNullable = left.getType().nullable() || right.getType().nullable();
     var outputType = left.getType();
     outputType =
         isOutputNullable
@@ -625,22 +653,22 @@ public class SubstraitBuilder {
     return scalarFn(DefaultExtensionCatalog.FUNCTIONS_ARITHMETIC, key, outputType, left, right);
   }
 
-  public Expression.ScalarFunctionInvocation equal(Expression left, Expression right) {
+  public Expression.ScalarFunctionInvocation equal(final Expression left, final Expression right) {
     return scalarFn(
         DefaultExtensionCatalog.FUNCTIONS_COMPARISON, "equal:any_any", R.BOOLEAN, left, right);
   }
 
-  public Expression.ScalarFunctionInvocation or(Expression... args) {
+  public Expression.ScalarFunctionInvocation or(final Expression... args) {
     // If any arg is nullable, the output of or is potentially nullable
     // For example: false or null = null
-    var isOutputNullable = Arrays.stream(args).anyMatch(a -> a.getType().nullable());
-    var outputType = isOutputNullable ? N.BOOLEAN : R.BOOLEAN;
+    final var isOutputNullable = Arrays.stream(args).anyMatch(a -> a.getType().nullable());
+    final var outputType = isOutputNullable ? N.BOOLEAN : R.BOOLEAN;
     return scalarFn(DefaultExtensionCatalog.FUNCTIONS_BOOLEAN, "or:bool", outputType, args);
   }
 
   public Expression.ScalarFunctionInvocation scalarFn(
-      String namespace, String key, Type outputType, FunctionArg... args) {
-    var declaration =
+      final String namespace, final String key, final Type outputType, final FunctionArg... args) {
+    final var declaration =
         extensions.getScalarFunction(SimpleExtension.FunctionAnchor.of(namespace, key));
     return Expression.ScalarFunctionInvocation.builder()
         .declaration(declaration)
@@ -650,16 +678,16 @@ public class SubstraitBuilder {
   }
 
   public Expression.WindowFunctionInvocation windowFn(
-      String namespace,
-      String key,
-      Type outputType,
-      Expression.AggregationPhase aggregationPhase,
-      Expression.AggregationInvocation invocation,
-      Expression.WindowBoundsType boundsType,
-      WindowBound lowerBound,
-      WindowBound upperBound,
-      Expression... args) {
-    var declaration =
+      final String namespace,
+      final String key,
+      final Type outputType,
+      final Expression.AggregationPhase aggregationPhase,
+      final Expression.AggregationInvocation invocation,
+      final Expression.WindowBoundsType boundsType,
+      final WindowBound lowerBound,
+      final WindowBound upperBound,
+      final Expression... args) {
+    final var declaration =
         extensions.getWindowFunction(SimpleExtension.FunctionAnchor.of(namespace, key));
     return Expression.WindowFunctionInvocation.builder()
         .declaration(declaration)
@@ -675,21 +703,21 @@ public class SubstraitBuilder {
 
   // Types
 
-  public Type.UserDefined userDefinedType(String namespace, String typeName) {
+  public Type.UserDefined userDefinedType(final String namespace, final String typeName) {
     return Type.UserDefined.builder().uri(namespace).name(typeName).nullable(false).build();
   }
 
   // Misc
 
-  public Plan.Root root(Rel rel) {
+  public Plan.Root root(final Rel rel) {
     return Plan.Root.builder().input(rel).build();
   }
 
-  public Plan plan(Plan.Root root) {
+  public Plan plan(final Plan.Root root) {
     return Plan.builder().addRoots(root).build();
   }
 
-  public Rel.Remap remap(Integer... fields) {
+  public Rel.Remap remap(final Integer... fields) {
     return Rel.Remap.of(Arrays.asList(fields));
   }
 }

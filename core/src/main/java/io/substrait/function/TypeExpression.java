@@ -10,7 +10,7 @@ public interface TypeExpression {
 
   <R, E extends Throwable> R accept(final TypeVisitor<R, E> typeVisitor) throws E;
 
-  public static TypeExpressionCreator withNullability(boolean nullable) {
+  public static TypeExpressionCreator withNullability(final boolean nullable) {
     return nullable ? TypeExpressionCreator.NULLABLE : TypeExpressionCreator.REQUIRED;
   }
 

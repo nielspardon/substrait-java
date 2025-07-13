@@ -15,12 +15,13 @@ abstract class BaseProtoConverter<T, I>
 
   public abstract BaseProtoTypes<T, I> typeContainer(boolean nullable);
 
-  public BaseProtoConverter(ExtensionCollector extensionCollector, String unsupportedMessage) {
+  public BaseProtoConverter(
+      final ExtensionCollector extensionCollector, final String unsupportedMessage) {
     super(unsupportedMessage);
     this.extensionCollector = extensionCollector;
   }
 
-  public final BaseProtoTypes<T, I> typeContainer(NullableType literal) {
+  public final BaseProtoTypes<T, I> typeContainer(final NullableType literal) {
     return typeContainer(literal.nullable());
   }
 
@@ -165,7 +166,7 @@ abstract class BaseProtoConverter<T, I>
 
   @Override
   public final T visit(final Type.UserDefined expr) {
-    var ref =
+    final var ref =
         extensionCollector.getTypeReference(SimpleExtension.TypeAnchor.of(expr.uri(), expr.name()));
     return typeContainer(expr).userDefined(ref);
   }

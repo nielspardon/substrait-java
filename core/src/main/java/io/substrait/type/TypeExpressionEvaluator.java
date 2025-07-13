@@ -9,9 +9,9 @@ public class TypeExpressionEvaluator {
       org.slf4j.LoggerFactory.getLogger(TypeExpressionEvaluator.class);
 
   public static Type evaluateExpression(
-      TypeExpression returnExpression,
-      List<SimpleExtension.Argument> parameterizedTypeList,
-      List<Type> actualTypes) {
+      final TypeExpression returnExpression,
+      final List<SimpleExtension.Argument> parameterizedTypeList,
+      final List<Type> actualTypes) {
 
     if (returnExpression instanceof Type) {
       return (Type) returnExpression;

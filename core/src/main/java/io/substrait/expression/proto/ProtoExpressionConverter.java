@@ -41,10 +41,10 @@ public class ProtoExpressionConverter {
   private final ProtoRelConverter protoRelConverter;
 
   public ProtoExpressionConverter(
-      ExtensionLookup lookup,
-      SimpleExtension.ExtensionCollection extensions,
-      Type.Struct rootType,
-      ProtoRelConverter relConverter) {
+      final ExtensionLookup lookup,
+      final SimpleExtension.ExtensionCollection extensions,
+      final Type.Struct rootType,
+      final ProtoRelConverter relConverter) {
     this.lookup = lookup;
     this.extensions = extensions;
     this.rootType = Objects.requireNonNull(rootType, "rootType");
@@ -52,27 +52,27 @@ public class ProtoExpressionConverter {
     this.protoRelConverter = relConverter;
   }
 
-  public FieldReference from(io.substrait.proto.Expression.FieldReference reference) {
+  public FieldReference from(final io.substrait.proto.Expression.FieldReference reference) {
     switch (reference.getReferenceTypeCase()) {
       case DIRECT_REFERENCE -> {
         io.substrait.proto.Expression.ReferenceSegment segment = reference.getDirectReference();
 
-        var segments = new ArrayList<FieldReference.ReferenceSegment>();
+        final var segments = new ArrayList<FieldReference.ReferenceSegment>();
         while (segment != io.substrait.proto.Expression.ReferenceSegment.getDefaultInstance()) {
           segments.add(
               switch (segment.getReferenceTypeCase()) {
                 case MAP_KEY -> {
-                  var mapKey = segment.getMapKey();
+                  final var mapKey = segment.getMapKey();
                   segment = mapKey.getChild();
                   yield FieldReference.MapKey.of(from(mapKey.getMapKey()));
                 }
                 case STRUCT_FIELD -> {
-                  var structField = segment.getStructField();
+                  final var structField = segment.getStructField();
                   segment = structField.getChild();
                   yield FieldReference.StructField.of(structField.getField());
                 }
                 case LIST_ELEMENT -> {
-                  var listElement = segment.getListElement();
+                  final var listElement = segment.getListElement();
                   segment = listElement.getChild();
                   yield FieldReference.ListElement.of(listElement.getOffset());
                 }
@@ -81,7 +81,7 @@ public class ProtoExpressionConverter {
               });
         }
         Collections.reverse(segments);
-        var fieldReference =
+        final var fieldReference =
             switch (reference.getRootTypeCase()) {
               case EXPRESSION -> FieldReference.ofExpression(
                   from(reference.getExpression()), segments);
@@ -103,20 +103,20 @@ public class ProtoExpressionConverter {
     }
   }
 
-  public Expression from(io.substrait.proto.Expression expr) {
+  public Expression from(final io.substrait.proto.Expression expr) {
     return switch (expr.getRexTypeCase()) {
       case LITERAL -> from(expr.getLiteral());
       case SELECTION -> from(expr.getSelection());
       case SCALAR_FUNCTION -> {
-        var scalarFunction = expr.getScalarFunction();
-        var functionReference = scalarFunction.getFunctionReference();
-        var declaration = lookup.getScalarFunction(functionReference, extensions);
-        var pF = new FunctionArg.ProtoFrom(this, protoTypeConverter);
-        var args =
+        final var scalarFunction = expr.getScalarFunction();
+        final var functionReference = scalarFunction.getFunctionReference();
+        final var declaration = lookup.getScalarFunction(functionReference, extensions);
+        final var pF = new FunctionArg.ProtoFrom(this, protoTypeConverter);
+        final var args =
             IntStream.range(0, scalarFunction.getArgumentsCount())
                 .mapToObj(i -> pF.convert(declaration, i, scalarFunction.getArguments(i)))
                 .collect(java.util.stream.Collectors.toList());
-        var options =
+        final var options =
             scalarFunction.getOptionsList().stream()
                 .map(ProtoExpressionConverter::fromFunctionOption)
                 .collect(Collectors.toList());
@@ -129,16 +129,16 @@ public class ProtoExpressionConverter {
       }
       case WINDOW_FUNCTION -> fromWindowFunction(expr.getWindowFunction());
       case IF_THEN -> {
-        var ifThen = expr.getIfThen();
-        var clauses =
+        final var ifThen = expr.getIfThen();
+        final var clauses =
             ifThen.getIfsList().stream()
                 .map(t -> ExpressionCreator.ifThenClause(from(t.getIf()), from(t.getThen())))
                 .collect(java.util.stream.Collectors.toList());
         yield ExpressionCreator.ifThenStatement(from(ifThen.getElse()), clauses);
       }
       case SWITCH_EXPRESSION -> {
-        var switchExpr = expr.getSwitchExpression();
-        var clauses =
+        final var switchExpr = expr.getSwitchExpression();
+        final var clauses =
             switchExpr.getIfsList().stream()
                 .map(t -> ExpressionCreator.switchClause(from(t.getIf()), from(t.getThen())))
                 .collect(java.util.stream.Collectors.toList());
@@ -146,8 +146,8 @@ public class ProtoExpressionConverter {
             from(switchExpr.getMatch()), from(switchExpr.getElse()), clauses);
       }
       case SINGULAR_OR_LIST -> {
-        var orList = expr.getSingularOrList();
-        var values =
+        final var orList = expr.getSingularOrList();
+        final var values =
             orList.getOptionsList().stream()
                 .map(this::from)
                 .collect(java.util.stream.Collectors.toList());
@@ -157,8 +157,8 @@ public class ProtoExpressionConverter {
             .build();
       }
       case MULTI_OR_LIST -> {
-        var multiOrList = expr.getMultiOrList();
-        var values =
+        final var multiOrList = expr.getMultiOrList();
+        final var values =
             multiOrList.getOptionsList().stream()
                 .map(
                     t ->
@@ -184,7 +184,8 @@ public class ProtoExpressionConverter {
       case SUBQUERY -> {
         switch (expr.getSubquery().getSubqueryTypeCase()) {
           case SET_PREDICATE -> {
-            var rel = protoRelConverter.from(expr.getSubquery().getSetPredicate().getTuples());
+            final var rel =
+                protoRelConverter.from(expr.getSubquery().getSetPredicate().getTuples());
             yield Expression.SetPredicate.builder()
                 .tuples(rel)
                 .predicateOp(
@@ -193,7 +194,7 @@ public class ProtoExpressionConverter {
                 .build();
           }
           case SCALAR -> {
-            var rel = protoRelConverter.from(expr.getSubquery().getScalar().getInput());
+            final var rel = protoRelConverter.from(expr.getSubquery().getScalar().getInput());
             yield Expression.ScalarSubquery.builder()
                 .input(rel)
                 .type(
@@ -202,7 +203,7 @@ public class ProtoExpressionConverter {
                             new TypeVisitor.TypeThrowsVisitor<Type, RuntimeException>(
                                 "Expected struct field") {
                               @Override
-                              public Type visit(Type.Struct type) throws RuntimeException {
+                              public Type visit(final Type.Struct type) throws RuntimeException {
                                 if (type.fields().size() != 1) {
                                   throw new UnsupportedOperationException(
                                       "Scalar subquery must have exactly one field");
@@ -214,8 +215,9 @@ public class ProtoExpressionConverter {
                 .build();
           }
           case IN_PREDICATE -> {
-            var rel = protoRelConverter.from(expr.getSubquery().getInPredicate().getHaystack());
-            var needles =
+            final var rel =
+                protoRelConverter.from(expr.getSubquery().getInPredicate().getHaystack());
+            final var needles =
                 expr.getSubquery().getInPredicate().getNeedlesList().stream()
                     .map(e -> this.from(e))
                     .collect(java.util.stream.Collectors.toList());
@@ -240,30 +242,30 @@ public class ProtoExpressionConverter {
   }
 
   public Expression.WindowFunctionInvocation fromWindowFunction(
-      io.substrait.proto.Expression.WindowFunction windowFunction) {
-    var functionReference = windowFunction.getFunctionReference();
-    var declaration = lookup.getWindowFunction(functionReference, extensions);
-    var argVisitor = new FunctionArg.ProtoFrom(this, protoTypeConverter);
+      final io.substrait.proto.Expression.WindowFunction windowFunction) {
+    final var functionReference = windowFunction.getFunctionReference();
+    final var declaration = lookup.getWindowFunction(functionReference, extensions);
+    final var argVisitor = new FunctionArg.ProtoFrom(this, protoTypeConverter);
 
-    var args =
+    final var args =
         fromFunctionArgumentList(
             windowFunction.getArgumentsCount(),
             argVisitor,
             declaration,
             windowFunction::getArguments);
-    var partitionExprs =
+    final var partitionExprs =
         windowFunction.getPartitionsList().stream().map(this::from).collect(Collectors.toList());
-    var sortFields =
+    final var sortFields =
         windowFunction.getSortsList().stream()
             .map(this::fromSortField)
             .collect(Collectors.toList());
-    var options =
+    final var options =
         windowFunction.getOptionsList().stream()
             .map(ProtoExpressionConverter::fromFunctionOption)
             .collect(Collectors.toList());
 
-    WindowBound lowerBound = toWindowBound(windowFunction.getLowerBound());
-    WindowBound upperBound = toWindowBound(windowFunction.getUpperBound());
+    final WindowBound lowerBound = toWindowBound(windowFunction.getLowerBound());
+    final WindowBound upperBound = toWindowBound(windowFunction.getUpperBound());
 
     return Expression.WindowFunctionInvocation.builder()
         .arguments(args)
@@ -281,24 +283,24 @@ public class ProtoExpressionConverter {
   }
 
   public ConsistentPartitionWindow.WindowRelFunctionInvocation fromWindowRelFunction(
-      ConsistentPartitionWindowRel.WindowRelFunction windowRelFunction) {
-    var functionReference = windowRelFunction.getFunctionReference();
-    var declaration = lookup.getWindowFunction(functionReference, extensions);
-    var argVisitor = new FunctionArg.ProtoFrom(this, protoTypeConverter);
+      final ConsistentPartitionWindowRel.WindowRelFunction windowRelFunction) {
+    final var functionReference = windowRelFunction.getFunctionReference();
+    final var declaration = lookup.getWindowFunction(functionReference, extensions);
+    final var argVisitor = new FunctionArg.ProtoFrom(this, protoTypeConverter);
 
-    var args =
+    final var args =
         fromFunctionArgumentList(
             windowRelFunction.getArgumentsCount(),
             argVisitor,
             declaration,
             windowRelFunction::getArguments);
-    var options =
+    final var options =
         windowRelFunction.getOptionsList().stream()
             .map(ProtoExpressionConverter::fromFunctionOption)
             .collect(Collectors.toList());
 
-    WindowBound lowerBound = toWindowBound(windowRelFunction.getLowerBound());
-    WindowBound upperBound = toWindowBound(windowRelFunction.getUpperBound());
+    final WindowBound lowerBound = toWindowBound(windowRelFunction.getLowerBound());
+    final WindowBound upperBound = toWindowBound(windowRelFunction.getUpperBound());
 
     return ConsistentPartitionWindow.WindowRelFunctionInvocation.builder()
         .arguments(args)
@@ -313,7 +315,8 @@ public class ProtoExpressionConverter {
         .build();
   }
 
-  private WindowBound toWindowBound(io.substrait.proto.Expression.WindowFunction.Bound bound) {
+  private WindowBound toWindowBound(
+      final io.substrait.proto.Expression.WindowFunction.Bound bound) {
     return switch (bound.getKindCase()) {
       case PRECEDING -> WindowBound.Preceding.of(bound.getPreceding().getOffset());
       case FOLLOWING -> WindowBound.Following.of(bound.getFollowing().getOffset());
@@ -326,7 +329,7 @@ public class ProtoExpressionConverter {
     };
   }
 
-  public Expression.Literal from(io.substrait.proto.Expression.Literal literal) {
+  public Expression.Literal from(final io.substrait.proto.Expression.Literal literal) {
     return switch (literal.getLiteralTypeCase()) {
       case BOOLEAN -> ExpressionCreator.bool(literal.getNullable(), literal.getBoolean());
       case I8 -> ExpressionCreator.i8(literal.getNullable(), literal.getI8());
@@ -357,11 +360,11 @@ public class ProtoExpressionConverter {
       case INTERVAL_DAY_TO_SECOND -> {
         // Handle deprecated version that doesn't provide precision and that uses microseconds
         // instead of subseconds, for backwards compatibility
-        int precision =
+        final int precision =
             literal.getIntervalDayToSecond().hasPrecision()
                 ? literal.getIntervalDayToSecond().getPrecision()
                 : 6; // microseconds
-        long subseconds =
+        final long subseconds =
             literal.getIntervalDayToSecond().hasPrecision()
                 ? literal.getIntervalDayToSecond().getSubseconds()
                 : literal.getIntervalDayToSecond().getMicroseconds();
@@ -408,7 +411,7 @@ public class ProtoExpressionConverter {
       case EMPTY_MAP -> {
         // literal.getNullable() is intentionally ignored in favor of the nullability
         // specified in the literal.getEmptyMap() type.
-        var mapType = protoTypeConverter.fromMap(literal.getEmptyMap());
+        final var mapType = protoTypeConverter.fromMap(literal.getEmptyMap());
         yield ExpressionCreator.emptyMap(mapType.nullable(), mapType.key(), mapType.value());
       }
       case UUID -> ExpressionCreator.uuid(literal.getNullable(), literal.getUuid());
@@ -421,12 +424,12 @@ public class ProtoExpressionConverter {
       case EMPTY_LIST -> {
         // literal.getNullable() is intentionally ignored in favor of the nullability
         // specified in the literal.getEmptyList() type.
-        var listType = protoTypeConverter.fromList(literal.getEmptyList());
+        final var listType = protoTypeConverter.fromList(literal.getEmptyList());
         yield ExpressionCreator.emptyList(listType.nullable(), listType.elementType());
       }
       case USER_DEFINED -> {
-        var userDefinedLiteral = literal.getUserDefined();
-        var type = lookup.getType(userDefinedLiteral.getTypeReference(), extensions);
+        final var userDefinedLiteral = literal.getUserDefined();
+        final var type = lookup.getType(userDefinedLiteral.getTypeReference(), extensions);
         yield ExpressionCreator.userDefinedLiteral(
             literal.getNullable(), type.uri(), type.name(), userDefinedLiteral.getValue());
       }
@@ -436,23 +439,23 @@ public class ProtoExpressionConverter {
   }
 
   private static List<FunctionArg> fromFunctionArgumentList(
-      int argumentsCount,
-      FunctionArg.ProtoFrom argVisitor,
-      SimpleExtension.Function declaration,
-      Function<Integer, FunctionArgument> argFunction) {
+      final int argumentsCount,
+      final FunctionArg.ProtoFrom argVisitor,
+      final SimpleExtension.Function declaration,
+      final Function<Integer, FunctionArgument> argFunction) {
     return IntStream.range(0, argumentsCount)
         .mapToObj(i -> argVisitor.convert(declaration, i, argFunction.apply(i)))
         .collect(Collectors.toList());
   }
 
-  public Expression.SortField fromSortField(SortField s) {
+  public Expression.SortField fromSortField(final SortField s) {
     return Expression.SortField.builder()
         .direction(Expression.SortDirection.fromProto(s.getDirection()))
         .expr(from(s.getExpr()))
         .build();
   }
 
-  public static FunctionOption fromFunctionOption(io.substrait.proto.FunctionOption o) {
+  public static FunctionOption fromFunctionOption(final io.substrait.proto.FunctionOption o) {
     return FunctionOption.builder().name(o.getName()).addAllValues(o.getPreferenceList()).build();
   }
 }

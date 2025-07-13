@@ -33,8 +33,8 @@ public class ExtensionCollector extends AbstractExtensionLookup {
     uriMap = new BidiMap<>(new HashMap<>());
   }
 
-  public int getFunctionReference(SimpleExtension.Function declaration) {
-    Integer i = funcMap.reverseGet(declaration.getAnchor());
+  public int getFunctionReference(final SimpleExtension.Function declaration) {
+    final Integer i = funcMap.reverseGet(declaration.getAnchor());
     if (i != null) {
       return i;
     }
@@ -43,8 +43,8 @@ public class ExtensionCollector extends AbstractExtensionLookup {
     return counter;
   }
 
-  public int getTypeReference(SimpleExtension.TypeAnchor typeAnchor) {
-    Integer i = typeMap.reverseGet(typeAnchor);
+  public int getTypeReference(final SimpleExtension.TypeAnchor typeAnchor) {
+    final Integer i = typeMap.reverseGet(typeAnchor);
     if (i != null) {
       return i;
     }
@@ -53,27 +53,27 @@ public class ExtensionCollector extends AbstractExtensionLookup {
     return counter;
   }
 
-  public void addExtensionsToPlan(Plan.Builder builder) {
-    SimpleExtensions simpleExtensions = getExtensions();
+  public void addExtensionsToPlan(final Plan.Builder builder) {
+    final SimpleExtensions simpleExtensions = getExtensions();
 
     builder.addAllExtensionUris(simpleExtensions.uris().values());
     builder.addAllExtensions(simpleExtensions.extensionList());
   }
 
-  public void addExtensionsToExtendedExpression(ExtendedExpression.Builder builder) {
-    SimpleExtensions simpleExtensions = getExtensions();
+  public void addExtensionsToExtendedExpression(final ExtendedExpression.Builder builder) {
+    final SimpleExtensions simpleExtensions = getExtensions();
 
     builder.addAllExtensionUris(simpleExtensions.uris().values());
     builder.addAllExtensions(simpleExtensions.extensionList());
   }
 
   private SimpleExtensions getExtensions() {
-    var uriPos = new AtomicInteger(1);
-    var uris = new HashMap<String, SimpleExtensionURI>();
+    final var uriPos = new AtomicInteger(1);
+    final var uris = new HashMap<String, SimpleExtensionURI>();
 
-    var extensionList = new ArrayList<SimpleExtensionDeclaration>();
-    for (var e : funcMap.forwardMap.entrySet()) {
-      SimpleExtensionURI uri =
+    final var extensionList = new ArrayList<SimpleExtensionDeclaration>();
+    for (final var e : funcMap.forwardMap.entrySet()) {
+      final SimpleExtensionURI uri =
           uris.computeIfAbsent(
               e.getValue().namespace(),
               k ->
@@ -81,7 +81,7 @@ public class ExtensionCollector extends AbstractExtensionLookup {
                       .setExtensionUriAnchor(uriPos.getAndIncrement())
                       .setUri(k)
                       .build());
-      var decl =
+      final var decl =
           SimpleExtensionDeclaration.newBuilder()
               .setExtensionFunction(
                   SimpleExtensionDeclaration.ExtensionFunction.newBuilder()
@@ -91,8 +91,8 @@ public class ExtensionCollector extends AbstractExtensionLookup {
               .build();
       extensionList.add(decl);
     }
-    for (var e : typeMap.forwardMap.entrySet()) {
-      SimpleExtensionURI uri =
+    for (final var e : typeMap.forwardMap.entrySet()) {
+      final SimpleExtensionURI uri =
           uris.computeIfAbsent(
               e.getValue().namespace(),
               k ->
@@ -100,7 +100,7 @@ public class ExtensionCollector extends AbstractExtensionLookup {
                       .setExtensionUriAnchor(uriPos.getAndIncrement())
                       .setUri(k)
                       .build());
-      var decl =
+      final var decl =
           SimpleExtensionDeclaration.newBuilder()
               .setExtensionType(
                   SimpleExtensionDeclaration.ExtensionType.newBuilder()
@@ -123,20 +123,20 @@ public class ExtensionCollector extends AbstractExtensionLookup {
     private final Map<T1, T2> forwardMap;
     private final Map<T2, T1> reverseMap;
 
-    public BidiMap(Map<T1, T2> forwardMap) {
+    public BidiMap(final Map<T1, T2> forwardMap) {
       this.forwardMap = forwardMap;
       this.reverseMap = new HashMap<>();
     }
 
-    public T2 get(T1 t1) {
+    public T2 get(final T1 t1) {
       return forwardMap.get(t1);
     }
 
-    public T1 reverseGet(T2 t2) {
+    public T1 reverseGet(final T2 t2) {
       return reverseMap.get(t2);
     }
 
-    public void put(T1 t1, T2 t2) {
+    public void put(final T1 t1, final T2 t2) {
       forwardMap.put(t1, t2);
       reverseMap.put(t2, t1);
     }

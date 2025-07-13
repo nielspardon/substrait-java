@@ -20,7 +20,7 @@ public interface ParameterizedType extends TypeExpression {
 
   <R, E extends Throwable> R accept(final TypeVisitor<R, E> typeVisitor) throws E;
 
-  public static ParameterizedTypeCreator withNullability(boolean nullable) {
+  public static ParameterizedTypeCreator withNullability(final boolean nullable) {
     return nullable ? ParameterizedTypeCreator.NULLABLE : ParameterizedTypeCreator.REQUIRED;
   }
 

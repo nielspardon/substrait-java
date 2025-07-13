@@ -11,7 +11,7 @@ import io.substrait.relation.RelProtoConverter;
  */
 public class EmptyOptimization implements Extension.Optimization {
   @Override
-  public Any toProto(RelProtoConverter converter) {
+  public Any toProto(final RelProtoConverter converter) {
     return com.google.protobuf.Any.pack(com.google.protobuf.Empty.getDefaultInstance());
   }
 }

@@ -21,26 +21,26 @@ public class ProtoPlanConverter {
     this(SimpleExtension.loadDefaults());
   }
 
-  public ProtoPlanConverter(SimpleExtension.ExtensionCollection extensionCollection) {
+  public ProtoPlanConverter(final SimpleExtension.ExtensionCollection extensionCollection) {
     this.extensionCollection = extensionCollection;
   }
 
   /** Override hook for providing custom {@link ProtoRelConverter} implementations */
-  protected ProtoRelConverter getProtoRelConverter(ExtensionLookup functionLookup) {
+  protected ProtoRelConverter getProtoRelConverter(final ExtensionLookup functionLookup) {
     return new ProtoRelConverter(functionLookup, this.extensionCollection);
   }
 
-  public Plan from(io.substrait.proto.Plan plan) {
-    ExtensionLookup functionLookup = ImmutableExtensionLookup.builder().from(plan).build();
-    ProtoRelConverter relConverter = getProtoRelConverter(functionLookup);
-    List<Plan.Root> roots = new ArrayList<>();
-    for (PlanRel planRel : plan.getRelationsList()) {
-      io.substrait.proto.RelRoot root = planRel.getRoot();
-      Rel rel = relConverter.from(root.getInput());
+  public Plan from(final io.substrait.proto.Plan plan) {
+    final ExtensionLookup functionLookup = ImmutableExtensionLookup.builder().from(plan).build();
+    final ProtoRelConverter relConverter = getProtoRelConverter(functionLookup);
+    final List<Plan.Root> roots = new ArrayList<>();
+    for (final PlanRel planRel : plan.getRelationsList()) {
+      final io.substrait.proto.RelRoot root = planRel.getRoot();
+      final Rel rel = relConverter.from(root.getInput());
       roots.add(Plan.Root.builder().input(rel).names(root.getNamesList()).build());
     }
 
-    ImmutableVersion.Builder versionBuilder =
+    final ImmutableVersion.Builder versionBuilder =
         ImmutableVersion.builder()
             .major(plan.getVersion().getMajorNumber())
             .minor(plan.getVersion().getMinorNumber())

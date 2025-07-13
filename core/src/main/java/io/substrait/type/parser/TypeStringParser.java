@@ -17,35 +17,37 @@ public class TypeStringParser {
 
   private TypeStringParser() {}
 
-  public static Type parseSimple(String str, String namespace) {
+  public static Type parseSimple(final String str, final String namespace) {
     return parse(str, namespace, ParseToPojo::type);
   }
 
-  public static ParameterizedType parseParameterized(String str, String namespace) {
+  public static ParameterizedType parseParameterized(final String str, final String namespace) {
     return parse(str, namespace, ParseToPojo::parameterizedType);
   }
 
-  public static TypeExpression parseExpression(String str, String namespace) {
+  public static TypeExpression parseExpression(final String str, final String namespace) {
     return parse(str, namespace, ParseToPojo::typeExpression);
   }
 
-  private static SubstraitTypeParser.StartContext parse(String str) {
-    var lexer = new SubstraitTypeLexer(CharStreams.fromString(str));
+  private static SubstraitTypeParser.StartContext parse(final String str) {
+    final var lexer = new SubstraitTypeLexer(CharStreams.fromString(str));
     lexer.removeErrorListeners();
     lexer.addErrorListener(TypeErrorListener.INSTANCE);
-    var tokenStream = new CommonTokenStream(lexer);
-    var parser = new io.substrait.type.SubstraitTypeParser(tokenStream);
+    final var tokenStream = new CommonTokenStream(lexer);
+    final var parser = new io.substrait.type.SubstraitTypeParser(tokenStream);
     parser.removeErrorListeners();
     parser.addErrorListener(TypeErrorListener.INSTANCE);
     return parser.start();
   }
 
   public static <T> T parse(
-      String str, String namespace, BiFunction<String, SubstraitTypeParser.StartContext, T> func) {
+      final String str,
+      final String namespace,
+      final BiFunction<String, SubstraitTypeParser.StartContext, T> func) {
     return func.apply(namespace, parse(str));
   }
 
-  public static TypeExpression parse(String str, ParseToPojo.Visitor visitor) {
+  public static TypeExpression parse(final String str, final ParseToPojo.Visitor visitor) {
     return parse(str).accept(visitor);
   }
 

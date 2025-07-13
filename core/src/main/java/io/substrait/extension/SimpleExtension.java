@@ -37,8 +37,8 @@ public class SimpleExtension {
   // Key for looking up URI in InjectableValues
   public static final String URI_LOCATOR_KEY = "uri";
 
-  private static ObjectMapper objectMapper(String namespace) {
-    InjectableValues.Std iv = new InjectableValues.Std();
+  private static ObjectMapper objectMapper(final String namespace) {
+    final InjectableValues.Std iv = new InjectableValues.Std();
     iv.addValue(URI_LOCATOR_KEY, namespace);
 
     return new ObjectMapper(new YAMLFactory())
@@ -182,7 +182,7 @@ public class SimpleExtension {
 
   @Value.Immutable
   public interface FunctionAnchor extends Anchor {
-    static FunctionAnchor of(String namespace, String key) {
+    static FunctionAnchor of(final String namespace, final String key) {
       return ImmutableSimpleExtension.FunctionAnchor.builder()
           .namespace(namespace)
           .key(key)
@@ -192,7 +192,7 @@ public class SimpleExtension {
 
   @Value.Immutable
   public interface TypeAnchor extends Anchor {
-    static TypeAnchor of(String namespace, String name) {
+    static TypeAnchor of(final String namespace, final String name) {
       return ImmutableSimpleExtension.TypeAnchor.builder().namespace(namespace).key(name).build();
     }
   }
@@ -277,25 +277,25 @@ public class SimpleExtension {
             });
 
     public static String constructKeyFromTypes(
-        String name, List<io.substrait.type.Type> arguments) {
+        final String name, final List<io.substrait.type.Type> arguments) {
       try {
         return name
             + ":"
             + arguments.stream()
                 .map(t -> t.accept(ToTypeString.INSTANCE))
                 .collect(Collectors.joining("_"));
-      } catch (UnsupportedOperationException ex) {
+      } catch (final UnsupportedOperationException ex) {
         throw new UnsupportedOperationException(
             String.format("Failure converting types of function %s.", name), ex);
       }
     }
 
-    public static String constructKey(String name, List<Argument> arguments) {
+    public static String constructKey(final String name, final List<Argument> arguments) {
       try {
         return name
             + ":"
             + arguments.stream().map(Argument::toTypeString).collect(Collectors.joining("_"));
-      } catch (UnsupportedOperationException ex) {
+      } catch (final UnsupportedOperationException ex) {
         throw new UnsupportedOperationException(
             String.format("Failure converting types of function %s.", name), ex);
       }
@@ -304,13 +304,13 @@ public class SimpleExtension {
     public Util.IntRange getRange() {
       // end range is exclusive so add one to size.
 
-      long optionalCount = args().stream().filter(t -> !t.required()).count();
-      int max =
+      final long optionalCount = args().stream().filter(t -> !t.required()).count();
+      final int max =
           variadic()
               .map(
                   t -> {
-                    OptionalInt optionalMax = t.getMax();
-                    IntStream stream =
+                    final OptionalInt optionalMax = t.getMax();
+                    final IntStream stream =
                         optionalMax.isPresent()
                             ? IntStream.of(optionalMax.getAsInt())
                             : IntStream.empty();
@@ -320,13 +320,13 @@ public class SimpleExtension {
                         .orElse(Integer.MAX_VALUE);
                   })
               .orElse(args().size() + 1);
-      int min =
+      final int min =
           variadic().map(t -> args().size() - 1 + t.getMin()).orElse(requiredArguments().size());
       return Util.IntRange.of(min, max);
     }
 
     public void validateOutputType(
-        List<Expression> argumentExpressions, io.substrait.type.Type outputType) {
+        final List<Expression> argumentExpressions, final io.substrait.type.Type outputType) {
       // TODO: support advanced output type validation using return expressions, parameters, etc.
       // The code below was too restrictive in the case of nullability conversion.
       return;
@@ -345,7 +345,7 @@ public class SimpleExtension {
       return keySupplier.get();
     }
 
-    public io.substrait.type.Type resolveType(List<io.substrait.type.Type> argumentTypes) {
+    public io.substrait.type.Type resolveType(final List<io.substrait.type.Type> argumentTypes) {
       return TypeExpressionEvaluator.evaluateExpression(returnType(), args(), argumentTypes);
     }
   }
@@ -361,7 +361,7 @@ public class SimpleExtension {
 
     public abstract List<ScalarFunctionVariant> impls();
 
-    public Stream<ScalarFunctionVariant> resolve(String uri) {
+    public Stream<ScalarFunctionVariant> resolve(final String uri) {
       return impls().stream().map(f -> f.resolve(uri, name(), description()));
     }
   }
@@ -370,7 +370,8 @@ public class SimpleExtension {
   @JsonSerialize(as = ImmutableSimpleExtension.ScalarFunctionVariant.class)
   @Value.Immutable
   public abstract static class ScalarFunctionVariant extends Function {
-    public ScalarFunctionVariant resolve(String uri, String name, String description) {
+    public ScalarFunctionVariant resolve(
+        final String uri, final String name, final String description) {
       return ImmutableSimpleExtension.ScalarFunctionVariant.builder()
           .uri(uri)
           .name(name)
@@ -397,7 +398,7 @@ public class SimpleExtension {
 
     public abstract List<AggregateFunctionVariant> impls();
 
-    public Stream<AggregateFunctionVariant> resolve(String uri) {
+    public Stream<AggregateFunctionVariant> resolve(final String uri) {
       return impls().stream().map(f -> f.resolve(uri, name(), description()));
     }
   }
@@ -414,7 +415,7 @@ public class SimpleExtension {
 
     public abstract List<WindowFunctionVariant> impls();
 
-    public Stream<WindowFunctionVariant> resolve(String uri) {
+    public Stream<WindowFunctionVariant> resolve(final String uri) {
       return impls().stream().map(f -> f.resolve(uri, name(), description()));
     }
 
@@ -441,7 +442,8 @@ public class SimpleExtension {
     @Nullable
     public abstract TypeExpression intermediate();
 
-    AggregateFunctionVariant resolve(String uri, String name, String description) {
+    AggregateFunctionVariant resolve(
+        final String uri, final String name, final String description) {
       return ImmutableSimpleExtension.AggregateFunctionVariant.builder()
           .uri(uri)
           .name(name)
@@ -483,7 +485,7 @@ public class SimpleExtension {
       return super.toString();
     }
 
-    WindowFunctionVariant resolve(String uri, String name, String description) {
+    WindowFunctionVariant resolve(final String uri, final String name, final String description) {
       return ImmutableSimpleExtension.WindowFunctionVariant.builder()
           .uri(uri)
           .name(name)
@@ -548,7 +550,7 @@ public class SimpleExtension {
           + (windows() == null ? 0 : windows().size());
     }
 
-    public Stream<SimpleExtension.Function> resolve(String uri) {
+    public Stream<SimpleExtension.Function> resolve(final String uri) {
       return Stream.concat(
           Stream.concat(
               scalars() == null ? Stream.of() : scalars().stream().flatMap(f -> f.resolve(uri)),
@@ -618,8 +620,8 @@ public class SimpleExtension {
                           Function::getAnchor, java.util.function.Function.identity()));
             });
 
-    public Type getType(TypeAnchor anchor) {
-      Type type = typeLookup.get().get(anchor);
+    public Type getType(final TypeAnchor anchor) {
+      final Type type = typeLookup.get().get(anchor);
       if (type != null) {
         return type;
       }
@@ -630,8 +632,8 @@ public class SimpleExtension {
               anchor.key(), anchor.namespace()));
     }
 
-    public ScalarFunctionVariant getScalarFunction(FunctionAnchor anchor) {
-      ScalarFunctionVariant variant = scalarFunctionsLookup.get().get(anchor);
+    public ScalarFunctionVariant getScalarFunction(final FunctionAnchor anchor) {
+      final ScalarFunctionVariant variant = scalarFunctionsLookup.get().get(anchor);
       if (variant != null) {
         return variant;
       }
@@ -643,7 +645,7 @@ public class SimpleExtension {
               anchor.key(), anchor.namespace()));
     }
 
-    private void checkNamespace(String name) {
+    private void checkNamespace(final String name) {
       if (namespaceSupplier.get().contains(name)) {
         return;
       }
@@ -655,8 +657,8 @@ public class SimpleExtension {
               name));
     }
 
-    public AggregateFunctionVariant getAggregateFunction(FunctionAnchor anchor) {
-      var variant = aggregateFunctionsLookup.get().get(anchor);
+    public AggregateFunctionVariant getAggregateFunction(final FunctionAnchor anchor) {
+      final var variant = aggregateFunctionsLookup.get().get(anchor);
       if (variant != null) {
         return variant;
       }
@@ -669,8 +671,8 @@ public class SimpleExtension {
               anchor.key(), anchor.namespace()));
     }
 
-    public WindowFunctionVariant getWindowFunction(FunctionAnchor anchor) {
-      var variant = windowFunctionsLookup.get().get(anchor);
+    public WindowFunctionVariant getWindowFunction(final FunctionAnchor anchor) {
+      final var variant = windowFunctionsLookup.get().get(anchor);
       if (variant != null) {
         return variant;
       }
@@ -682,7 +684,7 @@ public class SimpleExtension {
               anchor.key(), anchor.namespace()));
     }
 
-    public ExtensionCollection merge(ExtensionCollection extensionCollection) {
+    public ExtensionCollection merge(final ExtensionCollection extensionCollection) {
       return ImmutableSimpleExtension.ExtensionCollection.builder()
           .addAllAggregateFunctions(aggregateFunctions())
           .addAllAggregateFunctions(extensionCollection.aggregateFunctions())
@@ -697,7 +699,7 @@ public class SimpleExtension {
   }
 
   public static ExtensionCollection loadDefaults() {
-    var defaultFiles =
+    final var defaultFiles =
         Arrays.asList(
                 "boolean",
                 "aggregate_generic",
@@ -717,18 +719,18 @@ public class SimpleExtension {
     return load(defaultFiles);
   }
 
-  public static ExtensionCollection load(List<String> resourcePaths) {
+  public static ExtensionCollection load(final List<String> resourcePaths) {
     if (resourcePaths.isEmpty()) {
       throw new IllegalArgumentException("Require at least one resource path.");
     }
 
-    var extensions =
+    final var extensions =
         resourcePaths.stream()
             .map(
                 path -> {
                   try (var stream = ExtensionCollection.class.getResourceAsStream(path)) {
                     return load(path, stream);
-                  } catch (IOException e) {
+                  } catch (final IOException e) {
                     throw new RuntimeException(e);
                   }
                 })
@@ -740,43 +742,43 @@ public class SimpleExtension {
     return complete;
   }
 
-  public static ExtensionCollection load(String namespace, String str) {
+  public static ExtensionCollection load(final String namespace, final String str) {
     try {
-      var doc = objectMapper(namespace).readValue(str, ExtensionSignatures.class);
+      final var doc = objectMapper(namespace).readValue(str, ExtensionSignatures.class);
       return buildExtensionCollection(namespace, doc);
-    } catch (JsonProcessingException e) {
+    } catch (final JsonProcessingException e) {
       throw new RuntimeException(e);
     }
   }
 
-  public static ExtensionCollection load(String namespace, InputStream stream) {
+  public static ExtensionCollection load(final String namespace, final InputStream stream) {
     try {
-      var doc = objectMapper(namespace).readValue(stream, ExtensionSignatures.class);
+      final var doc = objectMapper(namespace).readValue(stream, ExtensionSignatures.class);
       return buildExtensionCollection(namespace, doc);
-    } catch (RuntimeException ex) {
+    } catch (final RuntimeException ex) {
       throw ex;
-    } catch (Exception ex) {
+    } catch (final Exception ex) {
       throw new RuntimeException("Failure while parsing " + namespace, ex);
     }
   }
 
   public static ExtensionCollection buildExtensionCollection(
-      String namespace, ExtensionSignatures extensionSignatures) {
-    List<ScalarFunctionVariant> scalarFunctionVariants =
+      final String namespace, final ExtensionSignatures extensionSignatures) {
+    final List<ScalarFunctionVariant> scalarFunctionVariants =
         extensionSignatures.scalars().stream()
             .flatMap(t -> t.resolve(namespace))
             .collect(java.util.stream.Collectors.toList());
 
-    List<AggregateFunctionVariant> aggregateFunctionVariants =
+    final List<AggregateFunctionVariant> aggregateFunctionVariants =
         extensionSignatures.aggregates().stream()
             .flatMap(t -> t.resolve(namespace))
             .collect(java.util.stream.Collectors.toList());
 
-    Stream<WindowFunctionVariant> windowFunctionVariants =
+    final Stream<WindowFunctionVariant> windowFunctionVariants =
         extensionSignatures.windows().stream().flatMap(t -> t.resolve(namespace));
 
     // Aggregate functions can be used as Window Functions
-    Stream<WindowFunctionVariant> windowAggFunctionVariants =
+    final Stream<WindowFunctionVariant> windowAggFunctionVariants =
         aggregateFunctionVariants.stream()
             .map(
                 afi ->
@@ -790,11 +792,11 @@ public class SimpleExtension {
                         .windowType(SimpleExtension.WindowType.STREAMING)
                         .build());
 
-    List<WindowFunctionVariant> allWindowFunctionVariants =
+    final List<WindowFunctionVariant> allWindowFunctionVariants =
         Stream.concat(windowFunctionVariants, windowAggFunctionVariants)
             .collect(Collectors.toList());
 
-    var collection =
+    final var collection =
         ImmutableSimpleExtension.ExtensionCollection.builder()
             .scalarFunctions(scalarFunctionVariants)
             .aggregateFunctions(aggregateFunctionVariants)

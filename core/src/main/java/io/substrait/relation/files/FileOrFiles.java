@@ -31,25 +31,26 @@ public interface FileOrFiles {
   }
 
   default ReadRel.LocalFiles.FileOrFiles toProto() {
-    ReadRel.LocalFiles.FileOrFiles.Builder builder = ReadRel.LocalFiles.FileOrFiles.newBuilder();
+    final ReadRel.LocalFiles.FileOrFiles.Builder builder =
+        ReadRel.LocalFiles.FileOrFiles.newBuilder();
 
     getFileFormat()
         .ifPresent(
             fileFormat -> {
-              if (fileFormat instanceof FileFormat.ParquetReadOptions options) {
+              if (fileFormat instanceof final FileFormat.ParquetReadOptions options) {
                 builder.setParquet(
                     ReadRel.LocalFiles.FileOrFiles.ParquetReadOptions.newBuilder().build());
-              } else if (fileFormat instanceof FileFormat.ArrowReadOptions options) {
+              } else if (fileFormat instanceof final FileFormat.ArrowReadOptions options) {
                 builder.setArrow(
                     ReadRel.LocalFiles.FileOrFiles.ArrowReadOptions.newBuilder().build());
-              } else if (fileFormat instanceof FileFormat.OrcReadOptions options) {
+              } else if (fileFormat instanceof final FileFormat.OrcReadOptions options) {
                 builder.setOrc(ReadRel.LocalFiles.FileOrFiles.OrcReadOptions.newBuilder().build());
-              } else if (fileFormat instanceof FileFormat.DwrfReadOptions options) {
+              } else if (fileFormat instanceof final FileFormat.DwrfReadOptions options) {
                 builder.setDwrf(
                     ReadRel.LocalFiles.FileOrFiles.DwrfReadOptions.newBuilder().build());
               } else if (fileFormat
-                  instanceof FileFormat.DelimiterSeparatedTextReadOptions options) {
-                var optionsBuilder =
+                  instanceof final FileFormat.DelimiterSeparatedTextReadOptions options) {
+                final var optionsBuilder =
                     ReadRel.LocalFiles.FileOrFiles.DelimiterSeparatedTextReadOptions.newBuilder()
                         .setFieldDelimiter(options.getFieldDelimiter())
                         .setMaxLineSize(options.getMaxLineSize())
@@ -58,7 +59,7 @@ public interface FileOrFiles {
                         .setEscape(options.getEscape());
                 options.getValueTreatedAsNull().ifPresent(optionsBuilder::setValueTreatedAsNull);
                 builder.setText(optionsBuilder.build());
-              } else if (fileFormat instanceof FileFormat.Extension options) {
+              } else if (fileFormat instanceof final FileFormat.Extension options) {
                 builder.setExtension(options.getExtension());
               } else {
                 throw new UnsupportedOperationException(

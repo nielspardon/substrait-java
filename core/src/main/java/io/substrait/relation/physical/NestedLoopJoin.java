@@ -29,9 +29,9 @@ public abstract class NestedLoopJoin extends BiRel implements HasExtension {
     LEFT_ANTI(NestedLoopJoinRel.JoinType.JOIN_TYPE_LEFT_ANTI),
     RIGHT_ANTI(NestedLoopJoinRel.JoinType.JOIN_TYPE_RIGHT_ANTI);
 
-    private NestedLoopJoinRel.JoinType proto;
+    private final NestedLoopJoinRel.JoinType proto;
 
-    JoinType(NestedLoopJoinRel.JoinType proto) {
+    JoinType(final NestedLoopJoinRel.JoinType proto) {
       this.proto = proto;
     }
 
@@ -39,8 +39,8 @@ public abstract class NestedLoopJoin extends BiRel implements HasExtension {
       return proto;
     }
 
-    public static JoinType fromProto(NestedLoopJoinRel.JoinType proto) {
-      for (var v : values()) {
+    public static JoinType fromProto(final NestedLoopJoinRel.JoinType proto) {
+      for (final var v : values()) {
         if (v.proto == proto) {
           return v;
         }
@@ -52,14 +52,14 @@ public abstract class NestedLoopJoin extends BiRel implements HasExtension {
 
   @Override
   protected Type.Struct deriveRecordType() {
-    Stream<Type> leftTypes =
+    final Stream<Type> leftTypes =
         switch (getJoinType()) {
           case RIGHT, OUTER -> getLeft().getRecordType().fields().stream()
               .map(TypeCreator::asNullable);
           case RIGHT_ANTI, RIGHT_SEMI -> Stream.empty();
           default -> getLeft().getRecordType().fields().stream();
         };
-    Stream<Type> rightTypes =
+    final Stream<Type> rightTypes =
         switch (getJoinType()) {
           case LEFT, OUTER -> getRight().getRecordType().fields().stream()
               .map(TypeCreator::asNullable);
@@ -71,7 +71,7 @@ public abstract class NestedLoopJoin extends BiRel implements HasExtension {
 
   @Override
   public <O, C extends VisitationContext, E extends Exception> O accept(
-      RelVisitor<O, C, E> visitor, C context) throws E {
+      final RelVisitor<O, C, E> visitor, final C context) throws E {
     return visitor.visit(this, context);
   }
 
