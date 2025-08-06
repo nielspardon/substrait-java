@@ -46,8 +46,8 @@ dependencies {
         "calcite-core brings in commons-lang:commons-lang:2.4 which has a security vulnerability"
       )
   }
-  annotationProcessor("com.github.bsideup.jabel:jabel-javac-plugin:0.4.2")
-  compileOnly("com.github.bsideup.jabel:jabel-javac-plugin:0.4.2")
+  annotationProcessor("com.github.bsideup.jabel:jabel-javac-plugin:1.0.0")
+  compileOnly("com.github.bsideup.jabel:jabel-javac-plugin:1.0.0")
   runtimeOnly("org.slf4j:slf4j-jdk14:${SLF4J_VERSION}")
 }
 
