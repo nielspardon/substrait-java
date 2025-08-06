@@ -29,7 +29,7 @@ dependencies {
   testImplementation(platform("org.junit:junit-bom:${JUNIT_VERSION}"))
   testImplementation("org.junit.jupiter:junit-jupiter")
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-  implementation("org.reflections:reflections:0.9.12")
+  implementation("org.reflections:reflections:0.10.2")
   implementation("com.google.guava:guava:${GUAVA_VERSION}")
   implementation("org.graalvm.sdk:graal-sdk:22.1.0")
   implementation("info.picocli:picocli:4.7.5")
