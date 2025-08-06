@@ -4,7 +4,7 @@ plugins {
   id("java")
   id("idea")
   id("com.palantir.graal") version "0.10.0"
-  id("com.diffplug.spotless") version "7.1.0"
+  id("com.diffplug.spotless") version "7.2.1"
   id("substrait.java-conventions")
 }
 

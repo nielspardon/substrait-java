@@ -8,7 +8,7 @@ plugins {
   id("java")
   id("idea")
   id("com.github.vlsi.gradle-extensions") version "1.74"
-  id("com.diffplug.spotless") version "7.1.0"
+  id("com.diffplug.spotless") version "7.2.1"
   id("org.jreleaser") version "1.18.0" apply false
 }
 

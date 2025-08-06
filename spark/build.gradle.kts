@@ -4,7 +4,7 @@ plugins {
   id("java-library")
   id("scala")
   id("idea")
-  id("com.diffplug.spotless") version "7.1.0"
+  id("com.diffplug.spotless") version "7.2.1"
   id("org.jreleaser")
   id("substrait.java-conventions")
 }
