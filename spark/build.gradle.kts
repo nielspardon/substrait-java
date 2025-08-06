@@ -122,8 +122,8 @@ dependencies {
   implementation("org.slf4j:slf4j-api:${SLF4J_VERSION}")
 
   testImplementation("org.scalatest:scalatest_2.12:3.2.18")
-  testRuntimeOnly("org.junit.platform:junit-platform-engine:1.10.0")
-  testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.10.0")
+  testRuntimeOnly("org.junit.platform:junit-platform-engine:1.13.4")
+  testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.13.4")
   testRuntimeOnly("org.scalatestplus:junit-5-10_2.12:3.2.18.0")
   testImplementation("org.apache.spark:spark-core_2.12:${SPARK_VERSION}:tests")
   testImplementation("org.apache.spark:spark-sql_2.12:${SPARK_VERSION}:tests")
