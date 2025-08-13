@@ -3,7 +3,7 @@ import java.nio.charset.StandardCharsets
 plugins {
   id("java")
   id("idea")
-  alias(libs.plugins.graal)
+  id("io.substrait.graal")
   alias(libs.plugins.spotless)
   id("substrait.java-conventions")
 }
