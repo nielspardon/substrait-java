@@ -26,12 +26,13 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
-@Testcontainers
+@Testcontainers(disabledWithoutDocker = true)
 class PostgreSqlIntegrationTest extends PlanTestBase {
   private static final Logger LOG = LoggerFactory.getLogger(PostgreSqlIntegrationTest.class);
 
+  /** PostgreSQL instance shared across all test methods in this class. */
   @Container
-  PostgreSQLContainer postgres =
+  private static final PostgreSQLContainer postgres =
       new PostgreSQLContainer("postgres:18")
           .withClasspathResourceMapping("tpch/data", "/tmp/tpc-h", BindMode.READ_ONLY)
           .withClasspathResourceMapping(
@@ -57,22 +58,23 @@ class PostgreSqlIntegrationTest extends PlanTestBase {
 
   @ParameterizedTest
   @MethodSource("tpcHTestCases")
-  void testTpcH(int queryNo)
+  void testTpcH(final int queryNo)
       throws NoDriverFoundException, SQLException, IOException, SqlParseException {
 
-    String inputSql = asString(String.format("tpch/queries/%02d.sql", queryNo));
-    SqlToSubstrait sqlToSubstrait = new SqlToSubstrait();
-    Plan plan = sqlToSubstrait.convert(inputSql, TPCH_CATALOG);
+    final String inputSql = asString(String.format("tpch/queries/%02d.sql", queryNo));
+    final SqlToSubstrait sqlToSubstrait = new SqlToSubstrait();
+    final Plan plan = sqlToSubstrait.convert(inputSql, TPCH_CATALOG);
 
-    SubstraitToSql substraitToSql = new SubstraitToSql(extensions);
+    final SubstraitToSql substraitToSql = new SubstraitToSql(extensions);
 
-    String generatedSql = substraitToSql.convert(plan, PostgresqlSqlDialect.DEFAULT).get(0);
+    final String generatedSql = substraitToSql.convert(plan, PostgresqlSqlDialect.DEFAULT).get(0);
 
-    String referenceSql = asString(String.format("tpch/postgresql/%02d.sql", queryNo));
+    final String referenceSql = asString(String.format("tpch/postgresql/%02d.sql", queryNo));
 
-    String compareSql = String.format(COMPARE_RESULTS_SQL_TEMPLATE, referenceSql, generatedSql);
+    final String compareSql =
+        String.format(COMPARE_RESULTS_SQL_TEMPLATE, referenceSql, generatedSql);
 
-    LOG.atInfo().log(compareSql);
+    LOG.atDebug().log(compareSql);
 
     try (Connection conn = postgres.createConnection("");
         Statement stmt = conn.createStatement();
