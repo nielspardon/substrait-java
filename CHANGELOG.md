@@ -1,6 +1,20 @@
 Release Notes
 ---
 
+## [0.80.0](https://github.com/substrait-io/substrait-java/compare/v0.79.0...v0.80.0) (2026-02-24)
+
+### ⚠ BREAKING CHANGES
+
+* removed FeatureBoard class
+* all constructors consuming a FeatureBoard have been
+removed
+* a number of methods/constructors have been replaced
+with ConverterProvider equivalents
+
+### Features
+
+* introduce ConverterProvider to control conversion behaviour ([#649](https://github.com/substrait-io/substrait-java/issues/649)) ([bb58d42](https://github.com/substrait-io/substrait-java/commit/bb58d4233abb21d87b7d89f6778e3fa5043fcb9b))
+
 ## [0.79.0](https://github.com/substrait-io/substrait-java/compare/v0.78.0...v0.79.0) (2026-02-22)
 
 ### Features
