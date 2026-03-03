@@ -155,6 +155,14 @@ public class ExpressionCreator {
         .build();
   }
 
+  public static Expression.PrecisionTimestampLiteral precisionTimestamp(
+      boolean nullable, LocalDateTime value) {
+    long epochMicro =
+        TimeUnit.SECONDS.toNanos(value.toEpochSecond(ZoneOffset.UTC))
+            + value.toLocalTime().getNano();
+    return precisionTimestamp(nullable, epochMicro, 9);
+  }
+
   public static Expression.PrecisionTimestampTZLiteral precisionTimestampTZ(
       boolean nullable, long value, int precision) {
     return Expression.PrecisionTimestampTZLiteral.builder()
