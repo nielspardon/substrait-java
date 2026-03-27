@@ -115,6 +115,10 @@ public class TypeCreator {
     return Type.UserDefined.builder().nullable(nullable).urn(urn).name(name).build();
   }
 
+  public Type userDefined(String urn, String name, Type.Parameter... typeParameters) {
+    return Type.UserDefined.builder().nullable(nullable).urn(urn).name(name).addTypeParameters(typeParameters).build();
+  }
+
   public static TypeCreator of(boolean nullability) {
     return nullability ? NULLABLE : REQUIRED;
   }
